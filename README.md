@@ -1,2 +1,2 @@
-# portfolio
+# portfolio - personal website
 (Under Construction)
