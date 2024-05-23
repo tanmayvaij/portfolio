@@ -1,21 +1,42 @@
-interface ProjectCardProps {
-  imageSource?: string;
-  title?: string;
-  description?: string;
-  projectPath?: string;
-}
-
-const ProjectCard: React.FC<ProjectCardProps> = () => {
+const ProjectCard = () => {
   return (
-    <div className=" flex mx-3 my-5 hover:scale-105 cursor-pointer">
-      <img className="rounded-xl w-40 h-48" src="bg.jpg" alt="" />
-      <div className="w-72 px-4 py-3">
-        <p className="font-semibold text-blue-900">Python Mail Sender</p>
-        <p className="mt-2 text-sm text-gray-500">
-          A simple mail sender, creating using python programming language for
-          sending automated mail to multiple clients with custom attachments
-        </p>
-        <p className="text-red-500 pt-3 pl-1 text-sm ">View Project</p>
+    <div className="bg-sky-500 row-span-1 col-span-2 flex items-center flex-col rounded-xl px-5 py-10 ">
+      <h2 className="text-2xl font-semibold mb-10 text-white">My Top Work</h2>
+
+      <div className="flex space-x-6">
+
+        <div className=" w-64 rounded-md overflow-hidden">
+          <img className="w-full h-36" src="https://www.projectmanager.com/wp-content/uploads/2022/09/Project-Management.png" alt="project" />
+          <div className="py-5 px-4 bg-white">
+            <h2 className="text-brand-main text-lg font-medium">
+              Oiconomos Website
+            </h2>
+            <p className="text-xs">Lorem ipsum dolor sit amet, Fuga earum atque et? Explicabo consequuntur</p>
+          </div>
+        </div>
+
+        <div className=" w-64 rounded-md overflow-hidden">
+          <img className="w-full h-36" src="https://www.projectmanager.com/wp-content/uploads/2022/09/Project-Management.png" alt="project" />
+          <div className="py-5 px-4 bg-white">
+            <h2 className="text-brand-main text-lg font-medium">
+              Oiconomos Website
+            </h2>
+            <p className="text-xs">Lorem ipsum dolor sit amet, Fuga earum atque et? Explicabo consequuntur</p>
+          </div>
+        </div>
+
+        <div className=" w-64 rounded-md overflow-hidden">
+          <img className="w-full h-36" src="https://www.projectmanager.com/wp-content/uploads/2022/09/Project-Management.png" alt="project" />
+          <div className="py-5 px-4 bg-white">
+            <h2 className="text-brand-main text-lg font-medium">
+              Oiconomos Website
+            </h2>
+            <p className="text-xs">Lorem ipsum dolor sit amet, Fuga earum atque et? Explicabo consequuntur</p>
+          </div>
+        </div>
+
+        
+
       </div>
     </div>
   );

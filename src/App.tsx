@@ -1,25 +1,25 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Blogs, Home, Projects, SingleBlog } from "./screens";
-import { Navbar, Footer } from "./components";
-import { navbarData } from "./data";
+import AboutMeCard from "./components/AboutMeCard";
+import ExpCard from "./components/ExpCard";
+import IdCard from "./components/IdCard";
+import ProjectCard from "./components/ProjectCard";
+import SkillCard from "./components/SkillCard";
 
 const App = () => {
   return (
-    <BrowserRouter>
-      <Navbar
-        data={navbarData}
-        imageSource="project.png"
-        contactLink="https://www.instagram.com/tech_monster_tony"
-        isFloating={true}
-      />
-      <Routes>
-        <Route path="/" Component={Home} />
-        <Route path="/blogs" Component={Blogs} />
-        <Route path="/blogs/:blogId" Component={SingleBlog} />
-        <Route path="/projects" Component={Projects} />
-      </Routes>
-      <Footer />
-    </BrowserRouter>
+    <div className="grid grid-cols-3 grid-rows-3 gap-3 p-5 bg-gray-950">
+      <IdCard />
+
+      
+      <AboutMeCard />
+
+      <SkillCard />
+
+      <ExpCard />
+
+      <ProjectCard />
+
+      
+    </div>
   );
 };
 
