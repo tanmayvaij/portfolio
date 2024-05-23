@@ -5,7 +5,7 @@ const ProjectCard = () => {
 
       <div className="flex flex-wrap justify-center gap-2">
 
-        <a href="https://oiconomos.com/" className=" w-64 rounded-md overflow-hidden">
+        <a target="_blank" href="https://oiconomos.com/" className=" w-64 rounded-md overflow-hidden">
           <img className="w-full h-36" src="website.jpg" alt="project" />
           <div className="py-5 px-4 bg-white">
             <h2 className="text-brand-main text-lg font-medium">
@@ -19,7 +19,7 @@ const ProjectCard = () => {
           </div>
         </a>
 
-        <a href="https://play.google.com/store/apps/details?id=com.systemonsilicon.agrotick&hl=es" className=" w-64 rounded-md overflow-hidden">
+        <a target="_blank" href="https://play.google.com/store/apps/details?id=com.systemonsilicon.agrotick&hl=es" className=" w-64 rounded-md overflow-hidden">
           <img className="w-full h-36" src="agro.jpeg" alt="project" />
           <div className="py-5 px-4 bg-white">
             <h2 className="text-brand-main text-lg font-medium">AgroTick</h2>
@@ -32,7 +32,7 @@ const ProjectCard = () => {
           </div>
         </a>
 
-        <a href="https://buddy-social-media.netlify.app" className="w-64 rounded-md overflow-hidden">
+        <a target="_blank" href="https://buddy-social-media.netlify.app" className="w-64 rounded-md overflow-hidden">
           <img className="w-full h-36" src="blog.webp" alt="project" />
           <div className="py-5 px-4 bg-white">
             <h2 className="text-brand-main text-lg font-medium">

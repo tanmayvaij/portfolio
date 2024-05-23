@@ -1,9 +1,4 @@
-import {
-  FaPhoneAlt,
-  FaInstagram,
-  FaGithub,
-  FaLinkedin,
-} from "react-icons/fa";
+import { FaPhoneAlt, FaInstagram, FaGithub, FaLinkedin } from "react-icons/fa";
 import { SiMaildotru, SiGooglemaps } from "react-icons/si";
 
 const IdCard = () => {
@@ -46,9 +41,15 @@ const IdCard = () => {
         <h4 className=" text-2xl font-medium text-center">Let's Connect</h4>
 
         <div className="flex items-center justify-center space-x-3 pt-5">
-          <FaInstagram className="text-3xl text-pink-500" />
-          <FaLinkedin className="text-3xl text-blue-700" />
-          <FaGithub className="text-3xl" />
+          <a target="_blank" href="https://www.instagram.com/tanmayvaij/">
+            <FaInstagram className="text-3xl text-pink-500" />
+          </a>
+          <a target="_blank" href="https://www.linkedin.com/in/tanmayvaij/">
+            <FaLinkedin className="text-3xl text-blue-700" />
+          </a>
+          <a target="_blank" href="https://github.com/tanmayvaij/">
+            <FaGithub className="text-3xl" />
+          </a>
         </div>
       </div>
     </div>
