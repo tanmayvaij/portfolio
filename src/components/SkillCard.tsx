@@ -29,7 +29,7 @@ const SkillCard = () => {
   ];
 
   return (
-    <div className="bg-gray-900 text-white row-span-1 col-span-1 flex items-center flex-col rounded-xl px-5 py-10 ">
+    <div className="bg-gray-900 text-white xl:row-span-1 xl:col-span-1 flex items-center flex-col rounded-xl px-5 py-10 ">
       <h2 className="text-2xl font-semibold mb-10 ">What I know</h2>
 
       <div className="flex flex-wrap gap-1">
