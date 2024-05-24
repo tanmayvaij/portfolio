@@ -6,7 +6,7 @@ import SkillCard from "./components/SkillCard";
 
 const App = () => {
   return (
-    <div className="grid lg:grid-cols-2 xl:grid-cols-3 xl:grid-rows-3 gap-3 p-5 bg-gray-950">
+    <div className="grid lg:grid-cols-2 xl:grid-cols-3 xl:grid-rows-3 gap-8 p-5 bg-gray-950">
       <IdCard />
 
       
