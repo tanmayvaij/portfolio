@@ -1,4 +1,6 @@
-const SkillCard = () => {
+import SkillTag from "./SkillTag";
+
+const SkillCard: React.FC<SkillCardProps> = () => {
   const skills = [
     "React.js",
     "React Native",
@@ -33,13 +35,9 @@ const SkillCard = () => {
       <h2 className="text-2xl font-semibold mb-10 ">What I know</h2>
 
       <div className="flex flex-wrap gap-1">
-        {skills.map((skill, id) => {
-          return (
-            <span className="text-xs border border-blue-500 rounded-md p-2 bg-gray-800" key={`${id}-${skill}`}>
-              {skill}
-            </span>
-          );
-        })}
+        {skills.map((skill, id) => (
+          <SkillTag key={`${skill}-${id}`} skill={skill} />
+        ))}
       </div>
     </div>
   );

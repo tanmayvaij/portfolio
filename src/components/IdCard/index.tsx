@@ -1,19 +1,6 @@
 import { FaPhoneAlt, FaInstagram, FaGithub, FaLinkedin } from "react-icons/fa";
 import { SiMaildotru, SiGooglemaps } from "react-icons/si";
 
-interface IdCardProps {
-  profileImageLink: string
-  fullName: string
-  roleImage: string
-  role: string
-  phoneNumber: string
-  emailAddress: string
-  address: string
-  instagramLink: string
-  githubLink: string
-  linkedinLink: string
-}
-
 const IdCard: React.FC<IdCardProps> = () => {
   return (
     <div className="xl:row-span-2 xl:col-span-1 flex items-center flex-col rounded-xl px-5 py-10 bg-white">

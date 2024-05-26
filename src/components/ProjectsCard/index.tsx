@@ -1,28 +1,4 @@
-interface SingleProjectProps {
-  projectLink: string;
-  projectTitle: string;
-  projectDescription: string;
-}
-
-const SingleProject: React.FC<SingleProjectProps> = ({
-  projectDescription,
-  projectLink,
-  projectTitle,
-}) => {
-  return (
-    <a
-      target="_blank"
-      href={projectLink}
-      className=" w-64 rounded-md overflow-hidden"
-    >
-      <img className="w-full h-36" src="website.jpg" alt="project" />
-      <div className="py-5 px-4 bg-white">
-        <h2 className="text-brand-main text-lg font-medium">{projectTitle}</h2>
-        <p className="text-xs">{projectDescription}</p>
-      </div>
-    </a>
-  );
-};
+import SingleProject from "./SingleProject";
 
 const projects: SingleProjectProps[] = [
   {
@@ -46,7 +22,7 @@ const projects: SingleProjectProps[] = [
   },
 ];
 
-const ProjectsCard = () => {
+const ProjectsCard: React.FC<ProjectsCardProps> = () => {
   return (
     <div className="bg-sky-500 lg:col-span-2 xl:row-span-1 xl:col-span-2 flex items-center flex-col rounded-xl px-5 py-10 ">
       <h2 className="text-2xl font-semibold mb-10 text-white">My Top Work</h2>
