@@ -1,3 +1,4 @@
+// Props for IdCard component
 interface IdCardProps {
   profileImageLink: string;
   fullName: string;
@@ -11,11 +12,13 @@ interface IdCardProps {
   linkedinLink: string;
 }
 
+// Props for AboutMeCard component
 interface AboutMeProps {
   sectionTitle: string;
   content: string[];
 }
 
+// Props for SkillsCard components
 interface SkillCardProps {
   sectionTitle: string;
   skills: string[];
@@ -23,6 +26,12 @@ interface SkillCardProps {
 
 interface SkillTagProps {
   skill: string;
+}
+
+// Props for ExpEduCard component
+interface ExpEduCardProps {
+  experiences: ExpCardProps[];
+  education: EduCardProps[];
 }
 
 interface ExpCardProps {
@@ -42,10 +51,12 @@ interface EduCardProps {
   endYear: string;
 }
 
+// Props for ProjectsCard component
 interface SingleProjectProps {
   projectLink: string;
   projectTitle: string;
   projectDescription: string;
+  projectImage: string;
 }
 
 interface ProjectsCardProps {
