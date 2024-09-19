@@ -76,7 +76,8 @@ export const expEduCardData: ExpEduCardProps = {
   education: [
     {
       institueLogo: "dypimcam_logo.png",
-      instituteName: "D. Y. Patil Institute of Master of Computer Applications and Management",
+      instituteName:
+        "D. Y. Patil Institute of Master of Computer Applications and Management",
       education: "Master of Computer Application (MCA)",
       startYear: "2024",
       endYear: "2026",

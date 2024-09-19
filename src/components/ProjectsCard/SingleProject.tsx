@@ -2,7 +2,7 @@ const SingleProject: React.FC<SingleProjectProps> = ({
   projectDescription,
   projectLink,
   projectTitle,
-  projectImage
+  projectImage,
 }) => {
   return (
     <a
