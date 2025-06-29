@@ -149,4 +149,22 @@ export const projects: ProjectCard[] = [
     category: "mobile",
     image: "/projects/expense-divider.jpg",
   },
+  {
+    title: "ContainRX",
+    description:
+      "ContainRX is an open-source, modular, and self-hosted web-based application that provides developers, DevOps engineers, and system administrators with an intuitive interface for managing containerized applications.",
+    tech: ["React", "Docker", "Express.js"],
+    github: "https://github.com/shaasium/containrx",
+    category: "fullstack",
+    image: "/projects/containrx.jpg",
+  },
+    {
+    title: "ReadersDen",
+    description:
+      "ReadersDen is a full-stack MERN (MongoDB, Express, React, Node.js) application for book sharing and discovery.",
+    tech: ["React", "MongoDB", "Express.js"],
+    github: "https://github.com/tanmayvaij/readersden-stack",
+    category: "fullstack",
+    image: "/projects/readersden.jpg",
+  },
 ];
