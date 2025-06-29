@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     url: "https://tanmayvaij.vercel.app",
     siteName: "Tanmay Vaij - Portfolio",
     images: {
-      url: "/screenshot/portfolio.png",
+      url: "/pixar-profile-pic.png",
     },
     locale: "en_US",
     type: "website",
