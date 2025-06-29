@@ -26,14 +26,9 @@ export const metadata: Metadata = {
       "Explore my portfolio projects, cross-platform apps, and DevOps expertise.",
     url: "https://tanmayvaij.vercel.app",
     siteName: "Tanmay Vaij - Portfolio",
-    images: [
-      {
-        url: "/screenshot/portfolio.png",
-        width: 1200,
-        height: 630,
-        alt: "Tanmay Vaij Portfolio Screenshot",
-      },
-    ],
+    images: {
+      url: "/screenshot/portfolio.png",
+    },
     locale: "en_US",
     type: "website",
   },
