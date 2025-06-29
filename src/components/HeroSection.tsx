@@ -48,7 +48,7 @@ export const HeroSection = () => {
             View My Work
           </button>
           <a download href="/TanmayVaijCV.pdf">
-            <button className="px-8 py-3 border-2 border-white text-white rounded-full hover:bg-white hover:text-gray-950 transition-all duration-300 flex items-center justify-center gap-2 font-medium">
+            <button className="px-8 py-3 w-full border-2 border-white text-white rounded-full hover:bg-white hover:text-gray-950 transition-all duration-300 flex items-center justify-center gap-2 font-medium">
               <Download size={20} />
               Download CV
             </button>
