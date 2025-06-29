@@ -32,6 +32,13 @@ export const metadata: Metadata = {
     locale: "en_US",
     type: "website",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Tanmay Vaij - Portfolio",
+    description:
+      "Explore Tanmay's cross-platform projects, skills, and experience.",
+    images: ["/pixar-profile-pic.png"],
+  },
   icons: {
     icon: "/pixar-profile-pic.png",
     shortcut: "/pixar-profile-pic.png",
