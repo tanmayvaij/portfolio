@@ -1,4 +1,5 @@
 import { skills } from "@/data";
+import { SkillGroup } from "./SkillGroup";
 
 export const SkillsSection = () => {
   return (
@@ -8,92 +9,15 @@ export const SkillsSection = () => {
           Skills & Technologies
         </h2>
 
-        <div className="space-y-4 text-sm text-white">
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Languages</h3>
-            <div className="flex flex-wrap gap-2">
-              {skills.languages.map((skill) => (
-                <span
-                  key={skill}
-                  className="bg-gray-950 border border-gray-700 px-3 py-1 rounded"
-                >
-                  {skill}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Frontend</h3>
-            <div className="flex flex-wrap gap-2">
-              {skills.frontend.map((skill) => (
-                <span
-                  key={skill}
-                  className="bg-gray-950 border border-gray-700 px-3 py-1 rounded"
-                >
-                  {skill}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Backend</h3>
-            <div className="flex flex-wrap gap-2">
-              {skills.backend.map((skill) => (
-                <span
-                  key={skill}
-                  className="bg-gray-950 border border-gray-700 px-3 py-1 rounded"
-                >
-                  {skill}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Databases</h3>
-            <div className="flex flex-wrap gap-2">
-              {skills.database.map((skill) => (
-                <span
-                  key={skill}
-                  className="bg-gray-950 border border-gray-700 px-3 py-1 rounded"
-                >
-                  {skill}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold mb-2">DevOps & Platforms</h3>
-            <div className="flex flex-wrap gap-2">
-              {skills.devops.map((skill) => (
-                <span
-                  key={skill}
-                  className="bg-gray-950 border border-gray-700 px-3 py-1 rounded"
-                >
-                  {skill}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold mb-2">
-              Tools & Package Managers
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {skills.tools.map((skill) => (
-                <span
-                  key={skill}
-                  className="bg-gray-950 border border-gray-700 px-3 py-1 rounded"
-                >
-                  {skill}
-                </span>
-              ))}
-            </div>
-          </div>
+        <div className="space-y-6 text-sm text-white">
+          {skills.map((grp) => (
+            <SkillGroup
+              key={grp.title}
+              icon={grp.icon}
+              skills={grp.skills}
+              title={grp.title}
+            />
+          ))}
         </div>
       </div>
     </section>

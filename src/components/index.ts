@@ -1,4 +1,7 @@
 export * from "./ProjectCard";
+export * from "./SkillTag";
+export * from "./SkillGroup";
+
 export * from "./Header";
 export * from "./Footer";
 

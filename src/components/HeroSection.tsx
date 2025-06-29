@@ -1,11 +1,10 @@
-"use client"
+"use client";
 
 import { useAppValues } from "@/context";
 import { ChevronDown, Download } from "lucide-react";
 import Image from "next/image";
 
 export const HeroSection = () => {
-
   const { scrollToSection, isVisible } = useAppValues();
 
   return (
@@ -13,14 +12,13 @@ export const HeroSection = () => {
       id="home"
       className="min-h-screen flex items-center justify-center relative overflow-hidden"
     >
-      <div className="absolute inset-0 bg-gray-950"></div>
       <div
         className={`text-center z-10 px-4 transition-all duration-1000 ${
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
         }`}
       >
         <div className="mb-8">
-          <div className="w-40 h-40 relative rounded-full border-gray-300 mx-auto mb-6 flex items-center justify-center">
+          <div className="w-40 h-40 md:w-56 md:h-56 relative rounded-full border-gray-300 mx-auto mb-6 flex items-center justify-center">
             <Image
               className="rounded-full"
               src="/pixar-profile-pic.png"
@@ -49,10 +47,12 @@ export const HeroSection = () => {
           >
             View My Work
           </button>
-          <button className="px-8 py-3 border-2 border-white text-white rounded-full hover:bg-white hover:text-gray-950 transition-all duration-300 flex items-center justify-center gap-2 font-medium">
-            <Download size={20} />
-            Download CV
-          </button>
+          <a download href="/TanmayVaijCV.pdf">
+            <button className="px-8 py-3 border-2 border-white text-white rounded-full hover:bg-white hover:text-gray-950 transition-all duration-300 flex items-center justify-center gap-2 font-medium">
+              <Download size={20} />
+              Download CV
+            </button>
+          </a>
         </div>
       </div>
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">

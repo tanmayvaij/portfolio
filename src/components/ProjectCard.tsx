@@ -31,20 +31,26 @@ export const ProjectCard: React.FC<ProjectCard> = (project) => {
           )}
         </div>
         <div className="flex gap-3">
-          <a
-            href={project.github}
-            className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors text-sm"
-          >
-            <Github size={14} />
-            Code
-          </a>
-          <a
-            href={project.demo}
-            className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors text-sm"
-          >
-            <ExternalLink size={14} />
-            Demo
-          </a>
+          {project.github && (
+            <a
+              target="_blank"
+              href={project.github}
+              className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors text-sm"
+            >
+              <Github size={14} />
+              Code
+            </a>
+          )}
+          {project.demo && (
+            <a
+              target="_blank"
+              href={project.demo}
+              className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors text-sm"
+            >
+              <ExternalLink size={14} />
+              Demo
+            </a>
+          )}
         </div>
       </div>
     </div>

@@ -17,3 +17,13 @@ interface AppContext {
   setIsVisible: React.Dispatch<React.SetStateAction<boolean>>;
   scrollToSection: (sectionId: string) => void;
 }
+
+interface SkillTag {
+  skill: string
+}
+
+interface SkillGroup {
+  title: string
+  skills: string[]
+  icon: React.ReactNode
+}
