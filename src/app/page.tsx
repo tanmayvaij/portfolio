@@ -5,7 +5,6 @@ import {
   Header,
   HeroSection,
   ProjectSection,
-  SkillsSection,
 } from "@/components";
 import AppContext from "@/context";
 
@@ -17,7 +16,6 @@ const Portfolio = () => {
         <HeroSection />
         <AboutSection />
         <ProjectSection />
-        <SkillsSection />
         <ContactSection />
         <Footer />
       </AppContext>
