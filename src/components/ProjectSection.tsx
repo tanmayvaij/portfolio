@@ -1,53 +1,81 @@
 "use client";
 
-import { projectCategories, projects } from "@/data";
-import { Code } from "lucide-react";
-import { useState } from "react";
-import { ProjectCard } from "./ProjectCard";
+import { projects } from "@/data";
+import { ArrowUpRight } from "lucide-react";
+import Image from "next/image";
 
 export const ProjectSection = () => {
-  const [activeCategory, setActiveCategory] = useState("all");
-
-  const filteredProjects =
-    activeCategory === "all"
-      ? projects
-      : projects.filter((project) => project.category === activeCategory);
+  // Select top 3 "Featured" projects for the brand showcase
+  const featuredProjects = projects.slice(0, 3);
 
   return (
-    <section id="projects" className="py-20 px-4 bg-gray-950">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-4xl font-bold text-center text-white mb-12">
-          Featured Projects
-        </h2>
+    <section id="projects" className="py-32 px-6 bg-background">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-end mb-16">
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-foreground">
+            Selected Work
+          </h2>
+          <a
+            href="https://github.com/tanmayvaij"
+            target="_blank"
+            className="hidden md:inline-flex items-center text-sm font-bold uppercase tracking-widest hover:text-muted-foreground transition-colors"
+          >
+            View All on GitHub <ArrowUpRight size={16} className="ml-1" />
+          </a>
+        </div>
 
-        <div className="flex flex-wrap justify-center gap-3 mb-12">
-          {projectCategories.map((category) => (
-            <button
-              key={category.id}
-              onClick={() => setActiveCategory(category.id)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border ${
-                activeCategory === category.id
-                  ? "bg-white text-gray-950 border-white"
-                  : "bg-transparent text-gray-400 border-gray-600 hover:border-gray-400 hover:text-white"
-              }`}
+        <div className="space-y-24">
+          {featuredProjects.map((project, index) => (
+            <div
+              key={index}
+              className="group grid md:grid-cols-2 gap-8 items-center border-b border-border pb-24 last:border-0 last:pb-0"
             >
-              {category.name}
-            </button>
+              {/* Number & Info */}
+              <div className="order-2 md:order-1 space-y-6">
+                <span className="text-xs font-mono text-muted-foreground">
+                  0{index + 1} / FEATURED
+                </span>
+                <h3 className="text-3xl md:text-4xl font-bold text-foreground group-hover:text-foreground/70 transition-colors">
+                  {project.title}
+                </h3>
+                <p className="text-lg text-muted-foreground leading-relaxed max-w-md">
+                  {project.description}
+                </p>
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {project.tech.map((t) => (
+                    <span
+                      key={t}
+                      className="px-3 py-1 text-xs border border-border rounded-full text-muted-foreground uppercase tracking-wide"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+                <div className="pt-6">
+                  <a
+                    href={project.demo || project.github}
+                    target="_blank"
+                    className="inline-flex items-center text-sm font-bold text-foreground border-b border-foreground pb-1 hover:text-muted-foreground hover:border-muted-foreground transition-colors"
+                  >
+                    View Project <ArrowUpRight size={14} className="ml-1" />
+                  </a>
+                </div>
+              </div>
+
+              {/* Image */}
+              <div className="order-1 md:order-2 relative aspect-[4/3] bg-secondary rounded-sm overflow-hidden grayscale group-hover:grayscale-0 transition-all duration-500">
+                {project.image && (
+                  <Image
+                    src={project.image}
+                    fill
+                    alt={project.title}
+                    className="object-cover"
+                  />
+                )}
+              </div>
+            </div>
           ))}
         </div>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProjects.map((project, index) => (
-            <ProjectCard key={index} {...project} />
-          ))}
-        </div>
-
-        {filteredProjects.length === 0 && (
-          <div className="text-center text-gray-400 py-12">
-            <Code size={48} className="mx-auto mb-4 opacity-50" />
-            <p>No projects found in this category.</p>
-          </div>
-        )}
       </div>
     </section>
   );
