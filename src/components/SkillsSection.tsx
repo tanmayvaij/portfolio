@@ -1,33 +1,83 @@
-import { skills } from "@/data";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
+
+const skillCategories = [
+  {
+    title: "Languages",
+    skills: ["Python", "JavaScript", "TypeScript", "Java", "Dart", "PHP", "C++"],
+  },
+  {
+    title: "Frontend",
+    skills: ["React", "Next.js", "Tailwind CSS", "Angular", "shadcn/ui"],
+  },
+  {
+    title: "Backend",
+    skills: ["Express.js", "NestJS", "FastAPI", "Strapi"],
+  },
+  {
+    title: "Database",
+    skills: ["PostgreSQL", "MySQL", "MongoDB", "SQLite"],
+  },
+  {
+    title: "Mobile",
+    skills: ["React Native", "Expo"],
+  },
+  {
+    title: "DevOps & Cloud",
+    skills: ["Docker", "AWS", "GitHub Actions", "Jenkins", "GitLab CI"],
+  },
+];
 
 export const SkillsSection = () => {
-  return (
-    <section
-      id="skills"
-      className="py-24 px-6 bg-background border-t border-border"
-    >
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-3xl font-bold text-foreground mb-16 tracking-tight">
-          Technical Proficiency
-        </h2>
+  const sectionRef = useRef(null);
+  const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
-          {skills.map((grp) => (
-            <div key={grp.title}>
-              <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-6 min-h-[20px]">
-                {grp.title}
+  return (
+    <section ref={sectionRef} className="py-24 lg:py-32">
+      <div className="container mx-auto px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="mb-16"
+        >
+          <h2 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground">
+            Technical Skills
+          </h2>
+          <p className="mt-4 text-lg text-muted-foreground font-body max-w-xl">
+            A diverse toolkit for building modern, scalable applications.
+          </p>
+        </motion.div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {skillCategories.map((category, categoryIndex) => (
+            <motion.div
+              key={category.title}
+              initial={{ opacity: 0, y: 30 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: categoryIndex * 0.1 }}
+              className="p-6 rounded-2xl bg-card shadow-soft hover:shadow-card transition-shadow duration-300"
+            >
+              <h3 className="font-heading text-lg font-semibold text-accent mb-4">
+                {category.title}
               </h3>
-              <ul className="space-y-3">
-                {grp.skills.map((skill) => (
-                  <li
+              <div className="flex flex-wrap gap-2">
+                {category.skills.map((skill, skillIndex) => (
+                  <motion.span
                     key={skill}
-                    className="text-foreground text-lg hover:text-muted-foreground transition-colors cursor-default"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={isInView ? { opacity: 1, scale: 1 } : {}}
+                    transition={{
+                      duration: 0.3,
+                      delay: categoryIndex * 0.1 + skillIndex * 0.05,
+                    }}
+                    className="px-3 py-1.5 text-sm font-medium bg-secondary text-secondary-foreground rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors duration-200 cursor-default"
                   >
                     {skill}
-                  </li>
+                  </motion.span>
                 ))}
-              </ul>
-            </div>
+              </div>
+            </motion.div>
           ))}
         </div>
       </div>
