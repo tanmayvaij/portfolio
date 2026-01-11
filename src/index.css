@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -44,15 +44,19 @@
     --radius: 0.75rem;
 
     /* Custom tokens */
-    --gradient-hero: linear-gradient(135deg, hsl(350 85% 60%), hsl(340 80% 50%));
+    --gradient-hero: linear-gradient(
+      135deg,
+      hsl(350 85% 60%),
+      hsl(340 80% 50%)
+    );
     --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(40 20% 98%));
     --shadow-soft: 0 4px 20px -4px hsl(220 15% 10% / 0.08);
     --shadow-card: 0 8px 30px -8px hsl(220 15% 10% / 0.12);
     --shadow-elevated: 0 20px 60px -15px hsl(220 15% 10% / 0.15);
-    
+
     /* Typography */
-    --font-heading: 'Space Grotesk', sans-serif;
-    --font-body: 'Inter', sans-serif;
+    --font-heading: "Space Grotesk", sans-serif;
+    --font-body: "Inter", sans-serif;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -118,7 +122,12 @@
     font-family: var(--font-body);
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-heading);
   }
 }
