@@ -1,7 +1,5 @@
 "use client";
 
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/components/sections/Hero";
 import { FeaturedWork } from "@/components/sections/FeaturedWork";
 import { Experience } from "@/components/sections/Experience";
@@ -16,13 +14,11 @@ export default function Portfolio() {
   return (
     <div className="min-h-screen bg-white dark:bg-black text-neutral-900 dark:text-white overflow-hidden">
       <StructuredData />
-      <Navbar />
       <Hero />
       <About />
       <FeaturedWork projects={projects} />
       <Experience experience={experience} />
       <TechStack techStack={techStack} />
-      <Footer />
     </div>
   );
 }

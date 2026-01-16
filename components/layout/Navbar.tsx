@@ -1,6 +1,7 @@
 "use client";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Github, Linkedin, Mail, Menu, X } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -93,6 +94,20 @@ export function Navbar() {
               transition={{ delay: 0.15 }}
             >
               <ThemeToggle />
+            </motion.div>
+
+            {/* Blog Link */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.18 }}
+            >
+              <Link
+                href="/blog"
+                className="text-sm font-medium hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
+              >
+                Blog
+              </Link>
             </motion.div>
 
             <motion.div
