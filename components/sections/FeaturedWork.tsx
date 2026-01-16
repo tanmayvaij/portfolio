@@ -1,8 +1,9 @@
 "use client";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowUpRight, Github } from "lucide-react";
+import { ArrowUpRight, ExternalLink, Github } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import { useRef } from "react";
 
 interface Project {
@@ -92,10 +93,12 @@ export function FeaturedWork({ projects }: FeaturedWorkProps) {
                 >
                   <div className="relative bg-white dark:bg-neutral-900 rounded-xl overflow-hidden aspect-[4/3]">
                     {project.image ? (
-                      <img
+                      <Image
                         src={project.image}
                         alt={project.title}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 50vw"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-neutral-100 to-neutral-200 dark:from-neutral-800 dark:to-neutral-900">

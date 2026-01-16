@@ -12,6 +12,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 
 export function Hero() {
@@ -183,11 +184,16 @@ export function Hero() {
                 }}
                 className="absolute inset-0 bg-gradient-to-br from-rose-400 to-pink-400 rounded-full blur-3xl"
               />
-              <img
-                src="/pixar-profile-pic.png"
-                alt="Tanmay Vaij - Profile Picture"
-                className="relative w-80 h-80 md:w-96 md:h-96 rounded-full object-cover border-4 border-white dark:border-neutral-800 shadow-2xl"
-              />
+              <div className="relative w-80 h-80 md:w-96 md:h-96 rounded-full overflow-hidden border-4 border-white dark:border-neutral-800 shadow-2xl">
+                <Image
+                  src="/pixar-profile-pic.png"
+                  alt="Tanmay Vaij - Profile Picture"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 320px, 384px"
+                  priority
+                />
+              </div>
             </div>
 
             {/* Floating Tech Badges */}
