@@ -1,6 +1,7 @@
-import { getPostBySlug, getAllPostSlugs } from "@/lib/blog";
+import { getPostBySlug, getAllPosts } from "@/lib/blog";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import Markdown from "markdown-to-jsx";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, ArrowLeft } from "lucide-react";
@@ -84,11 +85,14 @@ export default async function BlogPostPage({ params }: PageProps) {
 
         {/* Featured Image */}
         {post.image && (
-          <div className="mb-16">
-            <img
+          <div className="mb-16 relative w-full h-[400px] md:h-[500px]">
+            <Image
               src={post.image}
               alt={post.title}
-              className="w-full rounded-lg border border-neutral-200 dark:border-neutral-800"
+              fill
+              className="object-cover rounded-lg border border-neutral-200 dark:border-neutral-800"
+              sizes="(max-width: 768px) 100vw, 1200px"
+              priority
             />
           </div>
         )}
@@ -278,11 +282,15 @@ export default async function BlogPostPage({ params }: PageProps) {
                 },
                 img: {
                   component: (props: any) => (
-                    <img
-                      src={props.src}
-                      alt={props.alt || ""}
-                      className="rounded-lg border border-neutral-200 dark:border-neutral-800 my-8"
-                    />
+                    <div className="relative w-full h-auto my-8">
+                      <Image
+                        src={props.src}
+                        alt={props.alt || ""}
+                        width={1200}
+                        height={675}
+                        className="rounded-lg border border-neutral-200 dark:border-neutral-800 w-full h-auto"
+                      />
+                    </div>
                   ),
                 },
               },
@@ -299,9 +307,9 @@ export default async function BlogPostPage({ params }: PageProps) {
   );
 }
 
-export function generateStaticParams() {
-  const slugs = getAllPostSlugs();
-  return slugs.map((slug) => ({
-    slug,
+export async function generateStaticParams() {
+  const posts = getAllPosts();
+  return posts.map((post) => ({
+    slug: post.slug,
   }));
 }

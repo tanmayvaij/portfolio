@@ -1,6 +1,7 @@
 import { getAllPosts } from "@/lib/blog";
 import { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, ArrowRight } from "lucide-react";
@@ -85,13 +86,16 @@ export default function BlogPage() {
 
                     {/* Right Image */}
                     <div className="relative h-64 md:h-full min-h-[300px] overflow-hidden">
-                      <img
+                      <Image
                         src={
                           featuredPost.image ||
                           "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800&h=600&fit=crop&q=80"
                         }
                         alt={featuredPost.title}
-                        className="absolute inset-0 w-full h-full object-cover"
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        priority
                       />
                     </div>
                   </div>
@@ -115,12 +119,14 @@ export default function BlogPage() {
                       <Card className="h-full overflow-hidden border-0 shadow-none transition-all duration-300 group">
                         {/* Image */}
                         <div className="relative h-48 overflow-hidden">
-                          <img
+                          <Image
                             src={
                               post.image || imageUrls[index % imageUrls.length]
                             }
                             alt={post.title}
-                            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                           />
                         </div>
 

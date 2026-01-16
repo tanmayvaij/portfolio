@@ -2,6 +2,7 @@
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
 import {
   Building2,
@@ -137,11 +138,15 @@ export function Experience({ experience }: ExperienceProps) {
                   className="absolute left-0 top-8 w-[54px] h-[54px] rounded-full bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center shadow-lg shadow-rose-500/25 hidden md:flex"
                 >
                   {exp.logo ? (
-                    <img
-                      src={exp.logo}
-                      alt={`${exp.company} logo`}
-                      className="w-10 h-10 rounded-full object-contain bg-white p-1"
-                    />
+                    <div className="w-10 h-10 rounded-full bg-white p-1 relative">
+                      <Image
+                        src={exp.logo}
+                        alt={`${exp.company} logo`}
+                        fill
+                        className="object-contain"
+                        sizes="40px"
+                      />
+                    </div>
                   ) : (
                     <Building2 className="w-6 h-6 text-white" />
                   )}
@@ -203,11 +208,15 @@ export function Experience({ experience }: ExperienceProps) {
                         {/* Mobile Logo */}
                         <div className="flex-shrink-0 md:hidden">
                           {exp.logo ? (
-                            <img
-                              src={exp.logo}
-                              alt={`${exp.company} logo`}
-                              className="w-12 h-12 rounded-lg object-contain bg-white dark:bg-neutral-800 p-1.5 border border-neutral-200 dark:border-neutral-700"
-                            />
+                            <div className="w-12 h-12 rounded-lg bg-white dark:bg-neutral-800 p-1.5 border border-neutral-200 dark:border-neutral-700 relative">
+                              <Image
+                                src={exp.logo}
+                                alt={`${exp.company} logo`}
+                                fill
+                                className="object-contain"
+                                sizes="48px"
+                              />
+                            </div>
                           ) : (
                             <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center">
                               <Building2 className="w-6 h-6 text-white" />
