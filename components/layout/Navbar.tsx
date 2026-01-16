@@ -33,7 +33,7 @@ export function Navbar() {
       hoverColor: "hover:text-rose-600",
     },
     {
-      href: "https://www.linkedin.com/in/tanmay-vaij",
+      href: "https://www.linkedin.com/in/tanmayvaij",
       icon: Linkedin,
       label: "LinkedIn",
       hoverColor: "hover:text-pink-600",

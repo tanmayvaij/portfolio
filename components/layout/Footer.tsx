@@ -57,7 +57,7 @@ export function Footer() {
       textColor: "hover:text-white",
     },
     {
-      href: "https://www.linkedin.com/in/tanmay-vaij",
+      href: "https://www.linkedin.com/in/tanmayvaij",
       icon: Linkedin,
       label: "LinkedIn",
       username: "tanmay-vaij",

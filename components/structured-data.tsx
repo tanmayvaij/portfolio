@@ -30,7 +30,7 @@ export function StructuredData() {
         ],
         sameAs: [
           "https://github.com/tanmayvaij",
-          "https://www.linkedin.com/in/tanmay-vaij",
+          "https://www.linkedin.com/in/tanmayvaij",
         ],
         address: {
           "@type": "PostalAddress",
