@@ -1,10 +1,5 @@
 import { getAllPosts } from "@/lib/blog";
 import { Metadata } from "next";
-import Link from "next/link";
-import Image from "next/image";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, ArrowRight } from "lucide-react";
 import { FeaturedBlogPost } from "@/components/blog/FeaturedBlogPost";
 import { BlogGridPost } from "@/components/blog/BlogGridPost";
 

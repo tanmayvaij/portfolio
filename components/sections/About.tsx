@@ -1,7 +1,6 @@
 "use client";
 import { motion, useInView } from "framer-motion";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Sparkles,
   Coffee,
@@ -107,7 +106,7 @@ export function About() {
                     full lifecycle
                   </span>
                   —from UI design to backend architecture, cloud deployment, and
-                  GenAI integration. I've shipped products used by{" "}
+                  GenAI integration. I&apos;ve shipped products used by{" "}
                   <span className="font-semibold text-neutral-900 dark:text-white">
                     thousands
                   </span>
@@ -119,7 +118,7 @@ export function About() {
                   <span className="font-semibold text-neutral-900 dark:text-white">
                     technical expertise
                   </span>{" "}
-                  with product thinking. I don't just write code—I solve
+                  with product thinking. I don&apos;t just write code—I solve
                   problems, optimize experiences, and deliver solutions that
                   create real value.
                 </p>
@@ -208,7 +207,6 @@ export function About() {
             ))}
           </div>
         </motion.div>
-
       </div>
     </section>
   );

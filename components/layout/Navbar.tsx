@@ -164,7 +164,7 @@ export function Navbar() {
                     transition={{ delay: 0.1 }}
                     className="text-sm text-neutral-500 dark:text-neutral-400 mt-2"
                   >
-                    Let's connect
+                    Let&apos;s connect
                   </motion.p>
                 </div>
 

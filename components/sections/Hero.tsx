@@ -1,6 +1,4 @@
-"use client";
-
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { motion, useSpring, useScroll, useTransform } from "framer-motion";
 import {
   ArrowRight,
@@ -15,7 +13,6 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 
 export function Hero() {
-  const [mounted, setMounted] = useState(false);
   const springConfig = { damping: 30, stiffness: 200 };
   const mouseX = useSpring(0, springConfig);
   const mouseY = useSpring(0, springConfig);
@@ -25,7 +22,6 @@ export function Hero() {
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
 
   useEffect(() => {
-    setMounted(true);
     const handleMouseMove = (e: MouseEvent) => {
       const { clientX, clientY } = e;
       const { innerWidth, innerHeight } = window;

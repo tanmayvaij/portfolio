@@ -1,5 +1,5 @@
 import { Code2, Database, Terminal, Cpu } from "lucide-react";
-import { TechCategory, TechStack } from "@/types";
+import { TechStack } from "@/types";
 
 export const techStack: TechStack = {
   Frontend: {

@@ -30,8 +30,8 @@ export function FeaturedWork({ projects }: FeaturedWorkProps) {
             </span>
           </h2>
           <p className="text-xl text-neutral-600 dark:text-neutral-400 max-w-2xl">
-            In today's crowded digital world, it's not about being loudest —
-            it's about being{" "}
+            In today&apos;s crowded digital world, it&apos;s not about being loudest —
+            it&apos;s about being{" "}
             <span className="font-semibold text-neutral-900 dark:text-white">
               sharper
             </span>
