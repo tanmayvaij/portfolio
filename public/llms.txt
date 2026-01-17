@@ -1,0 +1,147 @@
+# Tanmay Vaij - Full Stack & AI Engineer
+
+> Portfolio website showcasing full-stack development, AI/ML projects, and technical expertise. Building innovative solutions with modern web technologies and AI frameworks.
+
+## About
+
+Tanmay Vaij is a Full Stack & AI Engineer specializing in GenAI, scalable backends, and modern web development. With experience across AgriTech, HealthTech, and FinTech sectors, Tanmay builds production-ready applications that solve real-world problems.
+
+**Core Expertise:**
+- Full-stack development with React, Next.js, and Node.js
+- AI/ML integration using Gemini API, LangChain, and OpenAI
+- Cloud infrastructure and DevOps with AWS and Docker
+- Mobile development with React Native
+- Database design with PostgreSQL and MongoDB
+
+## Professional Experience
+
+### IntellAxis AI (July 2025 - Present)
+**Software Developer** | Remote
+- Leading development of GenAI products across UI/UX, backend, and DevOps
+- Integrated GenAI capabilities and optimized CI/CD pipelines
+- Technologies: GenAI, CI/CD, DevOps
+
+### MyLegacyBox (June 2023 - May 2025)
+**Full Stack Developer** | Remote
+- Led end-to-end development for personal finance succession management platform
+- Published React Native app with 1,000+ downloads on Google Play Store
+- Built secure backend with PostgreSQL and AWS infrastructure
+- Technologies: React Native, Node.js, AWS, PostgreSQL
+
+### SystemOnSilicon (Jan 2023 - June 2023)
+**Full Stack Developer** | Remote
+- Developed UI/UX designs and full-stack features for AgriTech and HealthTech applications
+- Enhanced user experience and system performance
+- Technologies: React, Node.js, UI/UX Design
+
+## Technical Skills
+
+### Frontend Development
+- React, Next.js, TypeScript
+- Tailwind CSS, Shadcn UI
+- Angular, React Native
+
+### Backend Development
+- Node.js, Express, NestJS
+- Python, FastAPI
+- PostgreSQL, MongoDB
+
+### DevOps & Cloud
+- Docker containerization
+- AWS (EC2, Load Balancers, S3)
+- GitHub Actions, Jenkins
+- CI/CD pipelines
+
+### AI & Machine Learning
+- Gemini API integration
+- LangChain framework
+- OpenAI API
+- Agent frameworks and RAG systems
+
+## Featured Projects
+
+### DiaFlow
+**Lightweight AI agent framework for Gemini models**
+- Published npm package with 100% TypeScript
+- Built-in memory, tool calling, and structured outputs
+- Simpler alternative to LangChain for production apps
+- Technologies: TypeScript, Gemini API, Zod
+- GitHub: https://github.com/tanmayvaij/diaflow
+
+### MyLegacyBox
+**Finance succession platform with 1K+ downloads**
+- Led full-stack development for 2 years
+- React Native app on Google Play Store
+- Built secure backend with PostgreSQL and AWS
+- Technologies: React Native, PostgreSQL, AWS
+- Play Store: https://play.google.com/store/apps/details?id=com.oiconomos.www
+
+### ContainRX
+**Self-hosted container management for DevOps teams**
+- Open-source modular web app
+- Simplifies Docker workflows for developers
+- Built with Next.js and modern DevOps practices
+- Technologies: Next.js, Docker, DevOps
+- GitHub: https://github.com/shaasium/containrx
+
+## Technical Blog
+
+Writing about:
+- **AWS Infrastructure**: Application Load Balancer setup, EC2 instance deployment
+- **Docker & Containers**: Essential commands, container fundamentals
+- **Full-Stack Development**: Best practices, architecture patterns
+- **AI/ML Integration**: Building production-ready AI applications
+
+Recent articles:
+- AWS Application Load Balancer Setup Guide
+- How to Launch AWS EC2 Instance Guide
+- Essential Docker Commands Cheat Sheet
+- Understanding Docker Containers for Beginners
+
+## Contact & Links
+
+- **Website**: https://tanmayvaij.dev
+- **GitHub**: https://github.com/tanmayvaij
+- **LinkedIn**: [Add your LinkedIn]
+- **Email**: [Add your email]
+
+## Site Structure
+
+- **Homepage**: / - Portfolio overview and featured work
+- **Blog**: /blog - Technical articles and tutorials
+- **Projects**: /#work - Detailed project showcase
+- **About**: /#about - Professional background and skills
+- **Sitemap**: /sitemap.xml - Complete site structure
+- **RSS Feed**: [Coming soon]
+
+## Technologies Used in This Portfolio
+
+- **Framework**: Next.js 16 with App Router
+- **Styling**: Tailwind CSS with custom design system
+- **UI Components**: Shadcn UI, Framer Motion
+- **Content**: Markdown-based blog with syntax highlighting
+- **SEO**: Comprehensive Open Graph, JSON-LD structured data
+- **Analytics**: Google Analytics integration
+- **Deployment**: Optimized for Vercel/AWS
+
+## Key Achievements
+
+- 📦 Published npm package (DiaFlow) with production usage
+- 📱 Shipped React Native app with 1,000+ downloads
+- 🏗️ Led full-stack development across multiple companies
+- 🤖 Built AI-powered applications using modern LLM frameworks
+- ☁️ Deployed and managed cloud infrastructure on AWS
+- 🔧 Contributed to open-source DevOps tooling
+
+## Specializations
+
+- **GenAI Development**: Building production-ready AI applications with Gemini, OpenAI
+- **Full-Stack Architecture**: Scalable systems with React, Node.js, PostgreSQL
+- **Mobile Development**: Cross-platform apps with React Native
+- **DevOps Engineering**: Docker, AWS, CI/CD automation
+- **Technical Writing**: Clear documentation and tutorials
+
+---
+
+*Last updated: January 2026*
+*This file is optimized for AI models and LLM-based search engines*
