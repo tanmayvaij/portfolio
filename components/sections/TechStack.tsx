@@ -1,35 +1,16 @@
 "use client";
-import { motion, useScroll, useTransform, useInView } from "framer-motion";
+
+import { motion, useInView } from "framer-motion";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TechStack as TechStackType } from "@/data/techStack";
+import { TechStackProps } from "@/types";
 import { Sparkles, Zap, Star } from "lucide-react";
 import { useRef, useState } from "react";
 
-interface TechStackProps {
-  techStack: TechStackType;
-}
-
-// Proficiency levels for visual representation
-const proficiencyLevels = {
-  expert: { color: "from-emerald-500 to-teal-500", width: "95%" },
-  advanced: { color: "from-blue-500 to-cyan-500", width: "85%" },
-  intermediate: { color: "from-violet-500 to-purple-500", width: "70%" },
-};
-
 export function TechStack({ techStack }: TechStackProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
   const [hoveredTech, setHoveredTech] = useState<string | null>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"],
-  });
-
-  const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
-  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
 
   // Calculate total number of technologies
   const totalTechs = Object.values(techStack).reduce(
@@ -60,10 +41,7 @@ export function TechStack({ techStack }: TechStackProps) {
   };
 
   return (
-    <section
-      className="py-32 px-6 bg-gradient-to-b from-white via-neutral-50/30 to-white dark:from-black dark:via-neutral-950/30 dark:to-black relative overflow-hidden"
-      ref={containerRef}
-    >
+    <section className="py-32 px-6 bg-linear-to-b from-white via-neutral-50/30 to-white dark:from-black dark:via-neutral-950/30 dark:to-black relative overflow-hidden">
       <div className="max-w-7xl mx-auto relative" ref={sectionRef}>
         {/* Enhanced Header */}
         <motion.div
@@ -76,7 +54,7 @@ export function TechStack({ techStack }: TechStackProps) {
             initial={{ scale: 0 }}
             animate={isInView ? { scale: 1 } : {}}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-rose-500/10 to-pink-500/10 border border-rose-500/20 rounded-full mb-6"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-rose-500/10 to-pink-500/10 border border-rose-500/20 rounded-full mb-6"
           >
             <Zap className="w-4 h-4 text-rose-600 dark:text-rose-400" />
             <span className="text-sm font-medium text-rose-600 dark:text-rose-400">
@@ -86,7 +64,7 @@ export function TechStack({ techStack }: TechStackProps) {
 
           <h2 className="text-5xl md:text-6xl font-bold mb-6">
             Tech{" "}
-            <span className="bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
               Arsenal
             </span>
           </h2>
@@ -108,7 +86,7 @@ export function TechStack({ techStack }: TechStackProps) {
               >
                 {/* Hover Glow Effect */}
                 <div
-                  className={`absolute inset-0 bg-gradient-to-br ${
+                  className={`absolute inset-0 bg-linear-to-br ${
                     categoryColors[index as keyof typeof categoryColors]
                   } rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
                 />
@@ -126,7 +104,7 @@ export function TechStack({ techStack }: TechStackProps) {
                         <motion.div
                           whileHover={{ rotate: 360, scale: 1.1 }}
                           transition={{ duration: 0.6 }}
-                          className={`p-3 bg-gradient-to-br ${
+                          className={`p-3 bg-linear-to-br ${
                             categoryColors[index as keyof typeof categoryColors]
                           } rounded-2xl border border-neutral-200 dark:border-neutral-800`}
                         >
@@ -220,7 +198,7 @@ export function TechStack({ techStack }: TechStackProps) {
           transition={{ duration: 0.6, delay: 0.8 }}
           className="mt-16 text-center"
         >
-          <div className="max-w-3xl mx-auto p-8 bg-gradient-to-br from-neutral-50 to-white dark:from-neutral-900 dark:to-neutral-950 rounded-3xl border-2 border-neutral-200 dark:border-neutral-800">
+          <div className="max-w-3xl mx-auto p-8 bg-linear-to-br from-neutral-50 to-white dark:from-neutral-900 dark:to-neutral-950 rounded-3xl border-2 border-neutral-200 dark:border-neutral-800">
             <div className="flex items-center justify-center gap-2 mb-4">
               <Sparkles className="w-5 h-5 text-rose-600 dark:text-rose-400" />
             </div>

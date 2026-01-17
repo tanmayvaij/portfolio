@@ -7,7 +7,6 @@ import {
   Code2,
   Database,
   Cpu,
-  Sparkles,
   Download,
   ChevronDown,
 } from "lucide-react";
@@ -70,7 +69,7 @@ export function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="block bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 bg-clip-text text-transparent"
+              className="block bg-linear-to-r from-red-600 via-rose-600 to-pink-600 bg-clip-text text-transparent"
             >
               Production AI
             </motion.span>
@@ -108,7 +107,7 @@ export function Hero() {
               <Button
                 size="lg"
                 asChild
-                className="bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white shadow-lg hover:shadow-xl transition-all group"
+                className="bg-linear-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white shadow-lg hover:shadow-xl transition-all group"
               >
                 <a href="#work" className="flex items-center gap-2">
                   View Work
@@ -151,7 +150,7 @@ export function Hero() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.9 + index * 0.1 }}
               >
-                <div className="text-3xl font-bold bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
+                <div className="text-3xl font-bold bg-linear-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
                   {stat.value}
                 </div>
                 <div className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
@@ -182,7 +181,7 @@ export function Hero() {
                   repeat: Infinity,
                   ease: "easeInOut",
                 }}
-                className="absolute inset-0 bg-gradient-to-br from-rose-400 to-pink-400 rounded-full blur-3xl"
+                className="absolute inset-0 bg-linear-to-br from-rose-400 to-pink-400 rounded-full blur-3xl"
               />
               <div className="relative w-80 h-80 md:w-96 md:h-96 rounded-full overflow-hidden border-4 border-white dark:border-neutral-800 shadow-2xl">
                 <Image
@@ -273,7 +272,7 @@ export function Hero() {
                   ease: "easeInOut",
                   delay: i * 0.3,
                 }}
-                className="absolute w-2 h-2 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full pointer-events-none"
+                className="absolute w-2 h-2 bg-linear-to-r from-rose-500 to-pink-500 rounded-full pointer-events-none"
                 style={{
                   top: `${20 + i * 10}%`,
                   left: `${10 + i * 15}%`,

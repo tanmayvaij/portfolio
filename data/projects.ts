@@ -1,22 +1,5 @@
-import { LucideIcon, Sparkles, Boxes, Cloud } from "lucide-react";
-
-export interface Project {
-  title: string;
-  description: string;
-  details: string[];
-  tech: string[];
-  link: string;
-  icon: LucideIcon;
-  gradient: string;
-  image?: string;
-  github?: string;
-  featured?: boolean;
-  stats?: {
-    stars?: number;
-    users?: string;
-    performance?: string;
-  };
-}
+import { Sparkles, Boxes, Cloud } from "lucide-react";
+import { Project } from "@/types";
 
 export const projects: Project[] = [
   {

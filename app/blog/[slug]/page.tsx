@@ -6,14 +6,9 @@ import Markdown from "markdown-to-jsx";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, ArrowLeft } from "lucide-react";
 import { ShareButton } from "@/components/blog/ShareButton";
+import { BlogPageProps } from "@/types";
 
-interface PageProps {
-  params: Promise<{
-    slug: string;
-  }>;
-}
-
-export default async function BlogPostPage({ params }: PageProps) {
+export default async function BlogPostPage({ params }: BlogPageProps) {
   const { slug } = await params;
   const post = getPostBySlug(slug);
 
