@@ -1,6 +1,8 @@
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
+// Force Node.js runtime
+export const runtime = "nodejs";
+
 export const alt = "Tanmay Vaij - Full Stack & AI Engineer";
 export const size = {
   width: 1200,
