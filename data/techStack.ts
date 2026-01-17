@@ -1,13 +1,5 @@
-import { LucideIcon, Code2, Database, Terminal, Cpu } from "lucide-react";
-
-export interface TechCategory {
-  items: string[];
-  icon: LucideIcon;
-}
-
-export interface TechStack {
-  [category: string]: TechCategory;
-}
+import { Code2, Database, Terminal, Cpu } from "lucide-react";
+import { TechCategory, TechStack } from "@/types";
 
 export const techStack: TechStack = {
   Frontend: {

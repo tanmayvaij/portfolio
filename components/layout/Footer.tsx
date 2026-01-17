@@ -8,7 +8,6 @@ import {
   ArrowUp,
   MapPin,
   Clock,
-  Send,
   ExternalLink,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
@@ -115,7 +114,7 @@ export function Footer() {
   return (
     <footer
       ref={footerRef}
-      className="relative py-20 px-6 bg-gradient-to-b from-white via-neutral-50 to-neutral-100 dark:from-black dark:via-neutral-950 dark:to-neutral-900 border-t-2 border-neutral-200 dark:border-neutral-800 overflow-hidden"
+      className="relative py-20 px-6 bg-linear-to-b from-white via-neutral-50 to-neutral-100 dark:from-black dark:via-neutral-950 dark:to-neutral-900 border-t-2 border-neutral-200 dark:border-neutral-800 overflow-hidden"
     >
       <div className="max-w-7xl mx-auto relative">
         {/* Main Footer Content */}
@@ -136,7 +135,7 @@ export function Footer() {
                 className="font-mono text-3xl font-bold mb-2"
                 whileHover={{ scale: 1.02 }}
               >
-                <span className="bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
+                <span className="bg-linear-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
                   TANMAY VAIJ
                 </span>
               </motion.div>
@@ -232,14 +231,14 @@ export function Footer() {
                   whileHover={{ x: 4 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <link.icon className="w-5 h-5 flex-shrink-0" />
+                  <link.icon className="w-5 h-5 shrink-0" />
                   <div className="flex-1 min-w-0">
                     <div className="text-xs font-medium">{link.label}</div>
                     <div className="text-xs opacity-70 truncate">
                       {link.username}
                     </div>
                   </div>
-                  <ExternalLink className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                  <ExternalLink className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
                 </motion.a>
               ))}
             </div>
@@ -299,7 +298,7 @@ export function Footer() {
             <Button
               onClick={scrollToTop}
               size="icon"
-              className="h-14 w-14 rounded-2xl shadow-2xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white border-0 group"
+              className="h-14 w-14 rounded-2xl shadow-2xl bg-linear-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white border-0 group"
               aria-label="Scroll to top"
             >
               <ArrowUp className="w-6 h-6 group-hover:-translate-y-1 transition-transform" />

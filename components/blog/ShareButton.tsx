@@ -2,12 +2,7 @@
 
 import { Share2, Check, Link as LinkIcon } from "lucide-react";
 import { useState } from "react";
-
-interface ShareButtonProps {
-  title: string;
-  url: string;
-  text?: string;
-}
+import { ShareButtonProps } from "@/types";
 
 export function ShareButton({ title, url, text }: ShareButtonProps) {
   const [copied, setCopied] = useState(false);

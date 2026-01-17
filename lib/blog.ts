@@ -1,20 +1,9 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+import { BlogPost } from "@/types";
 
 const postsDirectory = path.join(process.cwd(), "content/blog");
-
-export interface BlogPost {
-  slug: string;
-  title: string;
-  date: string;
-  excerpt: string;
-  tags: string[];
-  author?: string;
-  image?: string;
-  content: string;
-  readingTime: number;
-}
 
 export function getAllPosts(): BlogPost[] {
   // Check if directory exists
@@ -41,7 +30,6 @@ export function getAllPosts(): BlogPost[] {
         date: data.date,
         excerpt: data.excerpt,
         tags: data.tags || [],
-        author: data.author || "Tanmay Vaij",
         image: data.image,
         content,
         readingTime,
@@ -73,7 +61,6 @@ export function getPostBySlug(slug: string): BlogPost | null {
       date: data.date,
       excerpt: data.excerpt,
       tags: data.tags || [],
-      author: data.author || "Tanmay Vaij",
       image: data.image,
       content,
       readingTime,

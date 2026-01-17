@@ -1,12 +1,8 @@
 "use client";
-import { motion, useScroll, useTransform, useInView } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  Code2,
-  Rocket,
-  Users,
-  Target,
   Sparkles,
   Coffee,
   BookOpen,
@@ -20,14 +16,6 @@ export function About() {
   const containerRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"],
-  });
-
-  const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
-  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
 
   const values = [
     {
@@ -65,7 +53,7 @@ export function About() {
   return (
     <section
       ref={containerRef}
-      className="py-32 px-6 bg-gradient-to-b from-white via-neutral-50/50 to-white dark:from-black dark:via-neutral-950/50 dark:to-black relative overflow-hidden"
+      className="py-32 px-6 bg-linear-to-b from-white via-neutral-50/50 to-white dark:from-black dark:via-neutral-950/50 dark:to-black relative overflow-hidden"
     >
       <div className="max-w-6xl mx-auto relative" ref={sectionRef}>
         {/* Header Section */}
@@ -79,7 +67,7 @@ export function About() {
             initial={{ scale: 0 }}
             animate={isInView ? { scale: 1 } : {}}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-rose-500/10 to-pink-500/10 border border-rose-500/20 rounded-full mb-6"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-rose-500/10 to-pink-500/10 border border-rose-500/20 rounded-full mb-6"
           >
             <Coffee className="w-4 h-4 text-rose-600 dark:text-rose-400" />
             <span className="text-sm font-medium text-rose-600 dark:text-rose-400">
@@ -89,7 +77,7 @@ export function About() {
 
           <h2 className="text-5xl md:text-6xl font-bold mb-6">
             Engineer. Builder.{" "}
-            <span className="bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
               Problem Solver.
             </span>
           </h2>
@@ -109,7 +97,7 @@ export function About() {
           >
             <Card className="p-8 border-2 border-neutral-200 dark:border-neutral-800 h-full">
               <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                <span className="w-1 h-8 bg-gradient-to-b from-rose-600 to-pink-600 rounded-full"></span>
+                <span className="w-1 h-8 bg-linear-to-b from-rose-600 to-pink-600 rounded-full"></span>
                 My Journey
               </h3>
               <div className="space-y-4 text-neutral-600 dark:text-neutral-400 leading-relaxed">
@@ -168,7 +156,7 @@ export function About() {
                     transition={{ duration: 0.4, delay: 0.7 + index * 0.1 }}
                     className="flex items-center gap-3 group"
                   >
-                    <div className="w-2 h-2 rounded-full bg-gradient-to-r from-rose-500 to-pink-500 group-hover:scale-150 transition-transform"></div>
+                    <div className="w-2 h-2 rounded-full bg-linear-to-r from-rose-500 to-pink-500 group-hover:scale-150 transition-transform"></div>
                     <span className="text-sm text-neutral-700 dark:text-neutral-300">
                       {focus}
                     </span>
@@ -194,7 +182,7 @@ export function About() {
         >
           <h3 className="text-3xl font-bold text-center mb-8">
             What Drives{" "}
-            <span className="bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
               My Work
             </span>
           </h3>
@@ -208,7 +196,7 @@ export function About() {
                 whileHover={{ y: -5 }}
               >
                 <Card className="p-6 border-2 border-neutral-200 dark:border-neutral-800 hover:border-rose-500/50 dark:hover:border-rose-500/50 transition-all text-center group h-full flex flex-col items-center">
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-rose-500/10 to-pink-500/10 mb-4 group-hover:scale-110 transition-transform">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-linear-to-br from-rose-500/10 to-pink-500/10 mb-4 group-hover:scale-110 transition-transform">
                     <value.icon className="w-6 h-6 text-rose-600 dark:text-rose-400" />
                   </div>
                   <h4 className="font-bold mb-2">{value.title}</h4>
@@ -228,21 +216,21 @@ export function About() {
           transition={{ duration: 0.6, delay: 1.2 }}
           className="mt-16 text-center"
         >
-          <Card className="p-8 border-2 border-neutral-200 dark:border-neutral-800 bg-gradient-to-br from-neutral-50 to-white dark:from-neutral-900 dark:to-neutral-950">
+          <Card className="p-8 border-2 border-neutral-200 dark:border-neutral-800 bg-linear-to-br from-neutral-50 to-white dark:from-neutral-900 dark:to-neutral-950">
             <p className="text-lg text-neutral-600 dark:text-neutral-400 mb-6">
               Let's collaborate on building something exceptional
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
-              <Badge className="px-4 py-2 bg-gradient-to-r from-rose-500/10 to-pink-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 transition-colors">
+              <Badge className="px-4 py-2 bg-linear-to-r from-rose-500/10 to-pink-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 transition-colors">
                 Full Stack Development
               </Badge>
-              <Badge className="px-4 py-2 bg-gradient-to-r from-pink-500/10 to-red-500/10 border border-pink-500/20 text-pink-600 dark:text-pink-400 hover:bg-pink-500/20 transition-colors">
+              <Badge className="px-4 py-2 bg-linear-to-r from-pink-500/10 to-red-500/10 border border-pink-500/20 text-pink-600 dark:text-pink-400 hover:bg-pink-500/20 transition-colors">
                 AI Integration
               </Badge>
-              <Badge className="px-4 py-2 bg-gradient-to-r from-red-500/10 to-rose-500/10 border border-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-500/20 transition-colors">
+              <Badge className="px-4 py-2 bg-linear-to-r from-red-500/10 to-rose-500/10 border border-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-500/20 transition-colors">
                 DevOps & Cloud
               </Badge>
-              <Badge className="px-4 py-2 bg-gradient-to-r from-rose-500/10 to-pink-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 transition-colors">
+              <Badge className="px-4 py-2 bg-linear-to-r from-rose-500/10 to-pink-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 transition-colors">
                 Technical Consulting
               </Badge>
             </div>

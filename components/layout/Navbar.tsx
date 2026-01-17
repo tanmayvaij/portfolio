@@ -1,6 +1,6 @@
 "use client";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Github, Linkedin, Mail, Menu, X } from "lucide-react";
+import { Github, Linkedin, Mail, Menu } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -60,7 +60,7 @@ export function Navbar() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <span className="bg-gradient-to-r from-rose-600 via-pink-600 to-rose-600 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-rose-600 via-pink-600 to-rose-600 bg-clip-text text-transparent">
               TANMAY VAIJ
             </span>
           </motion.a>
@@ -120,7 +120,7 @@ export function Navbar() {
               <Button
                 size="sm"
                 asChild
-                className="bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all duration-300 group"
+                className="bg-linear-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all duration-300 group"
               >
                 <a
                   href="mailto:tanmayvaij22@gmail.com"
@@ -153,7 +153,7 @@ export function Navbar() {
                   <motion.h2
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="text-3xl font-bold bg-gradient-to-r from-rose-600 via-pink-600 to-rose-600 bg-clip-text text-transparent"
+                    className="text-3xl font-bold bg-linear-to-r from-rose-600 via-pink-600 to-rose-600 bg-clip-text text-transparent"
                   >
                     Menu
                   </motion.h2>
@@ -196,7 +196,7 @@ export function Navbar() {
                               rel="noopener noreferrer"
                               className="flex items-center gap-4"
                             >
-                              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neutral-100 to-neutral-200 dark:from-neutral-800 dark:to-neutral-900 flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <div className="w-10 h-10 rounded-xl bg-linear-to-br from-neutral-100 to-neutral-200 dark:from-neutral-800 dark:to-neutral-900 flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <link.icon className="w-5 h-5" />
                               </div>
                               <span className="font-medium">{link.label}</span>
@@ -223,7 +223,7 @@ export function Navbar() {
                       className="w-full justify-start h-14 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-all group"
                     >
                       <Link href="/blog" className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neutral-100 to-neutral-200 dark:from-neutral-800 dark:to-neutral-900 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <div className="w-10 h-10 rounded-xl bg-linear-to-br from-neutral-100 to-neutral-200 dark:from-neutral-800 dark:to-neutral-900 flex items-center justify-center group-hover:scale-110 transition-transform">
                           <svg
                             className="w-5 h-5"
                             fill="none"
@@ -268,7 +268,7 @@ export function Navbar() {
                 >
                   <Button
                     asChild
-                    className="w-full h-14 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all group"
+                    className="w-full h-14 bg-linear-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all group"
                   >
                     <a
                       href="mailto:tanmayvaij22@gmail.com"
