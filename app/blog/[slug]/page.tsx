@@ -7,6 +7,56 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, ArrowLeft } from "lucide-react";
 import { ShareButton } from "@/components/blog/ShareButton";
 import { BlogPageProps } from "@/types";
+import { Metadata } from "next";
+import { BlogPostJsonLd } from "@/components/seo/BlogPostJsonLd";
+
+export async function generateMetadata({
+  params,
+}: BlogPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const post = getPostBySlug(slug);
+
+  if (!post) {
+    return {
+      title: "Post Not Found",
+    };
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://tanmayvaij.dev";
+
+  return {
+    title: post.title,
+    description: post.excerpt,
+    keywords: post.tags,
+    authors: [{ name: "Tanmay Vaij" }],
+    alternates: {
+      canonical: `/blog/${slug}`,
+    },
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      type: "article",
+      publishedTime: post.date,
+      authors: ["Tanmay Vaij"],
+      tags: post.tags,
+      images: [
+        {
+          url: `${baseUrl}/blog/${slug}/opengraph-image`,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt,
+      images: [`${baseUrl}/blog/${slug}/opengraph-image`],
+      creator: "@tanmayvaij",
+    },
+  };
+}
 
 export default async function BlogPostPage({ params }: BlogPageProps) {
   const { slug } = await params;
@@ -16,6 +66,7 @@ export default async function BlogPostPage({ params }: BlogPageProps) {
 
   return (
     <div className="min-h-screen bg-white dark:bg-neutral-950 pt-24">
+      <BlogPostJsonLd post={post} slug={slug} />
       {/* Navigation */}
       <div className="border-b border-neutral-200 dark:border-neutral-800">
         <div className="max-w-4xl mx-auto px-6 py-6">
@@ -277,7 +328,7 @@ export default async function BlogPostPage({ params }: BlogPageProps) {
                 },
                 img: {
                   component: (props: any) => (
-                    <div className="relative w-full h-auto my-8">
+                    <span className="block relative w-full h-auto my-8">
                       <Image
                         src={props.src}
                         alt={props.alt || ""}
@@ -285,7 +336,7 @@ export default async function BlogPostPage({ params }: BlogPageProps) {
                         height={675}
                         className="rounded-lg border border-neutral-200 dark:border-neutral-800 w-full h-auto"
                       />
-                    </div>
+                    </span>
                   ),
                 },
               },

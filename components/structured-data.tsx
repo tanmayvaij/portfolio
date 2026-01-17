@@ -6,9 +6,9 @@ export function StructuredData() {
     "@graph": [
       {
         "@type": "Person",
-        "@id": "https://tanmayvaij.com/#person",
+        "@id": "https://tanmayvaij.dev/#person",
         name: "Tanmay Vaij",
-        url: "https://tanmayvaij.com",
+        url: "https://tanmayvaij.dev",
         jobTitle: "Full Stack & AI Engineer",
         description:
           "Full Stack & AI Engineer with 2+ years of experience building production-grade GenAI applications and scalable web solutions",
@@ -41,25 +41,25 @@ export function StructuredData() {
       },
       {
         "@type": "WebSite",
-        "@id": "https://tanmayvaij.com/#website",
-        url: "https://tanmayvaij.com",
+        "@id": "https://tanmayvaij.dev/#website",
+        url: "https://tanmayvaij.dev",
         name: "Tanmay Vaij Portfolio",
         description: "Portfolio of Tanmay Vaij - Full Stack & AI Engineer",
         publisher: {
-          "@id": "https://tanmayvaij.com/#person",
+          "@id": "https://tanmayvaij.dev/#person",
         },
         inLanguage: "en-US",
       },
       {
         "@type": "WebPage",
-        "@id": "https://tanmayvaij.com/#webpage",
-        url: "https://tanmayvaij.com",
+        "@id": "https://tanmayvaij.dev/#webpage",
+        url: "https://tanmayvaij.dev",
         name: "Tanmay Vaij | Full Stack & AI Engineer",
         isPartOf: {
-          "@id": "https://tanmayvaij.com/#website",
+          "@id": "https://tanmayvaij.dev/#website",
         },
         about: {
-          "@id": "https://tanmayvaij.com/#person",
+          "@id": "https://tanmayvaij.dev/#person",
         },
         description:
           "Full Stack & AI Engineer specializing in building production-grade GenAI applications, scalable backends, and modern web solutions",

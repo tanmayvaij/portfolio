@@ -209,33 +209,6 @@ export function About() {
           </div>
         </motion.div>
 
-        {/* Call to Action */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={isInView ? { opacity: 1, scale: 1 } : {}}
-          transition={{ duration: 0.6, delay: 1.2 }}
-          className="mt-16 text-center"
-        >
-          <Card className="p-8 border-2 border-neutral-200 dark:border-neutral-800 bg-linear-to-br from-neutral-50 to-white dark:from-neutral-900 dark:to-neutral-950">
-            <p className="text-lg text-neutral-600 dark:text-neutral-400 mb-6">
-              Let's collaborate on building something exceptional
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-4">
-              <Badge className="px-4 py-2 bg-linear-to-r from-rose-500/10 to-pink-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 transition-colors">
-                Full Stack Development
-              </Badge>
-              <Badge className="px-4 py-2 bg-linear-to-r from-pink-500/10 to-red-500/10 border border-pink-500/20 text-pink-600 dark:text-pink-400 hover:bg-pink-500/20 transition-colors">
-                AI Integration
-              </Badge>
-              <Badge className="px-4 py-2 bg-linear-to-r from-red-500/10 to-rose-500/10 border border-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-500/20 transition-colors">
-                DevOps & Cloud
-              </Badge>
-              <Badge className="px-4 py-2 bg-linear-to-r from-rose-500/10 to-pink-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 transition-colors">
-                Technical Consulting
-              </Badge>
-            </div>
-          </Card>
-        </motion.div>
       </div>
     </section>
   );

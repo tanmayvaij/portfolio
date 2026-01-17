@@ -11,7 +11,22 @@ import { BlogGridPost } from "@/components/blog/BlogGridPost";
 export const metadata: Metadata = {
   title: "Blog",
   description:
-    "Technical articles and insights on Full Stack Development, AI, GenAI, and modern web technologies by Tanmay Vaij",
+    "Insights on Full Stack Development, AI/ML, DevOps, and modern web technologies. Learn from real-world experiences and technical deep-dives.",
+  alternates: {
+    canonical: "/blog",
+  },
+  openGraph: {
+    title: "Blog | Tanmay Vaij",
+    description:
+      "Insights on Full Stack Development, AI/ML, DevOps, and modern web technologies.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blog | Tanmay Vaij",
+    description:
+      "Insights on Full Stack Development, AI/ML, DevOps, and modern web technologies.",
+  },
 };
 
 export default function BlogPage() {
