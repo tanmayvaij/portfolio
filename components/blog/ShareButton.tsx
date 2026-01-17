@@ -21,7 +21,7 @@ export function ShareButton({ title, url, text }: ShareButtonProps) {
         });
         setIsSharing(false);
         return;
-      } catch (error) {
+      } catch {
         // User cancelled or share failed, fall through to clipboard
         console.log("Share cancelled or failed, copying to clipboard");
       }

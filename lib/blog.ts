@@ -65,7 +65,7 @@ export function getPostBySlug(slug: string): BlogPost | null {
       content,
       readingTime,
     };
-  } catch (error) {
+  } catch {
     return null;
   }
 }

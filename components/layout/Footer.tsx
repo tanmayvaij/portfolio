@@ -145,7 +145,7 @@ export function Footer() {
               <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-md">
                 Crafting production-grade applications at the intersection of
                 elegant design, scalable architecture, and intelligent systems.
-                Let's build something extraordinary.
+                Let&apos;s build something extraordinary.
               </p>
             </div>
 
@@ -214,7 +214,7 @@ export function Footer() {
             className="md:col-span-3 space-y-4"
           >
             <h3 className="font-semibold text-neutral-900 dark:text-white mb-4">
-              Let's Connect
+              Let&apos;s Connect
             </h3>
             <div className="space-y-3">
               {socialLinks.map((link) => (
