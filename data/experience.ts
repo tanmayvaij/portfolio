@@ -4,7 +4,7 @@ export const experience: Experience[] = [
   {
     company: "IntellAxis AI",
     role: "Software Developer",
-    duration: "July 2025 – Present",
+    duration: "July 2025 - Present",
     location: "Remote",
     highlights: [
       "Led development of landing website and GenAI products across UI/UX, backend, and DevOps",
@@ -12,11 +12,13 @@ export const experience: Experience[] = [
     ],
     tech: ["GenAI", "CI/CD", "DevOps"],
     color: "violet",
+    type: "Internship",
+    companyUrl: "https://intellaxisai.com/",
   },
   {
     company: "MyLegacyBox",
     role: "Full Stack Developer",
-    duration: "June 2023 – May 2025",
+    duration: "June 2023 - May 2025",
     location: "Remote",
     highlights: [
       "Led end-to-end development for personal finance succession management platform",
@@ -24,11 +26,14 @@ export const experience: Experience[] = [
     ],
     tech: ["React Native", "Node.js", "AWS"],
     color: "blue",
+    type: "Internship",
+    companyUrl: "https://mylegacybox.in/",
+    
   },
   {
     company: "SystemOnSilicon",
     role: "Full Stack Developer",
-    duration: "Jan 2023 – June 2023",
+    duration: "Jan 2023 - June 2023",
     location: "Remote",
     highlights: [
       "Developed UI/UX designs and full-stack features for AgriTech and HealthTech applications",
@@ -36,5 +41,8 @@ export const experience: Experience[] = [
     ],
     tech: ["React", "Node.js", "UI/UX"],
     color: "emerald",
+    type: "Internship",
+    companyUrl: "https://systemonsilicon.com/",
+
   },
 ];
