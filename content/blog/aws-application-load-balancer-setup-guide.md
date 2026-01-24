@@ -2,7 +2,7 @@
 title: "AWS Application Load Balancer: Complete Setup Guide with Demo"
 date: 2026-01-16
 excerpt: Learn how to set up an AWS Application Load Balancer to distribute traffic across multiple EC2 instances. This hands-on guide covers everything from creating target groups to testing load distribution.
-tags: [AWS, Load Balancer, ALB, DevOps, High Availability]
+tags: [AWS, Load Balancer, ELB, DevOps, High Availability]
 image: /blog-featured-images/aws_lb_image.png
 ---
 
@@ -190,7 +190,7 @@ You'll see three types of load balancers. For this demo, select **Application Lo
 **Why Application Load Balancer?**
 Choose an Application Load Balancer when you need a flexible feature set for your applications with HTTP and HTTPS traffic. Operating at the request level, Application Load Balancers provide advanced routing and visibility features targeted at application architectures, including microservices and containers.
 
-![Select ALB](/blog-content-images/lb-15.png)
+![Select ELB](/blog-content-images/lb-15.png)
 
 ---
 
@@ -268,7 +268,7 @@ Scroll down to find your running instances. Select all three instances you creat
 
 Review your target group settings and click **Create target group**. Once created, return to the load balancer creation page and select your newly created target group from the dropdown in the **Default action** section.
 
-![Select Target Group in ALB](/blog-content-images/lb-23.png)
+![Select Target Group in ELB](/blog-content-images/lb-23.png)
 
 ---
 
