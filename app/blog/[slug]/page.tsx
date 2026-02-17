@@ -41,7 +41,11 @@ export async function generateMetadata({
       tags: post.tags,
       images: [
         {
-          url: `${baseUrl}/blog/${slug}/opengraph-image`,
+          url: post.image
+            ? post.image.startsWith("http")
+              ? post.image
+              : `${baseUrl}${post.image}`
+            : `${baseUrl}/blog/${slug}/opengraph-image`,
           width: 1200,
           height: 630,
           alt: post.title,
