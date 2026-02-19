@@ -78,6 +78,7 @@ export function Footer() {
     { label: "Experience", href: "#experience" },
     { label: "Tech Stack", href: "#tech" },
     { label: "About", href: "#about" },
+    { label: "Privacy Policy", href: "/privacy" },
   ];
 
   const projectLinks = [
