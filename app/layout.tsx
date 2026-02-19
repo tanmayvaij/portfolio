@@ -5,7 +5,6 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
-import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -119,12 +118,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <Script
-        async
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5178986740879466"
-        crossOrigin="anonymous"
-        strategy="beforeInteractive"
-      />
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
