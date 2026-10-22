@@ -1,31 +1,76 @@
-import { MetadataRoute } from "next";
-import { getAllPostSlugs } from "@/lib/blog";
+import type { MetadataRoute } from "next"
+import { getAllPosts } from "@/lib/db/posts"
+import { getAllProjects } from "@/lib/db/projects"
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://tanmayvaij.dev";
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const baseUrl = "https://tanmayvaij.dev"
+  const buildDate = new Date("2026-10-22T00:00:00Z")
 
-  // Get all blog post slugs
-  const blogPosts = getAllPostSlugs();
-
-  return [
+  const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
-      lastModified: new Date(),
+      lastModified: buildDate,
       changeFrequency: "weekly",
       priority: 1.0,
     },
     {
-      url: `${baseUrl}/blog`,
-      lastModified: new Date(),
+      url: `${baseUrl}/projects`,
+      lastModified: buildDate,
       changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/blog`,
+      lastModified: buildDate,
+      changeFrequency: "daily",
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/tools`,
+      lastModified: buildDate,
+      changeFrequency: "weekly",
+      priority: 0.85,
+    },
+    {
+      url: `${baseUrl}/about`,
+      lastModified: buildDate,
+      changeFrequency: "monthly",
       priority: 0.8,
     },
-    // Add all blog posts
-    ...blogPosts.map((slug) => ({
-      url: `${baseUrl}/blog/${slug}`,
-      lastModified: new Date(),
-      changeFrequency: "monthly" as const,
-      priority: 0.6,
-    })),
-  ];
+    {
+      url: `${baseUrl}/contact`,
+      lastModified: buildDate,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/privacy-policy`,
+      lastModified: buildDate,
+      changeFrequency: "yearly",
+      priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/terms`,
+      lastModified: buildDate,
+      changeFrequency: "yearly",
+      priority: 0.5,
+    },
+  ]
+
+  const [posts, projects] = await Promise.all([getAllPosts(), getAllProjects()])
+  const blogRoutes: MetadataRoute.Sitemap = posts.map((post) => ({
+    url: `${baseUrl}/blog/${post.slug}`,
+    lastModified: new Date(post.updatedAt || post.publishedAt),
+    changeFrequency: "monthly",
+    priority: 0.8,
+  }))
+
+  const projectRoutes: MetadataRoute.Sitemap = projects.map((project) => ({
+    url: `${baseUrl}/projects/${project.slug || project.id}`,
+    lastModified: buildDate,
+    changeFrequency: "weekly",
+    priority: 0.85,
+  }))
+
+  return [...staticRoutes, ...blogRoutes, ...projectRoutes]
 }

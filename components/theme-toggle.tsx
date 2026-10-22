@@ -1,36 +1,51 @@
-"use client";
+"use client"
 
-import * as React from "react";
-import { Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
-import { Button } from "@/components/ui/button";
+import * as React from "react"
+import { Moon, Sun } from "lucide-react"
+import { useTheme } from "./theme-provider"
+import { Button } from "@/components/ui/button"
+
+const emptySubscribe = () => () => {}
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  const { setTheme, resolvedTheme } = useTheme()
+  const mounted = React.useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  )
 
   if (!mounted) {
     return (
-      <Button variant="ghost" size="icon" className="w-9 h-9">
-        <Sun className="h-[1.2rem] w-[1.2rem]" />
+      <Button variant="ghost" size="icon-sm" aria-label="Toggle theme" className="text-muted-foreground">
+        <Sun className="h-4 w-4" />
       </Button>
-    );
+    )
+  }
+
+  const toggleTheme = () => {
+    if (resolvedTheme === "dark") {
+      setTheme("light")
+    } else {
+      setTheme("dark")
+    }
   }
 
   return (
     <Button
       variant="ghost"
-      size="icon"
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="w-9 h-9 relative group"
+      size="icon-sm"
+      onClick={toggleTheme}
+      aria-label={`Switch to ${resolvedTheme === "dark" ? "light" : "dark"} mode`}
+      title={`Switch to ${resolvedTheme === "dark" ? "light" : "dark"} mode`}
+      className="text-foreground/80 hover:text-foreground hover:bg-accent cursor-pointer transition-colors"
     >
-      <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-rose-600 group-hover:text-rose-700" />
-      <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-rose-600 dark:text-rose-400 group-hover:text-rose-700 dark:group-hover:text-rose-300" />
-      <span className="sr-only">Toggle theme</span>
+      {resolvedTheme === "dark" ? (
+        <Sun className="h-4 w-4 text-amber-400 transition-all" />
+      ) : (
+        <Moon className="h-4 w-4 text-slate-700 transition-all" />
+      )}
     </Button>
-  );
+  )
 }
+

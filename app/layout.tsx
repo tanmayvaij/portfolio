@@ -1,92 +1,53 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
+import type { Metadata, Viewport } from "next"
+import localFont from "next/font/local"
+import "./globals.css"
+import { Navbar } from "@/components/navbar"
+import { Footer } from "@/components/footer"
+import { CookieConsent } from "@/components/cookie-consent"
+import { ThemeProvider } from "@/components/theme-provider"
+import { AdSenseScript } from "@/components/adsense/AdSenseScript"
+import { cn } from "@/lib/utils"
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const didactGothic = localFont({
+  src: "./fonts/DidactGothic-Regular.ttf",
+  variable: "--font-didact",
+  display: "swap",
+})
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#09090b" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+}
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "https://tanmayvaij.dev",
-  ),
+  metadataBase: new URL("https://tanmayvaij.dev"),
+  alternates: {
+    canonical: "https://tanmayvaij.dev",
+  },
   title: {
-    default: "Tanmay Vaij | Full Stack & AI Engineer",
+    default: "Tanmay Vaij — Senior Full Stack & Systems Engineer",
     template: "%s | Tanmay Vaij",
   },
   description:
-    "Portfolio of Tanmay Vaij - Full Stack & AI Engineer specializing in GenAI, scalable backends, and modern web development. Building innovative solutions with React, Node.js, and AI technologies.",
-  applicationName: "Tanmay Vaij Portfolio",
-  referrer: "origin-when-cross-origin",
+    "Engineering portfolio and technical blog covering Next.js, distributed backend systems, AI agents, cloud architecture, and high-performance web optimization.",
   keywords: [
     "Tanmay Vaij",
-    "Full Stack Developer",
-    "AI Engineer",
-    "GenAI",
-    "React",
-    "Node.js",
+    "Full Stack Engineer",
+    "Systems Engineer",
     "Next.js",
+    "React",
     "TypeScript",
-    "Software Engineer",
-    "Web Development",
+    "Cloud Architecture",
+    "AI Agents",
+    "Software Engineering Blog",
   ],
   authors: [{ name: "Tanmay Vaij", url: "https://tanmayvaij.dev" }],
   creator: "Tanmay Vaij",
   publisher: "Tanmay Vaij",
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
-  alternates: {
-    canonical: "/",
-  },
-  icons: {
-    icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
-    ],
-    apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
-    ],
-  },
-  manifest: "/manifest.webmanifest",
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: "https://tanmayvaij.dev",
-    title: "Tanmay Vaij | Full Stack & AI Engineer",
-    description:
-      "Portfolio of Tanmay Vaij - Full Stack & AI Engineer specializing in GenAI, scalable backends, and modern web development.",
-    siteName: "Tanmay Vaij Portfolio",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Tanmay Vaij - Full Stack & AI Engineer",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Tanmay Vaij | Full Stack & AI Engineer",
-    description:
-      "Portfolio of Tanmay Vaij - Full Stack & AI Engineer specializing in GenAI, scalable backends, and modern web development.",
-    images: ["/og-image.png"],
-    creator: "@tanmayvaij",
-  },
   robots: {
     index: true,
     follow: true,
@@ -98,45 +59,120 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  category: "technology",
-};
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://tanmayvaij.dev",
+    title: "Tanmay Vaij — Senior Full Stack & Systems Engineer",
+    description:
+      "Engineering portfolio and technical blog covering Next.js, distributed backend systems, AI agents, and web architecture.",
+    siteName: "Tanmay Vaij Portfolio & Tech Blog",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Tanmay Vaij — Senior Full Stack & Systems Engineer",
+    description:
+      "Engineering portfolio and technical blog covering Next.js, distributed backend systems, AI agents, and web architecture.",
+    creator: "@tanmayvaij",
+  },
+  other: {
+    "google-adsense-account": process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-0000000000000000",
+  },
+}
 
-export const viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 5,
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+const rootJsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://tanmayvaij.dev/#website",
+      url: "https://tanmayvaij.dev",
+      name: "Tanmay Vaij — Senior Full Stack & Systems Engineer",
+      description:
+        "Engineering portfolio and technical blog covering Next.js, distributed backend systems, AI agents, cloud architecture, and web performance optimization.",
+      publisher: {
+        "@id": "https://tanmayvaij.dev/#person",
+      },
+      inLanguage: "en-US",
+    },
+    {
+      "@type": "Person",
+      "@id": "https://tanmayvaij.dev/#person",
+      name: "Tanmay Vaij",
+      url: "https://tanmayvaij.dev",
+      jobTitle: "Senior Full Stack & Systems Engineer",
+      description:
+        "Senior software engineer specializing in Next.js, distributed backend microservices, high-throughput architectures, and autonomous AI agents.",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "Bengaluru",
+        addressRegion: "Karnataka",
+        addressCountry: "India",
+      },
+      sameAs: [
+        "https://www.linkedin.com/in/tanmayvaij/",
+        "https://github.com/tanmayvaij",
+        "https://twitter.com/tanmayvaij",
+      ],
+      knowsAbout: [
+        "Next.js App Router",
+        "React",
+        "TypeScript",
+        "Node.js",
+        "Go",
+        "Distributed Systems",
+        "PostgreSQL",
+        "SQLite",
+        "Prisma ORM",
+        "Microservices Architecture",
+        "Autonomous AI Agents",
+        "Web Performance Optimization",
+        "Google AdSense Optimization",
+      ],
+    },
   ],
-};
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={cn("h-full antialiased", didactGothic.variable)}
+    >
+      <head>
+        <AdSenseScript />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(rootJsonLd) }}
+        />
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
-          <GoogleAnalytics
-            measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}
-          />
+        className={cn(
+          "min-h-full flex flex-col bg-background text-foreground selection:bg-primary selection:text-primary-foreground font-sans",
+          didactGothic.className
         )}
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem={false}
-          disableTransitionOnChange
-        >
+      >
+        <ThemeProvider defaultTheme="system">
           <Navbar />
-          {children}
+          <div className="flex-1">{children}</div>
           <Footer />
+          <CookieConsent />
         </ThemeProvider>
       </body>
     </html>
-  );
+  )
 }

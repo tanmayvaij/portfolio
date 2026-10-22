@@ -1,0 +1,12 @@
+# Allow all legitimate crawlers
+User-agent: *
+Allow: /
+Disallow: /admin
+
+# Specifically ensure Google AdSense crawler has full unrestricted access
+User-agent: Mediapartners-Google
+Allow: /
+
+# Sitemap location
+Sitemap: https://tanmayvaij.dev/sitemap.xml
+

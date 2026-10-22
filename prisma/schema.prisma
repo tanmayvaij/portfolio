@@ -1,0 +1,140 @@
+// Prisma schema for SQLite database
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Post {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  title        String
+  excerpt      String
+  content      String
+  coverImage   String?  // Firebase Storage URL for Blog Feature Image
+  category     String
+  tags         String   // Comma-separated or JSON
+  readTime     String
+  authorName   String   @default("Tanmay Vaij")
+  authorRole   String   @default("Senior Systems Engineer")
+  authorAvatar String   @default("/profile.png")
+  published    Boolean  @default(true)
+  publishedAt  DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Project {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String
+  description     String
+  longDescription String
+  featuredImage   String?  // Firebase Storage URL for Project Feature Image
+  screenshots     String?  // JSON array of Firebase Storage URLs for Project Screenshots
+  category        String
+  tags            String   // Comma-separated or JSON
+  metrics         String?
+  highlights      String   // JSON string
+  featured        Boolean  @default(false)
+  githubUrl       String?
+  liveUrl         String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
+model AffiliateTool {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  name         String
+  category     String   // "Desk Setup & Ergonomics" | "Audio & Tech Gadgets" | "Books & Reading" | "Cloud & Software"
+  description  String
+  badge        String?  // e.g. "Amazon's Choice" | "Top Pick" | "$100 Credit" | "4.8 ★ Rated"
+  affiliateUrl String
+  discountCode String?
+  price        String?  // e.g. "$199" | "$24.99"
+  rating       Float?   // e.g. 4.8
+  imageUrl     String?  // product image URL
+  merchant     String   @default("Amazon") // "Amazon" | "Partner" | "Official"
+  featured     Boolean  @default(false)
+  clicks       Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model AboutConfig {
+  id              String   @id @default("default")
+  name            String   @default("Tanmay Vaij")
+  headline        String   @default("Hi, I'm Tanmay Vaij.")
+  subheadline     String   @default("Senior Full Stack & Distributed Systems Engineer · Bengaluru")
+  bioIntro        String   @default("I am a Senior Software Engineer with a passion for designing scalable web architectures, bulletproof APIs, and autonomous AI agents.")
+  bioParagraph1   String   @default("Over the past 6+ years, I have worked across the stack from low-latency Go and Node.js microservices to modern React and Next.js frontends. I believe that engineering excellence is about crafting systems that are observable, easy to maintain, and performant by default.")
+  bioParagraph2   String   @default("When I'm not architecting cloud infrastructure or profiling database transactions, I write deep technical field guides on my blog and contribute to open-source developer tooling.")
+  location           String   @default("Bengaluru, India")
+  email              String   @default("tanmayvaij22@gmail.com")
+  websiteUrl         String   @default("https://tanmayvaij.dev")
+  address            String   @default("Bengaluru, Karnataka, India")
+  contactHeading     String   @default("Let's Discuss Your Architecture")
+  contactDescription String   @default("Whether you have a technical question about an article, want to collaborate on open-source, or need senior systems expertise, my inbox is open.")
+  contactTitle       String   @default("Contact Information")
+  contactSubtitle    String   @default("Reach out directly for freelance contracts, consulting, or technical inquiries.")
+  responseTime       String   @default("Typically within 24 business hours")
+  specialization     String   @default("Distributed Systems & Next.js")
+  status          String   @default("Available")
+  experienceYears String   @default("6+ Years")
+  languages       String   @default("TypeScript, Go, Python, SQL")
+  githubUrl       String   @default("https://github.com/tanmayvaij")
+  linkedinUrl     String   @default("https://www.linkedin.com/in/tanmayvaij/")
+  degreeTitle     String   @default("Bachelor of Technology in Computer Science")
+  degreePeriod    String   @default("2015 - 2019")
+  degreeDesc      String   @default("First Class with Distinction · Systems & Algorithms Specialization")
+  certTitle       String   @default("AWS Certified Solutions Architect")
+  certBadge       String   @default("Certified")
+  certDesc        String   @default("Amazon Web Services · Distributed Cloud Architecture & Resilience")
+  experiencesJson String?  // Optional JSON string for custom timeline items
+  updatedAt       DateTime @updatedAt
+}
+
+model Experience {
+  id           String   @id @default(cuid())
+  role         String
+  company      String
+  location     String
+  period       String
+  description  String
+  achievements String   // JSON array or newline-separated string
+  skills       String   // Comma-separated tags
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model SkillCategory {
+  id        String   @id @default(cuid())
+  category  String
+  skills    String   // JSON string of [{ name: string, level: string }]
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+

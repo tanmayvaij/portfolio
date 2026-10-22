@@ -1,167 +1,326 @@
-import { getPostBySlug, getAllPosts } from "@/lib/blog";
-import { notFound } from "next/navigation";
-import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, ArrowLeft } from "lucide-react";
-import { ShareButton } from "@/components/blog/ShareButton";
-import { BlogPageProps } from "@/types";
-import { Metadata } from "next";
-import { BlogPostJsonLd } from "@/components/seo/BlogPostJsonLd";
-import { BlogMarkdown } from "@/components/blog/BlogMarkdown";
-import Image from "next/image";
+import type { Metadata } from "next"
+import { notFound } from "next/navigation"
+import Link from "next/link"
+import Image from "next/image"
+import { ArrowLeft, Calendar, Clock, Tag } from "lucide-react"
+import { getAllPosts, getPostBySlug } from "@/lib/db/posts"
+import { getFeaturedAffiliates } from "@/lib/db/affiliates"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { LinkedinIcon } from "@/components/icons"
+import { AdBanner } from "@/components/adsense/AdBanner"
+import { AffiliateCallout } from "@/components/affiliate/AffiliateCallout"
+import { ReadingProgressBar, FadeIn, StaggerContainer, StaggerItem, MotionCard } from "@/components/motion"
+import { ArticleRenderer } from "./article-renderer"
 
-export async function generateMetadata({
-  params,
-}: BlogPageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const post = getPostBySlug(slug);
+interface PageProps {
+  params: Promise<{ slug: string }>
+}
+
+export const instant = false
+
+export async function generateStaticParams() {
+  const posts = await getAllPosts()
+  return posts.map((post) => ({
+    slug: post.slug,
+  }))
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params
+  const post = await getPostBySlug(slug)
 
   if (!post) {
     return {
-      title: "Post Not Found",
-    };
+      title: "Article Not Found",
+    }
   }
-
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://tanmayvaij.dev";
 
   return {
     title: post.title,
     description: post.excerpt,
     keywords: post.tags,
-    authors: [{ name: "Tanmay Vaij" }],
+    authors: [{ name: post.author.name, url: "https://tanmayvaij.dev/about" }],
     alternates: {
-      canonical: `/blog/${slug}`,
+      canonical: `https://tanmayvaij.dev/blog/${post.slug}`,
     },
     openGraph: {
       title: post.title,
       description: post.excerpt,
       type: "article",
-      publishedTime: post.date,
-      authors: ["Tanmay Vaij"],
+      url: `https://tanmayvaij.dev/blog/${post.slug}`,
+      siteName: "Tanmay Vaij Engineering Blog",
+      locale: "en_US",
+      publishedTime: post.publishedAt,
+      modifiedTime: post.updatedAt,
+      authors: [post.author.name],
       tags: post.tags,
-      images: [
-        {
-          url: post.image
-            ? post.image.startsWith("http")
-              ? post.image
-              : `${baseUrl}${post.image}`
-            : `${baseUrl}/blog/${slug}/opengraph-image`,
-          width: 1200,
-          height: 630,
-          alt: post.title,
-        },
-      ],
+      ...(post.coverImage ? { images: [{ url: post.coverImage, alt: post.title }] } : {}),
     },
     twitter: {
       card: "summary_large_image",
       title: post.title,
       description: post.excerpt,
-      images: [`${baseUrl}/blog/${slug}/opengraph-image`],
       creator: "@tanmayvaij",
+      ...(post.coverImage ? { images: [post.coverImage] } : {}),
     },
-  };
+  }
 }
 
-export default async function BlogPostPage({ params }: BlogPageProps) {
-  const { slug } = await params;
-  const post = getPostBySlug(slug);
+export default async function BlogPostPage({ params }: PageProps) {
+  const { slug } = await params
+  const post = await getPostBySlug(slug)
 
-  if (!post) notFound();
+  if (!post) {
+    notFound()
+  }
+
+  const allPosts = await getAllPosts()
+  const relatedPosts = allPosts
+    .filter((p) => p.slug !== post.slug && (p.category === post.category || p.tags.some((t) => post.tags.includes(t))))
+    .slice(0, 2)
+
+  const featuredTools = await getFeaturedAffiliates()
+  const matchedTool =
+    featuredTools.find((t) =>
+      post.tags.some(
+        (tag) =>
+          t.category.toLowerCase().includes(tag.toLowerCase()) ||
+          t.name.toLowerCase().includes(tag.toLowerCase())
+      )
+    ) || featuredTools[0]
+
+  // JSON-LD Structured Data for Google AdSense & SEO Rich Snippets
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.excerpt,
+    url: `https://tanmayvaij.dev/blog/${post.slug}`,
+    datePublished: post.publishedAt,
+    dateModified: post.updatedAt,
+    author: {
+      "@type": "Person",
+      name: post.author.name,
+      url: "https://tanmayvaij.dev/about",
+      jobTitle: post.author.role,
+      sameAs: [
+        "https://www.linkedin.com/in/tanmayvaij/",
+        "https://github.com/tanmayvaij",
+        "https://twitter.com/tanmayvaij",
+      ],
+    },
+    publisher: {
+      "@type": "Person",
+      name: "Tanmay Vaij",
+      url: "https://tanmayvaij.dev",
+      sameAs: [
+        "https://www.linkedin.com/in/tanmayvaij/",
+        "https://github.com/tanmayvaij",
+      ],
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `https://tanmayvaij.dev/blog/${post.slug}`,
+    },
+    keywords: post.tags.join(", "),
+  }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-neutral-950 pt-24">
-      <BlogPostJsonLd post={post} slug={slug} />
-      {/* Navigation */}
-      <div className="border-b border-neutral-200 dark:border-neutral-800">
-        <div className="max-w-4xl mx-auto px-6 py-6">
-          <Link
-            href="/blog"
-            className="inline-flex items-center gap-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="font-medium">Back</span>
-          </Link>
-        </div>
-      </div>
+    <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
+      <ReadingProgressBar />
+      {/* Structured Data script */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
-      {/* Article */}
-      <article className="max-w-5xl mx-auto px-6 py-16">
-        {/* Header */}
-        <header className="mb-16">
-          {/* Meta */}
-          <div className="flex flex-wrap items-center gap-4 text-sm text-neutral-500 dark:text-neutral-500 mb-8">
-            <time className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              {new Date(post.date).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
-            </time>
-            <span>·</span>
-            <span className="flex items-center gap-2">
-              <Clock className="w-4 h-4" />
-              {post.readingTime} min read
+      {/* Back button & Article Header */}
+      <FadeIn direction="up">
+        <div className="mb-6">
+          <Button asChild variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+            <Link href="/blog">
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Back to All Articles
+            </Link>
+          </Button>
+        </div>
+
+        <header className="space-y-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="secondary" className="text-xs">
+              {post.category}
+            </Badge>
+            <span className="text-muted-foreground text-xs">•</span>
+            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Calendar className="h-3 w-3" />
+              Published {post.publishedAt}
+            </span>
+            <span className="text-muted-foreground text-xs">•</span>
+            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Clock className="h-3 w-3" />
+              {post.readTime}
             </span>
           </div>
 
-          {/* Title */}
-          <h1 className="text-5xl md:text-6xl font-bold mb-8 text-neutral-900 dark:text-white tracking-tight">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-[1.2] break-words">
             {post.title}
           </h1>
 
-          {/* Tags */}
-          <div className="flex flex-wrap items-center gap-2">
-            {post.tags.map((tag) => (
-              <Badge
-                key={tag}
-                variant="outline"
-                className="px-3 py-1 border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors"
-              >
-                {tag}
-              </Badge>
-            ))}
+          <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
+            {post.excerpt}
+          </p>
 
-            {/* Share Button */}
-            <div className="ml-auto">
-              <ShareButton
-                title={post.title}
-                url={`https://www.tanmayvaij.dev/blog/${post.slug}`}
-                text={post.excerpt}
+          {/* Author information */}
+          <div className="flex items-center justify-between border-y border-border/60 py-4">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/profile.png"
+                alt={post.author.name}
+                width={40}
+                height={40}
+                style={{ width: "auto", height: "auto" }}
+                className="h-10 w-10 rounded-full object-cover border border-border"
               />
+              <div className="flex flex-col">
+                <span className="text-sm font-semibold text-foreground">{post.author.name}</span>
+                <span className="text-xs text-muted-foreground">{post.author.role}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-[11px] hidden sm:inline-flex">
+                Verified Technical Content
+              </Badge>
             </div>
           </div>
         </header>
 
-        {/* Featured Image */}
-        {post.image && (
-          <div className="mb-16 relative w-full h-[400px] md:h-[500px]">
-            <Image
-              src={post.image}
+        {/* Featured Cover Image */}
+        {post.coverImage && (
+          <div className="relative mt-6 aspect-[21/9] w-full overflow-hidden rounded-xl border border-border bg-muted shadow-sm">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={post.coverImage}
               alt={post.title}
-              fill
-              className="object-cover rounded-lg border border-neutral-200 dark:border-neutral-800"
-              sizes="(max-width: 768px) 100vw, 1200px"
-              priority
+              className="h-full w-full object-cover"
             />
           </div>
         )}
+      </FadeIn>
 
-        {/* Content */}
-        <div className="prose prose-lg dark:prose-invert prose-neutral max-w-none">
-          <BlogMarkdown content={post.content} />
-        </div>
+      {/* Top in-article AdSense Banner */}
+      <div className="my-6">
+        <AdBanner slot="3000000001" format="horizontal" label="Advertisement" />
+      </div>
 
-        {/* Footer */}
-        <div className="mt-20 pt-12 border-t border-neutral-200 dark:border-neutral-800" />
+      {/* Article Body */}
+      <article className="prose prose-neutral dark:prose-invert max-w-none py-6">
+        <ArticleRenderer content={post.content} />
       </article>
-    </div>
-  );
-}
 
-export async function generateStaticParams() {
-  const posts = getAllPosts();
-  return posts.map((post) => ({
-    slug: post.slug,
-  }));
+      {/* Middle/Post AdSense Banner */}
+      <div className="my-8">
+        <AdBanner slot="3000000002" format="auto" label="Sponsored Content" />
+      </div>
+
+      {/* Recommended Affiliate Tool / Gear Callout */}
+      {matchedTool && (
+        <AffiliateCallout
+          title={matchedTool.name}
+          toolName={matchedTool.name}
+          badge={matchedTool.badge || "Top Pick"}
+          description={matchedTool.description}
+          affiliateUrl={matchedTool.affiliateUrl}
+          discountCode={matchedTool.discountCode || undefined}
+          price={matchedTool.price || undefined}
+          rating={matchedTool.rating || undefined}
+          merchant={matchedTool.merchant}
+          imageUrl={matchedTool.imageUrl}
+        />
+      )}
+
+      {/* Tags */}
+      <div className="mt-8 pt-6 border-t border-border flex flex-wrap items-center gap-2">
+        <span className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+          <Tag className="h-3 w-3" />
+          Tags:
+        </span>
+        {post.tags.map((tag) => (
+          <Badge key={tag} variant="outline" className="text-xs">
+            {tag}
+          </Badge>
+        ))}
+      </div>
+
+      {/* Author Bio Card */}
+      <div className="my-10 rounded-xl border border-border bg-card p-6 shadow-xs">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <Image
+            src="/profile.png"
+            alt="Tanmay Vaij"
+            width={56}
+            height={56}
+            style={{ width: "auto", height: "auto" }}
+            className="h-14 w-14 rounded-full object-cover border border-border shadow-xs shrink-0"
+          />
+          <div className="space-y-1">
+            <h3 className="font-semibold text-foreground text-base">Written by Tanmay Vaij</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Senior Full Stack & Systems Engineer based in Bengaluru. Tanmay writes about Next.js performance, microservice reliability, distributed caching, and AI agent architectures.
+            </p>
+            <div className="pt-2 flex flex-wrap items-center gap-3 text-xs">
+              <Link href="/about" className="text-primary hover:underline font-medium">
+                View Full Bio & Experience →
+              </Link>
+              <span className="text-muted-foreground">•</span>
+              <a
+                href="https://www.linkedin.com/in/tanmayvaij/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground hover:underline font-medium"
+              >
+                <LinkedinIcon className="h-3.5 w-3.5" />
+                LinkedIn Profile
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Related Posts */}
+      {relatedPosts.length > 0 && (
+        <section className="mt-12 border-t border-border/80 pt-8">
+          <FadeIn direction="up">
+            <h2 className="text-xl font-bold tracking-tight text-foreground mb-4">
+              Related Technical Articles
+            </h2>
+          </FadeIn>
+          <StaggerContainer staggerDelay={0.1} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {relatedPosts.map((related) => (
+              <StaggerItem key={related.slug} className="h-full">
+                <MotionCard hoverY={-3} className="h-full flex flex-col justify-between">
+                  <div className="rounded-lg border border-border bg-card/60 p-4 hover:border-primary/40 transition-colors h-full flex flex-col justify-between">
+                    <div>
+                      <Badge variant="secondary" className="text-[10px] mb-2">
+                        {related.category}
+                      </Badge>
+                      <h4 className="font-semibold text-sm leading-snug line-clamp-2">
+                        <Link href={`/blog/${related.slug}`} className="hover:text-primary transition-colors">
+                          {related.title}
+                        </Link>
+                      </h4>
+                    </div>
+                    <p className="text-xs text-muted-foreground line-clamp-2 mt-2">
+                      {related.excerpt}
+                    </p>
+                  </div>
+                </MotionCard>
+              </StaggerItem>
+            ))}
+          </StaggerContainer>
+        </section>
+      )}
+    </main>
+  )
 }
