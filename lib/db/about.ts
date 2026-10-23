@@ -127,7 +127,7 @@ export async function getAboutConfig(): Promise<AboutConfigData> {
     // Direct SQLite raw fallback to guarantee all newly added columns are loaded even if the dev server runs an older in-memory Prisma client
     try {
       const rawRows: any[] = await prisma.$queryRawUnsafe(
-        `SELECT name, email, websiteUrl, address, contactHeading, contactDescription, contactTitle, contactSubtitle, responseTime FROM AboutConfig WHERE id = 'default' LIMIT 1`
+        `SELECT "name", "email", "websiteUrl", "address", "contactHeading", "contactDescription", "contactTitle", "contactSubtitle", "responseTime" FROM "AboutConfig" WHERE "id" = 'default' LIMIT 1`
       )
       if (rawRows && rawRows.length > 0) {
         const row = rawRows[0]
