@@ -86,6 +86,7 @@ export const metadata: Metadata = {
   },
   other: {
     "google-adsense-account": process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-0000000000000000",
+    "p:domain_verify": "a87cfd6f6e266e90209d9a9c01b63eb3",
   },
 }
 
@@ -154,6 +155,7 @@ export default function RootLayout({
       className={cn("h-full antialiased", didactGothic.variable)}
     >
       <head>
+        <meta name="p:domain_verify" content="a87cfd6f6e266e90209d9a9c01b63eb3" />
         <AdSenseScript />
         <script
           type="application/ld+json"
