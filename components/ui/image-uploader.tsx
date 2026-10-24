@@ -120,47 +120,44 @@ export function ImageUploader({
 
       {/* Upload Box / Preview */}
       {value ? (
-        <div className="relative rounded-lg border border-border bg-card/60 p-3 space-y-3">
-          <div className="flex items-start gap-3">
-            <div className="relative h-20 w-28 rounded-md overflow-hidden border border-border bg-muted/40 shrink-0">
-              <Image
-                src={value}
-                alt="Uploaded preview"
-                fill
-                className="object-cover"
-                unoptimized={value.startsWith("http")}
-              />
+        <div className="relative rounded-xl border border-border bg-card/60 p-3 space-y-3 overflow-hidden">
+          {/* Full Image Preview - natural aspect ratio, completely uncropped */}
+          <div className="relative w-full overflow-hidden rounded-lg border border-border bg-muted/30 max-h-[440px] flex items-center justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={value}
+              alt="Uploaded preview"
+              className="w-full h-auto max-h-[440px] object-contain block rounded-lg"
+            />
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-border/50">
+            <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+              <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+              <span>Image stored successfully</span>
             </div>
 
-            <div className="flex-1 min-w-0 space-y-1">
-              <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
-                <span>Image stored successfully</span>
-              </div>
-              <p className="text-[11px] text-muted-foreground truncate font-mono">{value}</p>
-
-              <div className="flex items-center gap-2 pt-1">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="h-7 text-xs"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploading}
-                >
-                  Replace Image
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 text-xs text-destructive hover:bg-destructive/10"
-                  onClick={() => onChange("")}
-                >
-                  <X className="h-3.5 w-3.5 mr-1" />
-                  Remove
-                </Button>
-              </div>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-8 text-xs gap-1.5"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+              >
+                Replace Image
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-8 text-xs text-destructive hover:bg-destructive/10 gap-1"
+                onClick={() => onChange("")}
+              >
+                <X className="h-3.5 w-3.5" />
+                Remove
+              </Button>
             </div>
           </div>
 
@@ -240,18 +237,6 @@ export function ImageUploader({
           }
         }}
       />
-
-      {/* Direct URL Input fallback */}
-      <div className="flex items-center gap-1.5 pt-1">
-        <span className="text-[10px] text-muted-foreground shrink-0">Or URL:</span>
-        <Input
-          type="url"
-          value={value || ""}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          className="h-7 text-[11px]"
-        />
-      </div>
 
       {error && (
         <div className="flex items-center gap-1.5 text-xs text-destructive bg-destructive/10 p-2 rounded-md">

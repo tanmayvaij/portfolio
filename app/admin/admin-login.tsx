@@ -75,11 +75,8 @@ export function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
               </AnimatePresence>
 
               <div className="space-y-1.5">
-                <label htmlFor="admin-pass" className="text-xs font-semibold text-foreground flex items-center justify-between">
-                  <span>Master Password</span>
-                  <span className="text-[10px] text-muted-foreground font-normal">
-                    Default: <code className="bg-muted px-1 py-0.5 rounded text-[10px]">admin</code>
-                  </span>
+                <label htmlFor="admin-pass" className="text-xs font-semibold text-foreground block">
+                  Master Password
                 </label>
                 <div className="relative">
                   <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

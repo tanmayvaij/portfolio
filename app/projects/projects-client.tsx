@@ -3,11 +3,8 @@
 import * as React from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
-import { ExternalLink, ArrowRight } from "lucide-react"
+import { ExternalLink, ArrowUpRight, Layers } from "lucide-react"
 import { GithubIcon } from "@/components/icons"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import type { Project } from "@/lib/data/portfolio"
 
 const categories = ["All", "Web App", "AI & Systems", "DevOps & Cloud", "Open Source"] as const
@@ -23,7 +20,7 @@ export function ProjectsClient({ projects }: { projects: Project[] }) {
   return (
     <div className="space-y-8">
       {/* Category Tabs */}
-      <div className="flex flex-wrap items-center gap-1.5 border-b border-border/60 pb-4">
+      <div className="flex flex-wrap items-center gap-2 border-b border-border/60 pb-4">
         {categories.map((cat) => {
           const isActive = selectedCategory === cat
           return (
@@ -31,16 +28,16 @@ export function ProjectsClient({ projects }: { projects: Project[] }) {
               key={cat}
               whileTap={{ scale: 0.95 }}
               onClick={() => setSelectedCategory(cat)}
-              className={`relative rounded-lg px-3.5 py-1.5 text-xs font-medium transition-colors z-10 ${
+              className={`relative rounded-full px-4 py-1.5 text-xs font-medium transition-colors z-10 ${
                 isActive
                   ? "text-primary-foreground font-semibold"
-                  : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
             >
               {isActive && (
                 <motion.span
                   layoutId="active-project-category"
-                  className="absolute inset-0 rounded-lg bg-primary -z-10 shadow-xs"
+                  className="absolute inset-0 rounded-full bg-primary -z-10 shadow-xs"
                   transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 />
               )}
@@ -50,135 +47,146 @@ export function ProjectsClient({ projects }: { projects: Project[] }) {
         })}
       </div>
 
-      {/* Grid with AnimatePresence */}
-      <motion.div layout className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <AnimatePresence mode="popLayout">
-          {filteredProjects.map((project) => (
-            <motion.div
-              layout
-              key={project.id}
-              initial={{ opacity: 0, scale: 0.94, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.94 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
-              whileHover={{ y: -4 }}
-              className="h-full"
-            >
-              <Card className="flex flex-col justify-between h-full hover:border-primary/40 hover:shadow-md transition-shadow bg-card overflow-hidden">
-                {project.featuredImage && (
-                  <Link href={`/projects/${project.slug || project.id}`} className="block relative aspect-[2/1] w-full overflow-hidden bg-muted border-b border-border">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={project.featuredImage}
-                      alt={project.title}
-                      className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
-                    />
-                  </Link>
-                )}
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
-                    <Badge variant="secondary" className="text-[11px]">
-                      {project.category}
-                    </Badge>
-                    {project.metrics && (
-                      <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                        {project.metrics}
-                      </span>
-                    )}
-                  </div>
-                  <CardTitle className="text-xl hover:text-primary transition-colors">
-                    <Link href={`/projects/${project.slug || project.id}`}>
-                      {project.title}
+      {/* Pinterest-Style Visual Grid */}
+      {filteredProjects.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="rounded-2xl border border-dashed border-border p-12 text-center text-xs text-muted-foreground"
+        >
+          No projects found in this category.
+        </motion.div>
+      ) : (
+        <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
+          <AnimatePresence mode="popLayout">
+            {filteredProjects.map((project) => {
+              const projectHref = `/projects/${project.slug || project.id}`
+
+              return (
+                <motion.div
+                  layout
+                  key={project.id}
+                  initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  className="group flex flex-col"
+                >
+                  {/* Pinterest Visual Pin Card */}
+                  <div className="relative w-full overflow-hidden rounded-2xl bg-muted/60 border border-border/60 shadow-xs group-hover:shadow-xl group-hover:border-primary/40 transition-all duration-300">
+                    {/* Background Clickable Link to Case Study */}
+                    <Link
+                      href={projectHref}
+                      className="block w-full"
+                      aria-label={project.title}
+                    >
+                      {project.featuredImage ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
+                          src={project.featuredImage}
+                          alt={project.title}
+                          className="w-full h-auto block transition-transform duration-500 ease-out group-hover:scale-105"
+                        />
+                      ) : (
+                        /* Fallback aesthetic gradient pin when no image is uploaded */
+                        <div className="aspect-[16/10] w-full flex flex-col justify-between p-6 bg-gradient-to-br from-card via-muted/40 to-muted/80 relative overflow-hidden">
+                          <div className="absolute -right-8 -bottom-8 w-32 h-32 rounded-full bg-primary/10 blur-2xl pointer-events-none" />
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground bg-background/80 px-2 py-0.5 rounded-md border border-border/50">
+                              {project.category}
+                            </span>
+                            <Layers className="h-5 w-5 text-muted-foreground/60" />
+                          </div>
+                          <div>
+                            <span className="text-base font-bold tracking-tight text-foreground/90 line-clamp-2">
+                              {project.title}
+                            </span>
+                            <span className="text-[11px] text-muted-foreground font-mono mt-1 block">
+                              Click to explore case study
+                            </span>
+                          </div>
+                        </div>
+                      )}
                     </Link>
-                  </CardTitle>
-                  <CardDescription className="text-sm leading-relaxed mt-2 line-clamp-3">
-                    {project.longDescription}
-                  </CardDescription>
-                </CardHeader>
 
-                <CardContent className="space-y-4">
-                  <div className="space-y-1.5 rounded-lg bg-muted/40 p-3">
-                    <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-                      Key Technical Architectural Features:
-                    </div>
-                    {project.highlights.map((highlight, idx) => (
-                      <div key={idx} className="flex items-start gap-2 text-xs text-foreground/80">
-                        <span className="text-primary mt-0.5">•</span>
-                        <span>{highlight}</span>
-                      </div>
-                    ))}
-                  </div>
+                    {/* Pinterest Hover Overlay (sibling to base Link, not nested inside <a>) */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-4 z-10 pointer-events-none">
+                      {/* Top Badges & External Actions */}
+                      <div className="flex items-center justify-between">
+                        <span className="rounded-full bg-black/60 backdrop-blur-md px-2.5 py-1 text-[11px] font-medium text-white shadow-xs">
+                          {project.category}
+                        </span>
 
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {project.tags.map((tag) => (
-                      <Badge key={tag} variant="outline" className="text-[10px]">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-
-                  {project.screenshots && project.screenshots.trim().length > 0 && (
-                    <div className="pt-2">
-                      <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-                        Screenshots & Diagrams
-                      </div>
-                      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
-                        {project.screenshots
-                          .split("\n")
-                          .map((s) => s.trim())
-                          .filter(Boolean)
-                          .map((src, sIdx) => (
+                        <div className="flex items-center gap-1.5 pointer-events-auto">
+                          {project.showGithub !== false && project.githubUrl && (
                             <a
-                              key={sIdx}
-                              href={src}
+                              href={project.githubUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="group relative block shrink-0 w-28 h-18 rounded-md overflow-hidden border border-border hover:border-primary transition-colors bg-muted"
-                              title={`View Screenshot ${sIdx + 1}`}
+                              className="h-8 w-8 rounded-full bg-black/60 backdrop-blur-md text-white hover:bg-white hover:text-black transition-colors flex items-center justify-center shadow-xs"
+                              title="GitHub Repository"
                             >
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                src={src}
-                                alt={`${project.title} screenshot ${sIdx + 1}`}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                              />
+                              <GithubIcon className="h-3.5 w-3.5" />
                             </a>
-                          ))}
+                          )}
+                          {project.liveUrl && (
+                            <a
+                              href={project.liveUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="h-8 w-8 rounded-full bg-black/60 backdrop-blur-md text-white hover:bg-white hover:text-black transition-colors flex items-center justify-center shadow-xs"
+                              title="Live Platform"
+                            >
+                              <ExternalLink className="h-3.5 w-3.5" />
+                            </a>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Bottom Action Pill */}
+                      <div className="flex items-center justify-between pointer-events-auto">
+                        {project.metrics ? (
+                          <span className="text-[11px] font-semibold text-emerald-400 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full">
+                            {project.metrics}
+                          </span>
+                        ) : (
+                          <div />
+                        )}
+
+                        <Link
+                          href={projectHref}
+                          className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-1.5 text-xs font-semibold text-primary-foreground shadow-md transition-transform duration-200 hover:scale-105"
+                        >
+                          Case Study
+                          <ArrowUpRight className="h-3.5 w-3.5" />
+                        </Link>
                       </div>
                     </div>
-                  )}
-                </CardContent>
-
-                <CardFooter className="border-t border-border/50 pt-4 flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5">
-                    {project.githubUrl && (
-                      <Button asChild variant="outline" size="sm" className="h-8 text-xs px-2.5">
-                        <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" title="GitHub Repository">
-                          <GithubIcon className="h-3.5 w-3.5" />
-                        </a>
-                      </Button>
-                    )}
-                    {project.liveUrl && (
-                      <Button asChild variant="outline" size="sm" className="h-8 text-xs px-2.5">
-                        <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" title="Live Platform">
-                          <ExternalLink className="h-3.5 w-3.5" />
-                        </a>
-                      </Button>
-                    )}
                   </div>
 
-                  <Button asChild size="sm" className="h-8 text-xs px-3 ml-auto">
-                    <Link href={`/projects/${project.slug || project.id}`}>
-                      Case Study
-                      <ArrowRight className="ml-1 h-3 w-3" />
+                  {/* Pinterest Bottom Caption */}
+                  <div className="pt-2.5 pb-1 px-1 space-y-0.5">
+                    <Link href={projectHref} className="block">
+                      <h3 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                        {project.title}
+                      </h3>
                     </Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </motion.div>
+                    <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                      <span>{project.category}</span>
+                      {project.metrics && (
+                        <span className="font-medium text-emerald-600 dark:text-emerald-400">
+                          {project.metrics}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              )
+            })}
+          </AnimatePresence>
+        </motion.div>
+      )}
     </div>
   )
 }
+

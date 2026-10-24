@@ -40,6 +40,7 @@ model Project {
   metrics         String?
   highlights      String   // JSON string
   featured        Boolean  @default(false)
+  showGithub      Boolean  @default(true)
   githubUrl       String?
   liveUrl         String?
   createdAt       DateTime @default(now())
@@ -110,6 +111,7 @@ model AboutConfig {
   certBadge       String   @default("Certified")
   certDesc        String   @default("Amazon Web Services · Distributed Cloud Architecture & Resilience")
   experiencesJson String?  // Optional JSON string for custom timeline items
+  adminPassword   String?  // Optional custom admin password
   updatedAt       DateTime @updatedAt
 }
 

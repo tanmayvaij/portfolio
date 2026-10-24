@@ -22,6 +22,7 @@ import {
   User,
   Save,
   Layers,
+  X,
   Image as ImageIcon,
 } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
@@ -32,6 +33,7 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { RichTextEditor } from "@/components/admin/rich-text-editor"
 import { ImageUploader } from "@/components/ui/image-uploader"
+import { ScreenshotSlots } from "@/components/admin/screenshot-slots"
 import {
   logoutAdmin,
   savePostAction,
@@ -75,6 +77,7 @@ interface ProjectRecord {
   metrics: string | null
   highlights: string
   featured: boolean
+  showGithub?: boolean
   githubUrl: string | null
   liveUrl: string | null
 }
@@ -679,6 +682,10 @@ export function AdminDashboard({
   const [projects, setProjects] = React.useState<ProjectRecord[]>(initialProjects)
   const [editingProject, setEditingProject] = React.useState<ProjectRecord | null>(null)
   const [isCreatingProject, setIsCreatingProject] = React.useState(false)
+
+  React.useEffect(() => {
+    setProjects(initialProjects)
+  }, [initialProjects])
   const [projectForm, setProjectForm] = React.useState({
     id: "",
     title: "",
@@ -692,7 +699,8 @@ export function AdminDashboard({
     metrics: "1,000+ Stars",
     highlights: "Sandboxed tool execution\nDeterministic DAG state engine",
     featured: true,
-    githubUrl: "https://github.com/tanmayvaij",
+    showGithub: true,
+    githubUrl: "",
     liveUrl: "https://tanmayvaij.dev",
   })
 
@@ -820,6 +828,7 @@ export function AdminDashboard({
       metrics: "",
       highlights: "High throughput architecture\nFault tolerant",
       featured: true,
+      showGithub: true,
       githubUrl: "",
       liveUrl: "",
     })
@@ -849,6 +858,7 @@ export function AdminDashboard({
       metrics: project.metrics || "",
       highlights: parsedHighlights,
       featured: project.featured,
+      showGithub: project.showGithub === false ? false : true,
       githubUrl: project.githubUrl || "",
       liveUrl: project.liveUrl || "",
     })
@@ -876,6 +886,7 @@ export function AdminDashboard({
       metrics: projectForm.metrics || undefined,
       highlights: highlightsArr,
       featured: projectForm.featured,
+      showGithub: projectForm.showGithub,
       githubUrl: projectForm.githubUrl || undefined,
       liveUrl: projectForm.liveUrl || undefined,
     })
@@ -885,6 +896,36 @@ export function AdminDashboard({
       showStatus(res.message, "success")
       setIsCreatingProject(false)
       setEditingProject(null)
+
+      const savedSlug = projectForm.slug || projectForm.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+      const updatedItem: ProjectRecord = {
+        id: projectForm.id || res.id || `proj-${Date.now()}`,
+        title: projectForm.title,
+        slug: savedSlug,
+        category: projectForm.category,
+        tags: projectForm.tags,
+        description: projectForm.description,
+        longDescription: projectForm.longDescription,
+        featuredImage: projectForm.featuredImage || null,
+        screenshots: projectForm.screenshots || null,
+        metrics: projectForm.metrics || null,
+        highlights: JSON.stringify(highlightsArr),
+        featured: projectForm.featured,
+        showGithub: projectForm.showGithub,
+        githubUrl: projectForm.githubUrl || null,
+        liveUrl: projectForm.liveUrl || null,
+      }
+
+      setProjects((prev) => {
+        const idx = prev.findIndex((p) => (projectForm.id && p.id === projectForm.id) || p.slug === savedSlug)
+        if (idx >= 0) {
+          const next = [...prev]
+          next[idx] = updatedItem
+          return next
+        }
+        return [updatedItem, ...prev]
+      })
+
       router.refresh()
     } else {
       showStatus(res.message, "error")
@@ -1261,7 +1302,7 @@ export function AdminDashboard({
                       value={postForm.coverImage}
                       onChange={(url) => setPostForm({ ...postForm, coverImage: url })}
                       folder="blogs/featured"
-                      description="Upload to Firebase Storage or paste a direct image URL for the article header and preview cards."
+                      description="Drag & drop or click to upload cover image for the article header."
                     />
                   </div>
 
@@ -1338,14 +1379,16 @@ export function AdminDashboard({
                     <div key={post.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 gap-3 hover:bg-muted/30 transition-colors">
                       <div className="flex items-start gap-3 flex-1 min-w-0">
                         {post.coverImage ? (
-                          /* eslint-disable-next-line @next/next/no-img-element */
-                          <img
-                            src={post.coverImage}
-                            alt={post.title}
-                            className="w-12 h-12 rounded-md object-cover border border-border shrink-0 bg-muted"
-                          />
+                          <div className="w-24 sm:w-32 aspect-video rounded-lg overflow-hidden border border-border bg-muted/40 shrink-0 flex items-center justify-center">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={post.coverImage}
+                              alt={post.title}
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
                         ) : (
-                          <div className="w-12 h-12 rounded-md border border-dashed border-border/80 bg-muted/30 shrink-0 flex items-center justify-center text-muted-foreground/40" title="No cover image uploaded">
+                          <div className="w-24 sm:w-32 aspect-video rounded-lg border border-dashed border-border/80 bg-muted/30 shrink-0 flex items-center justify-center text-muted-foreground/40" title="No cover image uploaded">
                             <ImageIcon className="h-4 w-4" />
                           </div>
                         )}
@@ -1493,11 +1536,11 @@ export function AdminDashboard({
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-foreground">Featured / Cover Image</label>
                     <ImageUploader
-                      label="Featured Project Image"
+                      label=""
                       value={projectForm.featuredImage}
                       onChange={(url) => setProjectForm({ ...projectForm, featuredImage: url })}
                       folder="projects/featured"
-                      description="Upload to Firebase Storage or paste a direct image URL for the project thumbnail."
+                      description="Drag & drop or click to upload your project cover image."
                     />
                   </div>
 
@@ -1521,40 +1564,38 @@ export function AdminDashboard({
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-xs font-semibold text-foreground">Project Screenshots</label>
-                    <ImageUploader
-                      label="Upload Screenshot"
-                      value=""
-                      onChange={(url) => {
-                        if (!url) return
-                        const current = projectForm.screenshots ? projectForm.screenshots.trim() : ""
-                        const next = current ? `${current}\n${url}` : url
-                        setProjectForm({ ...projectForm, screenshots: next })
-                      }}
-                      folder="projects/screenshots"
-                      description="Upload a screenshot to Firebase Storage to append its URL to the screenshots list below."
-                    />
-                    <div className="space-y-1">
-                      <label className="text-[11px] text-muted-foreground font-mono">Screenshot URLs (one per line)</label>
-                      <Textarea
-                        rows={3}
-                        placeholder="https://firebasestorage.googleapis.com/...\nhttps://..."
-                        value={projectForm.screenshots}
-                        onChange={(e) => setProjectForm({ ...projectForm, screenshots: e.target.value })}
-                        className="font-mono text-xs"
-                      />
-                    </div>
-                  </div>
+                  <ScreenshotSlots
+                    value={projectForm.screenshots || ""}
+                    onChange={(val) => setProjectForm({ ...projectForm, screenshots: val })}
+                    maxSlots={4}
+                  />
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-foreground">GitHub Repo URL</label>
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-semibold text-foreground">GitHub Repo URL</label>
+                        <label className="flex items-center gap-1.5 cursor-pointer text-[11px] text-muted-foreground hover:text-foreground select-none">
+                          <input
+                            type="checkbox"
+                            checked={projectForm.showGithub}
+                            onChange={(e) => setProjectForm({ ...projectForm, showGithub: e.target.checked })}
+                            className="h-3.5 w-3.5 rounded border-border text-primary focus:ring-primary"
+                          />
+                          <span>Show GitHub link</span>
+                        </label>
+                      </div>
                       <Input
                         placeholder="https://github.com/tanmayvaij/project"
                         value={projectForm.githubUrl}
                         onChange={(e) => setProjectForm({ ...projectForm, githubUrl: e.target.value })}
+                        disabled={!projectForm.showGithub}
+                        className={!projectForm.showGithub ? "opacity-60 bg-muted/30" : ""}
                       />
+                      {!projectForm.showGithub && (
+                        <p className="text-[10px] text-amber-600 dark:text-amber-400">
+                          GitHub link will be hidden on portfolio cards and case study page.
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-1.5">
@@ -1567,17 +1608,19 @@ export function AdminDashboard({
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 pt-1">
-                    <input
-                      type="checkbox"
-                      id="project-featured"
-                      checked={projectForm.featured}
-                      onChange={(e) => setProjectForm({ ...projectForm, featured: e.target.checked })}
-                      className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
-                    />
-                    <label htmlFor="project-featured" className="text-xs font-medium text-foreground cursor-pointer">
-                      Featured on Homepage
-                    </label>
+                  <div className="flex flex-wrap items-center gap-6 pt-1">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="project-featured"
+                        checked={projectForm.featured}
+                        onChange={(e) => setProjectForm({ ...projectForm, featured: e.target.checked })}
+                        className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                      />
+                      <label htmlFor="project-featured" className="text-xs font-medium text-foreground cursor-pointer select-none">
+                        Featured on Homepage
+                      </label>
+                    </div>
                   </div>
                 </CardContent>
 
@@ -1595,7 +1638,7 @@ export function AdminDashboard({
                     Cancel
                   </Button>
                   <Button type="submit" disabled={loading} size="sm" className="text-xs">
-                    {loading ? "Saving project..." : "Save Project to SQLite"}
+                    {loading ? "Saving project..." : "Save Project"}
                   </Button>
                 </CardFooter>
               </form>
@@ -1614,14 +1657,16 @@ export function AdminDashboard({
                   <div key={proj.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 gap-3 hover:bg-muted/30 transition-colors">
                     <div className="flex items-start gap-3 flex-1 min-w-0">
                       {proj.featuredImage ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img
-                          src={proj.featuredImage}
-                          alt={proj.title}
-                          className="w-12 h-12 rounded-md object-cover border border-border shrink-0 bg-muted"
-                        />
+                        <div className="w-24 sm:w-32 aspect-video rounded-lg overflow-hidden border border-border bg-muted/40 shrink-0 flex items-center justify-center">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={proj.featuredImage}
+                            alt={proj.title}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
                       ) : (
-                        <div className="w-12 h-12 rounded-md border border-dashed border-border/80 bg-muted/30 shrink-0 flex items-center justify-center text-muted-foreground/40" title="No featured image uploaded">
+                        <div className="w-24 sm:w-32 aspect-video rounded-lg border border-dashed border-border/80 bg-muted/30 shrink-0 flex items-center justify-center text-muted-foreground/40" title="No featured image uploaded">
                           <ImageIcon className="h-4 w-4" />
                         </div>
                       )}
@@ -1807,7 +1852,7 @@ export function AdminDashboard({
                       value={affiliateForm.imageUrl}
                       onChange={(url) => setAffiliateForm({ ...affiliateForm, imageUrl: url })}
                       folder="affiliates"
-                      description="Upload product photo to Firebase Storage or paste a direct image URL."
+                      description="Drag & drop or click to upload product photo."
                     />
                   </div>
 

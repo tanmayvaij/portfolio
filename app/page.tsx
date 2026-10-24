@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowRight, BookOpen, Cpu, Layers, Sparkles, ExternalLink, Star, ShoppingBag } from "lucide-react"
+import { ArrowRight, ArrowUpRight, BookOpen, Cpu, Layers, Sparkles, ExternalLink, Star, ShoppingBag } from "lucide-react"
 import { GithubIcon, LinkedinIcon } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -192,88 +192,122 @@ export default async function HomePage() {
           </div>
         </FadeIn>
 
-        <StaggerContainer className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {featuredProjects.map((project) => (
-            <StaggerItem key={project.id} className="h-full">
-              <MotionCard className="flex flex-col justify-between h-full hover:border-primary/40 hover:shadow-md transition-shadow bg-card overflow-hidden">
-                {project.featuredImage && (
-                  <Link href={`/projects/${project.slug || project.id}`} className="block relative aspect-[2/1] w-full overflow-hidden bg-muted border-b border-border">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={project.featuredImage}
-                      alt={project.title}
-                      className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
-                    />
+        <StaggerContainer className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 items-start">
+          {featuredProjects.map((project) => {
+            const projectHref = `/projects/${project.slug || project.id}`
+            return (
+              <StaggerItem key={project.id} className="group flex flex-col">
+                {/* Pinterest Visual Pin Card */}
+                <div className="relative w-full overflow-hidden rounded-2xl bg-muted/60 border border-border/60 shadow-xs group-hover:shadow-xl group-hover:border-primary/40 transition-all duration-300">
+                  {/* Background Clickable Link to Case Study */}
+                  <Link
+                    href={projectHref}
+                    className="block w-full"
+                    aria-label={project.title}
+                  >
+                    {project.featuredImage ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={project.featuredImage}
+                        alt={project.title}
+                        className="w-full h-auto block transition-transform duration-500 ease-out group-hover:scale-105"
+                      />
+                    ) : (
+                      /* Fallback aesthetic gradient pin when no image is uploaded */
+                      <div className="aspect-[16/10] w-full flex flex-col justify-between p-6 bg-gradient-to-br from-card via-muted/40 to-muted/80 relative overflow-hidden">
+                        <div className="absolute -right-8 -bottom-8 w-32 h-32 rounded-full bg-primary/10 blur-2xl pointer-events-none" />
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground bg-background/80 px-2 py-0.5 rounded-md border border-border/50">
+                            {project.category}
+                          </span>
+                          <Layers className="h-5 w-5 text-muted-foreground/60" />
+                        </div>
+                        <div>
+                          <span className="text-base font-bold tracking-tight text-foreground/90 line-clamp-2">
+                            {project.title}
+                          </span>
+                          <span className="text-[11px] text-muted-foreground font-mono mt-1 block">
+                            Click to explore case study
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </Link>
-                )}
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
-                    <Badge variant="secondary" className="text-[11px]">
-                      {project.category}
-                    </Badge>
+
+                  {/* Pinterest Hover Overlay (sibling to base Link, no nested <a> tags) */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-4 z-10 pointer-events-none">
+                    {/* Top Badges & External Actions */}
+                    <div className="flex items-center justify-between">
+                      <span className="rounded-full bg-black/60 backdrop-blur-md px-2.5 py-1 text-[11px] font-medium text-white shadow-xs">
+                        {project.category}
+                      </span>
+
+                      <div className="flex items-center gap-1.5 pointer-events-auto">
+                        {project.showGithub !== false && project.githubUrl && (
+                          <a
+                            href={project.githubUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="h-8 w-8 rounded-full bg-black/60 backdrop-blur-md text-white hover:bg-white hover:text-black transition-colors flex items-center justify-center shadow-xs"
+                            title="GitHub Repository"
+                          >
+                            <GithubIcon className="h-3.5 w-3.5" />
+                          </a>
+                        )}
+                        {project.liveUrl && (
+                          <a
+                            href={project.liveUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="h-8 w-8 rounded-full bg-black/60 backdrop-blur-md text-white hover:bg-white hover:text-black transition-colors flex items-center justify-center shadow-xs"
+                            title="Live Platform"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Bottom Action Pill */}
+                    <div className="flex items-center justify-between pointer-events-auto">
+                      {project.metrics ? (
+                        <span className="text-[11px] font-semibold text-emerald-400 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full">
+                          {project.metrics}
+                        </span>
+                      ) : (
+                        <div />
+                      )}
+
+                      <Link
+                        href={projectHref}
+                        className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-1.5 text-xs font-semibold text-primary-foreground shadow-md transition-transform duration-200 hover:scale-105"
+                      >
+                        Case Study
+                        <ArrowUpRight className="h-3.5 w-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Pinterest Bottom Caption */}
+                <div className="pt-2.5 pb-1 px-1 space-y-0.5">
+                  <Link href={projectHref} className="block">
+                    <h3 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                      {project.title}
+                    </h3>
+                  </Link>
+                  <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                    <span>{project.category}</span>
                     {project.metrics && (
-                      <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                      <span className="font-medium text-emerald-600 dark:text-emerald-400">
                         {project.metrics}
                       </span>
                     )}
                   </div>
-                  <CardTitle className="text-xl hover:text-primary transition-colors">
-                    <Link href={`/projects/${project.slug || project.id}`}>{project.title}</Link>
-                  </CardTitle>
-                  <CardDescription className="text-sm line-clamp-2 mt-1">
-                    {project.description}
-                  </CardDescription>
-                </CardHeader>
-
-                <CardContent className="space-y-4">
-                  <div className="space-y-1.5">
-                    {project.highlights.map((highlight, idx) => (
-                      <div key={idx} className="flex items-start gap-2 text-xs text-muted-foreground">
-                        <span className="text-primary mt-0.5">•</span>
-                        <span>{highlight}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex flex-wrap gap-1.5 pt-2">
-                    {project.tags.map((tag) => (
-                      <Badge key={tag} variant="outline" className="text-[10px] px-2 py-0">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-
-                <CardFooter className="border-t border-border/50 pt-4 flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5">
-                    {project.githubUrl && (
-                      <Button asChild variant="ghost" size="sm" className="h-8 text-xs px-2.5">
-                        <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" title="Source Code">
-                          <GithubIcon className="mr-1.5 h-3.5 w-3.5" />
-                          Code
-                        </a>
-                      </Button>
-                    )}
-                    {project.liveUrl && (
-                      <Button asChild variant="ghost" size="sm" className="h-8 text-xs px-2.5">
-                        <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" title="Live Platform">
-                          <ExternalLink className="mr-1 h-3.5 w-3.5" />
-                          Demo
-                        </a>
-                      </Button>
-                    )}
-                  </div>
-
-                  <Button asChild size="sm" className="h-8 text-xs px-3 ml-auto">
-                    <Link href={`/projects/${project.slug || project.id}`}>
-                      Case Study
-                      <ArrowRight className="ml-1 h-3 w-3" />
-                    </Link>
-                  </Button>
-                </CardFooter>
-              </MotionCard>
-            </StaggerItem>
-          ))}
+                </div>
+              </StaggerItem>
+            )
+          })}
         </StaggerContainer>
       </section>
 

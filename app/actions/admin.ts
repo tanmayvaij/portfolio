@@ -13,7 +13,29 @@ function getAdminSecret() {
 }
 
 export async function loginAdmin(password: string): Promise<{ success: boolean; message: string }> {
-  if (password === getAdminSecret()) {
+  let isPasswordValid = false
+
+  // 1. Check if a custom password was saved to database
+  try {
+    const config = await prisma.aboutConfig.findUnique({
+      where: { id: "default" },
+      select: { adminPassword: true },
+    })
+    if (config?.adminPassword && config.adminPassword.trim().length > 0) {
+      if (password === config.adminPassword.trim()) {
+        isPasswordValid = true
+      }
+    }
+  } catch (err) {
+    // Database connection or table not ready, fallback to env variable
+  }
+
+  // 2. Fall back to process.env.ADMIN_PASSWORD
+  if (!isPasswordValid && password === getAdminSecret()) {
+    isPasswordValid = true
+  }
+
+  if (isPasswordValid) {
     const cookieStore = await cookies()
     cookieStore.set(ADMIN_COOKIE_NAME, "authenticated_session", {
       httpOnly: true,
@@ -24,6 +46,7 @@ export async function loginAdmin(password: string): Promise<{ success: boolean; 
     })
     return { success: true, message: "Authentication successful." }
   }
+
   return { success: false, message: "Invalid admin password." }
 }
 
@@ -198,9 +221,35 @@ export async function getAdminData() {
     }
   }
 
+  // Ensure showGithub is correctly populated from PostgreSQL even if in-memory Prisma client is stale
+  let enrichedProjects = projects
+  try {
+    const rawRows: any[] = await prisma.$queryRawUnsafe(
+      `SELECT "id", "slug", "showGithub" FROM "Project"`
+    )
+    if (Array.isArray(rawRows) && rawRows.length > 0) {
+      const rawMap = new Map<string, boolean>()
+      for (const row of rawRows) {
+        if (typeof row.showGithub === "boolean") {
+          rawMap.set(row.id, row.showGithub)
+          rawMap.set(row.slug, row.showGithub)
+        }
+      }
+      enrichedProjects = projects.map((p) => {
+        const rawVal = rawMap.get(p.id) ?? rawMap.get(p.slug)
+        return {
+          ...p,
+          showGithub: rawVal !== undefined ? rawVal : (p as any).showGithub === false ? false : true,
+        }
+      })
+    }
+  } catch {
+    // Ignore if raw query unavailable
+  }
+
   return {
     posts,
-    projects,
+    projects: enrichedProjects,
     messages,
     affiliates,
     about,
@@ -297,50 +346,77 @@ export async function saveProjectAction(projectData: {
   metrics?: string
   highlights: string[]
   featured: boolean
+  showGithub?: boolean
   githubUrl?: string
   liveUrl?: string
-}): Promise<{ success: boolean; message: string }> {
+}): Promise<{ success: boolean; message: string; id?: string }> {
   const isAuth = await verifyAdminAuth()
   if (!isAuth) return { success: false, message: "Unauthorized" }
 
   try {
-    if (projectData.id) {
-      await prisma.project.update({
-        where: { id: projectData.id },
-        data: {
-          slug: projectData.slug,
-          title: projectData.title,
-          description: projectData.description,
-          longDescription: projectData.longDescription,
-          featuredImage: projectData.featuredImage || null,
-          screenshots: projectData.screenshots || null,
-          category: projectData.category,
-          tags: projectData.tags,
-          metrics: projectData.metrics || null,
-          highlights: JSON.stringify(projectData.highlights),
-          featured: projectData.featured,
-          githubUrl: projectData.githubUrl || null,
-          liveUrl: projectData.liveUrl || null,
-        },
-      })
-    } else {
-      await prisma.project.create({
-        data: {
-          slug: projectData.slug,
-          title: projectData.title,
-          description: projectData.description,
-          longDescription: projectData.longDescription,
-          featuredImage: projectData.featuredImage || null,
-          screenshots: projectData.screenshots || null,
-          category: projectData.category,
-          tags: projectData.tags,
-          metrics: projectData.metrics || null,
-          highlights: JSON.stringify(projectData.highlights),
-          featured: projectData.featured,
-          githubUrl: projectData.githubUrl || null,
-          liveUrl: projectData.liveUrl || null,
-        },
-      })
+    const projectPayload: Record<string, any> = {
+      slug: projectData.slug,
+      title: projectData.title,
+      description: projectData.description,
+      longDescription: projectData.longDescription,
+      featuredImage: projectData.featuredImage || null,
+      screenshots: projectData.screenshots || null,
+      category: projectData.category,
+      tags: projectData.tags,
+      metrics: projectData.metrics || null,
+      highlights: JSON.stringify(projectData.highlights),
+      featured: projectData.featured,
+      showGithub: projectData.showGithub !== undefined ? Boolean(projectData.showGithub) : true,
+      githubUrl: projectData.githubUrl || null,
+      liveUrl: projectData.liveUrl || null,
+    }
+
+    let savedProject: any
+    try {
+      if (projectData.id) {
+        savedProject = await prisma.project.update({
+          where: { id: projectData.id },
+          data: projectPayload,
+        })
+      } else {
+        savedProject = await prisma.project.create({
+          data: projectPayload as any,
+        })
+      }
+    } catch (prismaErr: any) {
+      if (
+        prismaErr?.message?.includes("showGithub") ||
+        prismaErr?.name === "PrismaClientValidationError"
+      ) {
+        // Fallback when active dev server memory has not reloaded generated client
+        const { showGithub, ...payloadWithoutShowGithub } = projectPayload
+        if (projectData.id) {
+          savedProject = await prisma.project.update({
+            where: { id: projectData.id },
+            data: payloadWithoutShowGithub,
+          })
+        } else {
+          savedProject = await prisma.project.create({
+            data: payloadWithoutShowGithub as any,
+          })
+        }
+      } else {
+        throw prismaErr
+      }
+    }
+
+    // Direct SQL update to ensure showGithub is accurately persisted in PostgreSQL
+    if (projectData.showGithub !== undefined && savedProject?.id) {
+      try {
+        await prisma.$executeRawUnsafe(
+          `UPDATE "Project" SET "showGithub" = $1 WHERE "id" = $2 OR "slug" = $3`,
+          Boolean(projectData.showGithub),
+          savedProject.id,
+          projectData.slug
+        )
+      } catch (rawErr) {
+        console.error("Direct SQL update of showGithub error:", rawErr)
+      }
     }
 
     revalidatePath("/projects")
@@ -348,7 +424,7 @@ export async function saveProjectAction(projectData: {
     revalidatePath("/projects", "layout")
     revalidatePath("/")
     revalidatePath("/admin")
-    return { success: true, message: "Project saved successfully." }
+    return { success: true, message: "Project saved successfully.", id: savedProject.id }
   } catch (error: unknown) {
     console.error("Save project error:", error)
     return { success: false, message: "Failed to save project. Verify slug is unique." }

@@ -2,7 +2,6 @@ import { prisma } from "@/lib/prisma"
 import { portfolioData, type Project } from "@/lib/data/portfolio"
 
 export async function getAllProjects(): Promise<Project[]> {
-  "use cache"
   try {
     const dbProjects = await prisma.project.findMany({
       orderBy: { createdAt: "desc" },
@@ -12,6 +11,24 @@ export async function getAllProjects(): Promise<Project[]> {
       return portfolioData.projects
     }
 
+    // Direct fallback map to guarantee showGithub reflects PostgreSQL state even if client cache is stale
+    const rawMap = new Map<string, boolean>()
+    try {
+      const rawRows: any[] = await prisma.$queryRawUnsafe(
+        `SELECT "id", "slug", "showGithub" FROM "Project"`
+      )
+      if (Array.isArray(rawRows)) {
+        for (const row of rawRows) {
+          if (typeof row.showGithub === "boolean") {
+            rawMap.set(row.id, row.showGithub)
+            rawMap.set(row.slug, row.showGithub)
+          }
+        }
+      }
+    } catch {
+      // Ignore if table/column does not exist
+    }
+
     return dbProjects.map((p) => {
       let parsedHighlights: string[] = []
       try {
@@ -19,6 +36,9 @@ export async function getAllProjects(): Promise<Project[]> {
       } catch {
         parsedHighlights = p.highlights.split("\n").map((h) => h.trim()).filter(Boolean)
       }
+
+      const rawVal = rawMap.get(p.id) ?? rawMap.get(p.slug)
+      const isShowGithub = rawVal !== undefined ? rawVal : (p as any).showGithub === false ? false : true
 
       return {
         id: p.slug,
@@ -31,7 +51,8 @@ export async function getAllProjects(): Promise<Project[]> {
         category: p.category as Project["category"],
         tags: p.tags.split(",").map((t) => t.trim()),
         featured: p.featured,
-        githubUrl: p.githubUrl ?? undefined,
+        showGithub: isShowGithub,
+        githubUrl: isShowGithub ? (p.githubUrl ?? undefined) : undefined,
         liveUrl: p.liveUrl ?? undefined,
         metrics: p.metrics ?? undefined,
         highlights: parsedHighlights,
@@ -44,7 +65,6 @@ export async function getAllProjects(): Promise<Project[]> {
 }
 
 export async function getProjectBySlug(slug: string): Promise<Project | null> {
-  "use cache"
   try {
     const p = await prisma.project.findFirst({
       where: {
@@ -67,6 +87,20 @@ export async function getProjectBySlug(slug: string): Promise<Project | null> {
       parsedHighlights = p.highlights.split("\n").map((h) => h.trim()).filter(Boolean)
     }
 
+    // Direct fallback to PostgreSQL to guarantee accurate showGithub
+    let isShowGithub: boolean = (p as any).showGithub === false ? false : true
+    try {
+      const rawRows: any[] = await prisma.$queryRawUnsafe(
+        `SELECT "showGithub" FROM "Project" WHERE "slug" = $1 OR "id" = $1 LIMIT 1`,
+        slug
+      )
+      if (Array.isArray(rawRows) && rawRows.length > 0 && typeof rawRows[0].showGithub === "boolean") {
+        isShowGithub = rawRows[0].showGithub
+      }
+    } catch {
+      // Ignore if query fails
+    }
+
     return {
       id: p.slug,
       slug: p.slug,
@@ -78,7 +112,8 @@ export async function getProjectBySlug(slug: string): Promise<Project | null> {
       category: p.category as Project["category"],
       tags: p.tags.split(",").map((t) => t.trim()),
       featured: p.featured,
-      githubUrl: p.githubUrl ?? undefined,
+      showGithub: isShowGithub,
+      githubUrl: isShowGithub ? (p.githubUrl ?? undefined) : undefined,
       liveUrl: p.liveUrl ?? undefined,
       metrics: p.metrics ?? undefined,
       highlights: parsedHighlights,

@@ -193,7 +193,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               </Button>
             )}
 
-            {project.githubUrl && (
+            {project.showGithub !== false && project.githubUrl && (
               <Button asChild variant="outline" size="sm" className="h-9 px-4 text-xs gap-1.5 font-medium">
                 <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
                   <GithubIcon className="h-3.5 w-3.5" />
@@ -206,12 +206,12 @@ export default async function ProjectDetailPage({ params }: PageProps) {
 
         {/* Featured Cover / Hero Image */}
         {project.featuredImage && (
-          <div className="relative mt-8 aspect-[21/9] w-full overflow-hidden rounded-xl border border-border bg-muted shadow-sm">
+          <div className="relative mt-8 w-full overflow-hidden rounded-xl border border-border bg-muted shadow-sm">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={project.featuredImage}
               alt={project.title}
-              className="h-full w-full object-cover"
+              className="w-full h-auto block"
             />
           </div>
         )}

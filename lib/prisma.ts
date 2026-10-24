@@ -11,7 +11,8 @@ export function getPrisma(): PrismaClient {
     !current.experience ||
     !current.aboutConfig ||
     !current.skillCategory ||
-    !current.aboutConfig?.fields?.name
+    !current.aboutConfig?.fields?.name ||
+    !current.project?.fields?.showGithub
 
   if (needsRecreation) {
     try {
