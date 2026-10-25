@@ -57,7 +57,13 @@ interface ProductAdParams {
 }
 
 export function ArticleRenderer({ content }: { content: string }) {
-  const lines = content.trim().split("\n")
+  // Normalize escaped backticks, backslashes, and symbols that might come from stringified or escaped markdown
+  const normalized = content
+    .replace(/\\`\\`\\`/g, "```")
+    .replace(/\\`/g, "`")
+    .replace(/\\\$/g, "$")
+
+  const lines = normalized.trim().split("\n")
   const elements: React.ReactNode[] = []
 
   let inCodeBlock = false
@@ -107,9 +113,11 @@ export function ArticleRenderer({ content }: { content: string }) {
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
+    const trimmedLine = line.trim()
 
-    // Code block check
-    if (line.startsWith("```")) {
+    // Code block check: matches ```, ```lang, or variations
+    const codeBlockMatch = trimmedLine.match(/^`{3,}(.*)$/)
+    if (codeBlockMatch) {
       if (inCodeBlock) {
         elements.push(
           <CodeBlock
@@ -123,7 +131,7 @@ export function ArticleRenderer({ content }: { content: string }) {
         codeBlockLanguage = ""
       } else {
         inCodeBlock = true
-        codeBlockLanguage = line.replace("```", "").trim()
+        codeBlockLanguage = codeBlockMatch[1].trim()
         codeBlockLines = []
       }
       continue
