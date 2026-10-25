@@ -28,6 +28,9 @@ export const instant = false
 
 export async function generateStaticParams() {
   const tools = await getAllAffiliates()
+  if (tools.length === 0) {
+    return [{ slug: "__placeholder__" }]
+  }
   return tools.map((tool) => ({
     slug: tool.slug || tool.id,
   }))

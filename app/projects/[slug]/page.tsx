@@ -34,6 +34,9 @@ export const instant = false
 
 export async function generateStaticParams() {
   const projects = await getAllProjects()
+  if (projects.length === 0) {
+    return [{ slug: "__placeholder__" }]
+  }
   return projects.map((p) => ({
     slug: p.slug || p.id,
   }))
