@@ -6,6 +6,9 @@ export interface AboutConfigData {
   name: string
   headline: string
   subheadline: string
+  heroTitle?: string
+  heroHighlight?: string
+  heroSubtitle?: string
   bioIntro: string
   bioParagraph1: string
   bioParagraph2: string
@@ -40,6 +43,10 @@ export const defaultAboutConfig: AboutConfigData = {
   name: "Tanmay Vaij",
   headline: "Hi, I'm Tanmay Vaij.",
   subheadline: "Senior Full Stack & Distributed Systems Engineer · Bengaluru",
+  heroTitle: "Building scalable web systems, thoughtful products, and",
+  heroHighlight: "curating workspace gear.",
+  heroSubtitle:
+    "Hello, I'm **Tanmay Vaij** — a software engineer and tech creator based in Bengaluru. Here I document engineering field guides, share open-source platforms, and review ergonomic desk setups, audio gear, and books.",
   bioIntro:
     "I am a Senior Software Engineer with a passion for designing scalable web architectures, bulletproof APIs, and autonomous AI agents.",
   bioParagraph1:
@@ -120,14 +127,29 @@ export async function getAboutConfig(): Promise<AboutConfigData> {
           certTitle: defaultAboutConfig.certTitle,
           certBadge: defaultAboutConfig.certBadge,
           certDesc: defaultAboutConfig.certDesc,
+          heroTitle: defaultAboutConfig.heroTitle,
+          heroHighlight: defaultAboutConfig.heroHighlight,
+          heroSubtitle: defaultAboutConfig.heroSubtitle,
         },
       })
     }
 
-    // Direct SQLite raw fallback to guarantee all newly added columns are loaded even if the dev server runs an older in-memory Prisma client
+    // Direct raw fallback to guarantee all newly added columns are loaded even if the dev server runs an older in-memory Prisma client
     try {
+      try {
+        await prisma.$executeRawUnsafe(
+          `ALTER TABLE "AboutConfig" ADD COLUMN IF NOT EXISTS "heroTitle" TEXT DEFAULT 'Building scalable web systems, thoughtful products, and';`
+        )
+        await prisma.$executeRawUnsafe(
+          `ALTER TABLE "AboutConfig" ADD COLUMN IF NOT EXISTS "heroHighlight" TEXT DEFAULT 'curating workspace gear.';`
+        )
+        await prisma.$executeRawUnsafe(
+          `ALTER TABLE "AboutConfig" ADD COLUMN IF NOT EXISTS "heroSubtitle" TEXT DEFAULT 'Hello, I''m **Tanmay Vaij** — a software engineer and tech creator based in Bengaluru. Here I document engineering field guides, share open-source platforms, and review ergonomic desk setups, audio gear, and books.';`
+        )
+      } catch {}
+
       const rawRows: any[] = await prisma.$queryRawUnsafe(
-        `SELECT "name", "email", "websiteUrl", "address", "contactHeading", "contactDescription", "contactTitle", "contactSubtitle", "responseTime" FROM "AboutConfig" WHERE "id" = 'default' LIMIT 1`
+        `SELECT "name", "email", "websiteUrl", "address", "contactHeading", "contactDescription", "contactTitle", "contactSubtitle", "responseTime", "heroTitle", "heroHighlight", "heroSubtitle" FROM "AboutConfig" WHERE "id" = 'default' LIMIT 1`
       )
       if (rawRows && rawRows.length > 0) {
         const row = rawRows[0]
@@ -143,6 +165,9 @@ export async function getAboutConfig(): Promise<AboutConfigData> {
           contactTitle: row.contactTitle ?? activeConfig.contactTitle ?? defaultAboutConfig.contactTitle,
           contactSubtitle: row.contactSubtitle ?? activeConfig.contactSubtitle ?? defaultAboutConfig.contactSubtitle,
           responseTime: row.responseTime ?? activeConfig.responseTime ?? defaultAboutConfig.responseTime,
+          heroTitle: row.heroTitle ?? (activeConfig as any).heroTitle ?? defaultAboutConfig.heroTitle,
+          heroHighlight: row.heroHighlight ?? (activeConfig as any).heroHighlight ?? defaultAboutConfig.heroHighlight,
+          heroSubtitle: row.heroSubtitle ?? (activeConfig as any).heroSubtitle ?? defaultAboutConfig.heroSubtitle,
         }
       }
     } catch (rawErr) {

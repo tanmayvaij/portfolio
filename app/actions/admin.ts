@@ -221,25 +221,38 @@ export async function getAdminData() {
     }
   }
 
-  // Ensure showGithub is correctly populated from PostgreSQL even if in-memory Prisma client is stale
+  // Ensure showGithub and published are correctly populated from PostgreSQL even if in-memory Prisma client is stale
   let enrichedProjects = projects
   try {
+    try {
+      await prisma.$executeRawUnsafe(
+        `ALTER TABLE "Project" ADD COLUMN IF NOT EXISTS "published" BOOLEAN NOT NULL DEFAULT true;`
+      )
+    } catch {}
+
     const rawRows: any[] = await prisma.$queryRawUnsafe(
-      `SELECT "id", "slug", "showGithub" FROM "Project"`
+      `SELECT "id", "slug", "showGithub", "published" FROM "Project"`
     )
     if (Array.isArray(rawRows) && rawRows.length > 0) {
-      const rawMap = new Map<string, boolean>()
+      const showGithubMap = new Map<string, boolean>()
+      const publishedMap = new Map<string, boolean>()
       for (const row of rawRows) {
         if (typeof row.showGithub === "boolean") {
-          rawMap.set(row.id, row.showGithub)
-          rawMap.set(row.slug, row.showGithub)
+          showGithubMap.set(row.id, row.showGithub)
+          showGithubMap.set(row.slug, row.showGithub)
+        }
+        if (typeof row.published === "boolean") {
+          publishedMap.set(row.id, row.published)
+          publishedMap.set(row.slug, row.published)
         }
       }
       enrichedProjects = projects.map((p) => {
-        const rawVal = rawMap.get(p.id) ?? rawMap.get(p.slug)
+        const rawGithub = showGithubMap.get(p.id) ?? showGithubMap.get(p.slug)
+        const rawPub = publishedMap.get(p.id) ?? publishedMap.get(p.slug)
         return {
           ...p,
-          showGithub: rawVal !== undefined ? rawVal : (p as any).showGithub === false ? false : true,
+          showGithub: rawGithub !== undefined ? rawGithub : (p as any).showGithub === false ? false : true,
+          published: rawPub !== undefined ? rawPub : (p as any).published === false ? false : true,
         }
       })
     }
@@ -322,13 +335,41 @@ export async function deletePostAction(id: string): Promise<{ success: boolean; 
   if (!isAuth) return { success: false, message: "Unauthorized" }
 
   try {
-    await prisma.post.delete({ where: { id } })
+    await prisma.post.deleteMany({ where: { id } })
     revalidatePath("/blog")
     revalidatePath("/")
     revalidatePath("/admin")
     return { success: true, message: "Post deleted." }
   } catch {
     return { success: false, message: "Failed to delete post." }
+  }
+}
+
+export async function togglePostPublishedAction(
+  id: string,
+  published: boolean
+): Promise<{ success: boolean; message: string; published?: boolean }> {
+  const isAuth = await verifyAdminAuth()
+  if (!isAuth) return { success: false, message: "Unauthorized" }
+
+  try {
+    const updated = await prisma.post.update({
+      where: { id },
+      data: { published },
+    })
+
+    revalidatePath("/blog")
+    revalidatePath(`/blog/${updated.slug}`)
+    revalidatePath("/")
+    revalidatePath("/admin")
+    return {
+      success: true,
+      message: published ? "Post is now Public (visible to visitors)." : "Post changed to Draft (hidden from visitors).",
+      published: updated.published,
+    }
+  } catch (error) {
+    console.error("Toggle post publish status error:", error)
+    return { success: false, message: "Failed to update publish status." }
   }
 }
 
@@ -347,6 +388,7 @@ export async function saveProjectAction(projectData: {
   highlights: string[]
   featured: boolean
   showGithub?: boolean
+  published?: boolean
   githubUrl?: string
   liveUrl?: string
 }): Promise<{ success: boolean; message: string; id?: string }> {
@@ -354,6 +396,7 @@ export async function saveProjectAction(projectData: {
   if (!isAuth) return { success: false, message: "Unauthorized" }
 
   try {
+    const isPublished = projectData.published !== undefined ? Boolean(projectData.published) : true
     const projectPayload: Record<string, any> = {
       slug: projectData.slug,
       title: projectData.title,
@@ -366,6 +409,7 @@ export async function saveProjectAction(projectData: {
       metrics: projectData.metrics || null,
       highlights: JSON.stringify(projectData.highlights),
       featured: projectData.featured,
+      published: isPublished,
       showGithub: projectData.showGithub !== undefined ? Boolean(projectData.showGithub) : true,
       githubUrl: projectData.githubUrl || null,
       liveUrl: projectData.liveUrl || null,
@@ -386,18 +430,19 @@ export async function saveProjectAction(projectData: {
     } catch (prismaErr: any) {
       if (
         prismaErr?.message?.includes("showGithub") ||
+        prismaErr?.message?.includes("published") ||
         prismaErr?.name === "PrismaClientValidationError"
       ) {
         // Fallback when active dev server memory has not reloaded generated client
-        const { showGithub, ...payloadWithoutShowGithub } = projectPayload
+        const { showGithub, published, ...payloadWithoutExtra } = projectPayload
         if (projectData.id) {
           savedProject = await prisma.project.update({
             where: { id: projectData.id },
-            data: payloadWithoutShowGithub,
+            data: payloadWithoutExtra,
           })
         } else {
           savedProject = await prisma.project.create({
-            data: payloadWithoutShowGithub as any,
+            data: payloadWithoutExtra as any,
           })
         }
       } else {
@@ -405,17 +450,21 @@ export async function saveProjectAction(projectData: {
       }
     }
 
-    // Direct SQL update to ensure showGithub is accurately persisted in PostgreSQL
-    if (projectData.showGithub !== undefined && savedProject?.id) {
+    // Direct SQL update to ensure showGithub and published are accurately persisted in PostgreSQL
+    if (savedProject?.id) {
       try {
         await prisma.$executeRawUnsafe(
-          `UPDATE "Project" SET "showGithub" = $1 WHERE "id" = $2 OR "slug" = $3`,
-          Boolean(projectData.showGithub),
+          `ALTER TABLE "Project" ADD COLUMN IF NOT EXISTS "published" BOOLEAN NOT NULL DEFAULT true;`
+        )
+        await prisma.$executeRawUnsafe(
+          `UPDATE "Project" SET "showGithub" = $1, "published" = $2 WHERE "id" = $3 OR "slug" = $4`,
+          projectData.showGithub !== undefined ? Boolean(projectData.showGithub) : true,
+          isPublished,
           savedProject.id,
           projectData.slug
         )
       } catch (rawErr) {
-        console.error("Direct SQL update of showGithub error:", rawErr)
+        console.error("Direct SQL update of project flags error:", rawErr)
       }
     }
 
@@ -431,12 +480,59 @@ export async function saveProjectAction(projectData: {
   }
 }
 
+export async function toggleProjectPublishedAction(
+  id: string,
+  published: boolean
+): Promise<{ success: boolean; message: string; published?: boolean }> {
+  const isAuth = await verifyAdminAuth()
+  if (!isAuth) return { success: false, message: "Unauthorized" }
+
+  try {
+    try {
+      await prisma.$executeRawUnsafe(
+        `ALTER TABLE "Project" ADD COLUMN IF NOT EXISTS "published" BOOLEAN NOT NULL DEFAULT true;`
+      )
+    } catch {}
+
+    let updated: any
+    try {
+      updated = await prisma.project.update({
+        where: { id },
+        data: { published },
+      })
+    } catch {
+      await prisma.$executeRawUnsafe(
+        `UPDATE "Project" SET "published" = $1 WHERE "id" = $2`,
+        published,
+        id
+      )
+    }
+
+    revalidatePath("/projects")
+    if (updated?.slug) {
+      revalidatePath(`/projects/${updated.slug}`)
+    }
+    revalidatePath("/projects", "layout")
+    revalidatePath("/")
+    revalidatePath("/admin")
+
+    return {
+      success: true,
+      message: published ? "Project is now Public (visible to visitors)." : "Project changed to Draft (hidden from visitors).",
+      published,
+    }
+  } catch (error) {
+    console.error("Toggle project publish status error:", error)
+    return { success: false, message: "Failed to update project publish status." }
+  }
+}
+
 export async function deleteProjectAction(id: string): Promise<{ success: boolean; message: string }> {
   const isAuth = await verifyAdminAuth()
   if (!isAuth) return { success: false, message: "Unauthorized" }
 
   try {
-    await prisma.project.delete({ where: { id } })
+    await prisma.project.deleteMany({ where: { id } })
     revalidatePath("/projects")
     revalidatePath("/projects", "layout")
     revalidatePath("/")
@@ -519,8 +615,9 @@ export async function deleteAffiliateAction(id: string): Promise<{ success: bool
   if (!isAuth) return { success: false, message: "Unauthorized" }
 
   try {
-    await prisma.affiliateTool.delete({ where: { id } })
+    await prisma.affiliateTool.deleteMany({ where: { id } })
     revalidatePath("/tools")
+    revalidatePath("/")
     revalidatePath("/admin")
     return { success: true, message: "Affiliate tool deleted." }
   } catch {
@@ -533,7 +630,7 @@ export async function deleteMessageAction(id: string): Promise<{ success: boolea
   if (!isAuth) return { success: false, message: "Unauthorized" }
 
   try {
-    await prisma.contactMessage.delete({ where: { id } })
+    await prisma.contactMessage.deleteMany({ where: { id } })
     revalidatePath("/admin")
     return { success: true, message: "Message deleted." }
   } catch {
@@ -546,6 +643,9 @@ export async function saveAboutAction(formData: {
   name?: string
   headline: string
   subheadline: string
+  heroTitle?: string
+  heroHighlight?: string
+  heroSubtitle?: string
   bioIntro: string
   bioParagraph1: string
   bioParagraph2: string
@@ -611,6 +711,11 @@ export async function saveAboutAction(formData: {
       contactSubtitle:
         formData.contactSubtitle || "Reach out directly for freelance contracts, consulting, or technical inquiries.",
       responseTime: formData.responseTime || "Typically within 24 business hours",
+      heroTitle: formData.heroTitle || "Building scalable web systems, thoughtful products, and",
+      heroHighlight: formData.heroHighlight || "curating workspace gear.",
+      heroSubtitle:
+        formData.heroSubtitle ||
+        "Hello, I'm **Tanmay Vaij** — a software engineer and tech creator based in Bengaluru. Here I document engineering field guides, share open-source platforms, and review ergonomic desk setups, audio gear, and books.",
     }
 
     try {
@@ -626,26 +731,43 @@ export async function saveAboutAction(formData: {
         update: baseFields,
         create: { id: "default", ...baseFields },
       })
-      await prisma.$executeRawUnsafe(
-        `UPDATE AboutConfig SET name = ?, email = ?, websiteUrl = ?, address = ?, contactHeading = ?, contactDescription = ?, contactTitle = ?, contactSubtitle = ?, responseTime = ? WHERE id = 'default'`,
-        newFields.name,
-        newFields.email,
-        newFields.websiteUrl,
-        newFields.address,
-        newFields.contactHeading,
-        newFields.contactDescription,
-        newFields.contactTitle,
-        newFields.contactSubtitle,
-        newFields.responseTime
-      )
+      try {
+        await prisma.$executeRawUnsafe(
+          `ALTER TABLE "AboutConfig" ADD COLUMN IF NOT EXISTS "heroTitle" TEXT DEFAULT 'Building scalable web systems, thoughtful products, and';`
+        )
+        await prisma.$executeRawUnsafe(
+          `ALTER TABLE "AboutConfig" ADD COLUMN IF NOT EXISTS "heroHighlight" TEXT DEFAULT 'curating workspace gear.';`
+        )
+        await prisma.$executeRawUnsafe(
+          `ALTER TABLE "AboutConfig" ADD COLUMN IF NOT EXISTS "heroSubtitle" TEXT DEFAULT 'Hello, I''m **Tanmay Vaij** — a software engineer and tech creator based in Bengaluru. Here I document engineering field guides, share open-source platforms, and review ergonomic desk setups, audio gear, and books.';`
+        )
+        await prisma.$executeRawUnsafe(
+          `UPDATE "AboutConfig" SET "name" = $1, "email" = $2, "websiteUrl" = $3, "address" = $4, "contactHeading" = $5, "contactDescription" = $6, "contactTitle" = $7, "contactSubtitle" = $8, "responseTime" = $9, "heroTitle" = $10, "heroHighlight" = $11, "heroSubtitle" = $12 WHERE "id" = 'default'`,
+          newFields.name,
+          newFields.email,
+          newFields.websiteUrl,
+          newFields.address,
+          newFields.contactHeading,
+          newFields.contactDescription,
+          newFields.contactTitle,
+          newFields.contactSubtitle,
+          newFields.responseTime,
+          newFields.heroTitle,
+          newFields.heroHighlight,
+          newFields.heroSubtitle
+        )
+      } catch (rawErr) {
+        console.error("Direct SQL update of aboutConfig error:", rawErr)
+      }
     }
 
+    revalidatePath("/")
     revalidatePath("/about")
     revalidatePath("/admin")
     revalidatePath("/privacy-policy")
     revalidatePath("/terms")
     revalidatePath("/contact")
-    return { success: true, message: "About page configuration saved successfully." }
+    return { success: true, message: "Homepage & Profile configuration saved successfully." }
   } catch (error) {
     console.error("Failed to save about config:", error)
     return { success: false, message: "Failed to save about page configuration." }
@@ -721,7 +843,7 @@ export async function deleteExperienceAction(id: string): Promise<{ success: boo
   if (!isAuth) return { success: false, message: "Unauthorized" }
 
   try {
-    await prisma.experience.delete({ where: { id } })
+    await prisma.experience.deleteMany({ where: { id } })
     revalidatePath("/about")
     revalidatePath("/admin")
     return { success: true, message: "Experience record deleted." }
@@ -796,7 +918,7 @@ export async function deleteSkillCategoryAction(id: string): Promise<{ success: 
   if (!isAuth) return { success: false, message: "Unauthorized" }
 
   try {
-    await prisma.skillCategory.delete({ where: { id } })
+    await prisma.skillCategory.deleteMany({ where: { id } })
     revalidatePath("/about")
     revalidatePath("/admin")
     return { success: true, message: "Skill category deleted." }

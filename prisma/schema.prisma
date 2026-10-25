@@ -41,6 +41,7 @@ model Project {
   highlights      String   // JSON string
   featured        Boolean  @default(false)
   showGithub      Boolean  @default(true)
+  published       Boolean  @default(true)
   githubUrl       String?
   liveUrl         String?
   createdAt       DateTime @default(now())
@@ -86,6 +87,9 @@ model AboutConfig {
   name            String   @default("Tanmay Vaij")
   headline        String   @default("Hi, I'm Tanmay Vaij.")
   subheadline     String   @default("Senior Full Stack & Distributed Systems Engineer · Bengaluru")
+  heroTitle       String   @default("Building scalable web systems, thoughtful products, and")
+  heroHighlight   String   @default("curating workspace gear.")
+  heroSubtitle    String   @default("Hello, I'm **Tanmay Vaij** — a software engineer and tech creator based in Bengaluru. Here I document engineering field guides, share open-source platforms, and review ergonomic desk setups, audio gear, and books.")
   bioIntro        String   @default("I am a Senior Software Engineer with a passion for designing scalable web architectures, bulletproof APIs, and autonomous AI agents.")
   bioParagraph1   String   @default("Over the past 6+ years, I have worked across the stack from low-latency Go and Node.js microservices to modern React and Next.js frontends. I believe that engineering excellence is about crafting systems that are observable, easy to maintain, and performant by default.")
   bioParagraph2   String   @default("When I'm not architecting cloud infrastructure or profiling database transactions, I write deep technical field guides on my blog and contribute to open-source developer tooling.")

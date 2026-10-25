@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { ShieldCheck, Wrench } from "lucide-react"
 import { getAllAffiliates } from "@/lib/db/affiliates"
 import { Badge } from "@/components/ui/badge"
+import { ShareButton } from "@/components/ui/share-button"
 import { AdBanner } from "@/components/adsense/AdBanner"
 import { ToolsClient } from "./tools-client"
 
@@ -68,17 +69,29 @@ export default async function ToolsPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(toolsJsonLd) }}
       />
       {/* Header */}
-      <div className="space-y-3">
-        <Badge variant="outline" className="gap-1.5">
-          <Wrench className="h-3 w-3" />
-          Workspace Gear, Setup & Picks
-        </Badge>
-        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-foreground">
-          Curated Desk Setup, Gear & Everyday Tools
-        </h1>
-        <p className="max-w-3xl text-sm sm:text-base text-muted-foreground leading-relaxed">
-          The physical hardware, ergonomic desk accessories, audio equipment, and books I use daily to stay focused and productive, alongside vetted software and cloud platforms.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="space-y-3">
+          <Badge variant="outline" className="gap-1.5">
+            <Wrench className="h-3 w-3" />
+            Workspace Gear, Setup & Picks
+          </Badge>
+          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-foreground">
+            Curated Desk Setup, Gear & Everyday Tools
+          </h1>
+          <p className="max-w-3xl text-sm sm:text-base text-muted-foreground leading-relaxed">
+            The physical hardware, ergonomic desk accessories, audio equipment, and books I use daily to stay focused and productive, alongside vetted software and cloud platforms.
+          </p>
+        </div>
+        <div className="shrink-0">
+          <ShareButton
+            title="Curated Workspace Gear, Desk Setup & Tech Picks | Tanmay Vaij"
+            text="Explore curated ergonomic desk setups, audio gear, engineering books, and developer software recommended by Tanmay Vaij."
+            url="/tools"
+            label="Share Catalog"
+            variant="outline"
+            size="default"
+          />
+        </div>
       </div>
 
       {/* FTC & Amazon Associates Compliant Affiliate Disclosure Banner */}

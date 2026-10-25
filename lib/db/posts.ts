@@ -1,17 +1,12 @@
 import { prisma } from "@/lib/prisma"
-import { blogPosts as fallbackPosts, type BlogPost } from "@/lib/data/blog"
+import type { BlogPost } from "@/lib/data/blog"
 
 export async function getAllPosts(): Promise<BlogPost[]> {
-  "use cache"
   try {
     const dbPosts = await prisma.post.findMany({
       where: { published: true },
       orderBy: { publishedAt: "desc" },
     })
-
-    if (dbPosts.length === 0) {
-      return fallbackPosts
-    }
 
     return dbPosts.map((p) => ({
       slug: p.slug,
@@ -21,6 +16,7 @@ export async function getAllPosts(): Promise<BlogPost[]> {
       coverImage: p.coverImage,
       category: p.category as BlogPost["category"],
       tags: p.tags.split(",").map((t) => t.trim()),
+      published: p.published,
       publishedAt: p.publishedAt.toISOString().split("T")[0],
       updatedAt: p.updatedAt.toISOString().split("T")[0],
       readTime: p.readTime,
@@ -31,20 +27,19 @@ export async function getAllPosts(): Promise<BlogPost[]> {
       },
     }))
   } catch (error) {
-    console.error("Database query failed, using static fallback:", error)
-    return fallbackPosts
+    console.error("Database query failed for posts:", error)
+    return []
   }
 }
 
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
-  "use cache"
   try {
     const p = await prisma.post.findUnique({
       where: { slug },
     })
 
     if (!p) {
-      return fallbackPosts.find((post) => post.slug === slug) ?? null
+      return null
     }
 
     return {
@@ -55,6 +50,7 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
       coverImage: p.coverImage,
       category: p.category as BlogPost["category"],
       tags: p.tags.split(",").map((t) => t.trim()),
+      published: p.published,
       publishedAt: p.publishedAt.toISOString().split("T")[0],
       updatedAt: p.updatedAt.toISOString().split("T")[0],
       readTime: p.readTime,
@@ -65,8 +61,7 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
       },
     }
   } catch (error) {
-    console.error("Database query failed, using static fallback:", error)
-    return fallbackPosts.find((post) => post.slug === slug) ?? null
+    console.error("Database query failed for post slug:", error)
+    return null
   }
 }
-

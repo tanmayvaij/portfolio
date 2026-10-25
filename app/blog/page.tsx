@@ -69,12 +69,12 @@ export default async function BlogIndexPage() {
       />
       {/* Header */}
       <div className="mb-10 space-y-3">
-        <Badge variant="outline">Technical Publications</Badge>
+        <Badge variant="outline">Blogs</Badge>
         <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-foreground">
-          Engineering Journal & Insights
+          Blogs
         </h1>
         <p className="max-w-2xl text-base sm:text-lg text-muted-foreground leading-relaxed">
-          Detailed technical field guides, production architectures, system performance benchmarks, and lessons from building scalable web platforms.
+          Articles, insights, tutorials, and personal writings.
         </p>
       </div>
 

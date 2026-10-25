@@ -5,9 +5,11 @@ import Image from "next/image"
 import { ArrowLeft, Calendar, Clock, Tag } from "lucide-react"
 import { getAllPosts, getPostBySlug } from "@/lib/db/posts"
 import { getFeaturedAffiliates } from "@/lib/db/affiliates"
+import { verifyAdminAuth } from "@/app/actions/admin"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { LinkedinIcon } from "@/components/icons"
+import { ShareButton } from "@/components/ui/share-button"
 import { AdBanner } from "@/components/adsense/AdBanner"
 import { AffiliateCallout } from "@/components/affiliate/AffiliateCallout"
 import { ReadingProgressBar, FadeIn, StaggerContainer, StaggerItem, MotionCard } from "@/components/motion"
@@ -75,6 +77,12 @@ export default async function BlogPostPage({ params }: PageProps) {
     notFound()
   }
 
+  // If post is in draft mode, hide from public visitors (allow admin preview)
+  const isAuth = await verifyAdminAuth()
+  if (post.published === false && !isAuth) {
+    notFound()
+  }
+
   const allPosts = await getAllPosts()
   const relatedPosts = allPosts
     .filter((p) => p.slug !== post.slug && (p.category === post.category || p.tags.some((t) => post.tags.includes(t))))
@@ -135,15 +143,33 @@ export default async function BlogPostPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* Back button & Article Header */}
+      {/* Draft Mode Preview Banner for Admin */}
+      {post.published === false && (
+        <div className="mb-6 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-xs text-amber-700 dark:text-amber-400 flex items-center justify-between">
+          <span className="font-semibold">⚠️ Draft Mode — This article is currently unlisted and hidden from public visitors.</span>
+          <Link href="/admin" className="underline font-medium hover:text-amber-900 dark:hover:text-amber-200">
+            Open Admin
+          </Link>
+        </div>
+      )}
+
+      {/* Back button & Share Bar */}
       <FadeIn direction="up">
-        <div className="mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <Button asChild variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground hover:text-foreground">
             <Link href="/blog">
               <ArrowLeft className="h-3.5 w-3.5" />
-              Back to All Articles
+              Back to All Blogs
             </Link>
           </Button>
+
+          <ShareButton
+            title={post.title}
+            text={post.excerpt}
+            url={`/blog/${post.slug}`}
+            variant="outline"
+            size="sm"
+          />
         </div>
 
         <header className="space-y-4">
@@ -198,12 +224,12 @@ export default async function BlogPostPage({ params }: PageProps) {
 
         {/* Featured Cover Image */}
         {post.coverImage && (
-          <div className="relative mt-6 aspect-[21/9] w-full overflow-hidden rounded-xl border border-border bg-muted shadow-sm">
+          <div className="relative mt-8 w-full overflow-hidden rounded-xl border border-border bg-muted shadow-sm">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={post.coverImage}
               alt={post.title}
-              className="h-full w-full object-cover"
+              className="w-full h-auto block"
             />
           </div>
         )}
@@ -240,17 +266,30 @@ export default async function BlogPostPage({ params }: PageProps) {
         />
       )}
 
-      {/* Tags */}
-      <div className="mt-8 pt-6 border-t border-border flex flex-wrap items-center gap-2">
-        <span className="text-xs font-medium text-muted-foreground flex items-center gap-1">
-          <Tag className="h-3 w-3" />
-          Tags:
-        </span>
-        {post.tags.map((tag) => (
-          <Badge key={tag} variant="outline" className="text-xs">
-            {tag}
-          </Badge>
-        ))}
+      {/* Tags & Bottom Share */}
+      <div className="mt-8 pt-6 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+            <Tag className="h-3 w-3" />
+            Tags:
+          </span>
+          {post.tags.map((tag) => (
+            <Badge key={tag} variant="outline" className="text-xs">
+              {tag}
+            </Badge>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-xs text-muted-foreground">Share article:</span>
+          <ShareButton
+            title={post.title}
+            text={post.excerpt}
+            url={`/blog/${post.slug}`}
+            variant="outline"
+            size="sm"
+          />
+        </div>
       </div>
 
       {/* Author Bio Card */}
@@ -293,7 +332,7 @@ export default async function BlogPostPage({ params }: PageProps) {
         <section className="mt-12 border-t border-border/80 pt-8">
           <FadeIn direction="up">
             <h2 className="text-xl font-bold tracking-tight text-foreground mb-4">
-              Related Technical Articles
+              Related Blogs
             </h2>
           </FadeIn>
           <StaggerContainer staggerDelay={0.1} className="grid grid-cols-1 gap-4 sm:grid-cols-2">

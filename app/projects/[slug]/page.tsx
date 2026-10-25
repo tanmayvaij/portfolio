@@ -15,9 +15,11 @@ import {
 } from "lucide-react"
 import { getAllProjects, getProjectBySlug } from "@/lib/db/projects"
 import { getFeaturedAffiliates } from "@/lib/db/affiliates"
+import { verifyAdminAuth } from "@/app/actions/admin"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { GithubIcon } from "@/components/icons"
+import { ShareButton } from "@/components/ui/share-button"
 import { AdBanner } from "@/components/adsense/AdBanner"
 import { AffiliateCallout } from "@/components/affiliate/AffiliateCallout"
 import { ReadingProgressBar, FadeIn, StaggerContainer, StaggerItem, MotionCard } from "@/components/motion"
@@ -85,6 +87,12 @@ export default async function ProjectDetailPage({ params }: PageProps) {
     notFound()
   }
 
+  // If project is in draft mode, hide from public visitors (allow admin preview)
+  const isAuth = await verifyAdminAuth()
+  if (project.published === false && !isAuth) {
+    notFound()
+  }
+
   const allProjects = await getAllProjects()
   const relatedProjects = allProjects
     .filter((p) => (p.slug || p.id) !== (project.slug || project.id))
@@ -137,6 +145,16 @@ export default async function ProjectDetailPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
+      {/* Draft Mode Preview Banner for Admin */}
+      {project.published === false && (
+        <div className="mb-6 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-xs text-amber-700 dark:text-amber-400 flex items-center justify-between">
+          <span className="font-semibold">⚠️ Draft Mode — This project is currently unlisted and hidden from public visitors.</span>
+          <Link href="/admin" className="underline font-medium hover:text-amber-900 dark:hover:text-amber-200">
+            Open Admin
+          </Link>
+        </div>
+      )}
+
       {/* Back button & Breadcrumbs */}
       <FadeIn direction="up">
         <div className="mb-6 flex items-center justify-between">
@@ -147,9 +165,20 @@ export default async function ProjectDetailPage({ params }: PageProps) {
             </Link>
           </Button>
 
-          <span className="text-xs text-muted-foreground font-mono">
-            projects/{project.slug || project.id}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground font-mono hidden sm:inline">
+              projects/{project.slug || project.id}
+            </span>
+            <ShareButton
+              title={project.title}
+              text={project.description}
+              url={`/projects/${project.slug || project.id}`}
+              variant="ghost"
+              size="sm"
+              label={false}
+              className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+            />
+          </div>
         </div>
 
         {/* Project Header */}
@@ -201,6 +230,15 @@ export default async function ProjectDetailPage({ params }: PageProps) {
                 </a>
               </Button>
             )}
+
+            <ShareButton
+              title={project.title}
+              text={project.description}
+              url={`/projects/${project.slug || project.id}`}
+              variant="outline"
+              size="sm"
+              className="h-9 px-4 text-xs"
+            />
           </div>
         </header>
 
@@ -295,17 +333,30 @@ export default async function ProjectDetailPage({ params }: PageProps) {
         </FadeIn>
       )}
 
-      {/* Tech Stack Tags */}
-      <div className="my-8 pt-6 border-t border-border flex flex-wrap items-center gap-2">
-        <span className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5 mr-1">
-          <Tag className="h-3.5 w-3.5" />
-          Technologies Used:
-        </span>
-        {project.tags.map((tag) => (
-          <Badge key={tag} variant="outline" className="text-xs py-0.5">
-            {tag}
-          </Badge>
-        ))}
+      {/* Tech Stack Tags & Share */}
+      <div className="my-8 pt-6 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5 mr-1">
+            <Tag className="h-3.5 w-3.5" />
+            Technologies Used:
+          </span>
+          {project.tags.map((tag) => (
+            <Badge key={tag} variant="outline" className="text-xs py-0.5">
+              {tag}
+            </Badge>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-xs text-muted-foreground">Share case study:</span>
+          <ShareButton
+            title={project.title}
+            text={project.description}
+            url={`/projects/${project.slug || project.id}`}
+            variant="outline"
+            size="sm"
+          />
+        </div>
       </div>
 
       {/* Middle/Bottom AdSense Banner */}

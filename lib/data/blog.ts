@@ -6,6 +6,7 @@ export interface BlogPost {
   coverImage?: string | null
   category: "Architecture" | "Next.js" | "AI & Systems" | "DevOps" | "Performance"
   tags: string[]
+  published?: boolean
   publishedAt: string
   updatedAt: string
   readTime: string

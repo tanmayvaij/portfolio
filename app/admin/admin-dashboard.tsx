@@ -38,8 +38,10 @@ import {
   logoutAdmin,
   savePostAction,
   deletePostAction,
+  togglePostPublishedAction,
   saveProjectAction,
   deleteProjectAction,
+  toggleProjectPublishedAction,
   deleteMessageAction,
   saveAffiliateAction,
   deleteAffiliateAction,
@@ -77,6 +79,7 @@ interface ProjectRecord {
   metrics: string | null
   highlights: string
   featured: boolean
+  published?: boolean
   showGithub?: boolean
   githubUrl: string | null
   liveUrl: string | null
@@ -112,6 +115,9 @@ interface AboutRecord {
   name?: string
   headline: string
   subheadline: string
+  heroTitle?: string
+  heroHighlight?: string
+  heroSubtitle?: string
   bioIntro: string
   bioParagraph1: string
   bioParagraph2: string
@@ -603,6 +609,10 @@ export function AdminDashboard({
       name: "Tanmay Vaij",
       headline: "Hi, I'm Tanmay Vaij.",
       subheadline: "Full Stack AI Engineer · Pune",
+      heroTitle: "Building scalable web systems, thoughtful products, and",
+      heroHighlight: "curating workspace gear.",
+      heroSubtitle:
+        "Hello, I'm **Tanmay Vaij** — a software engineer and tech creator based in Bengaluru. Here I document engineering field guides, share open-source platforms, and review ergonomic desk setups, audio gear, and books.",
       bioIntro: "I am a Senior Stack AI Engineer with a passion for designing scalable web architectures, bulletproof APIs, and autonomous AI agents.",
       bioParagraph1: "I’m a Software Engineer at IntellAxis AI, focused on building scalable backend systems and AI-driven applications. I enjoy working across the full development lifecycle — from designing clean architectures and APIs to deploying reliable cloud-based solutions.",
       bioParagraph2: "My core expertise includes: Cross-platform development, Backend engineering: FastAPI, Cloud & infrastructure.I’m passionate about developing efficient, maintainable software and contributing to products that create real-world impact.",
@@ -643,6 +653,9 @@ export function AdminDashboard({
       contactTitle: initialAbout.contactTitle || base.contactTitle,
       contactSubtitle: initialAbout.contactSubtitle || base.contactSubtitle,
       responseTime: initialAbout.responseTime || base.responseTime,
+      heroTitle: initialAbout.heroTitle || base.heroTitle,
+      heroHighlight: initialAbout.heroHighlight || base.heroHighlight,
+      heroSubtitle: initialAbout.heroSubtitle || base.heroSubtitle,
     }
   })
   const [isSavingAbout, setIsSavingAbout] = React.useState(false)
@@ -699,6 +712,7 @@ export function AdminDashboard({
     metrics: "1,000+ Stars",
     highlights: "Sandboxed tool execution\nDeterministic DAG state engine",
     featured: true,
+    published: true,
     showGithub: true,
     githubUrl: "",
     liveUrl: "https://tanmayvaij.dev",
@@ -812,6 +826,29 @@ export function AdminDashboard({
     }
   }
 
+  const handleTogglePostPublished = async (post: PostRecord) => {
+    const nextPublished = !post.published
+    // Optimistic UI update
+    setPosts((prev) =>
+      prev.map((p) => (p.id === post.id ? { ...p, published: nextPublished } : p))
+    )
+    if (editingPost && editingPost.id === post.id) {
+      setEditingPost({ ...editingPost, published: nextPublished })
+      setPostForm((prev) => ({ ...prev, published: nextPublished }))
+    }
+
+    const res = await togglePostPublishedAction(post.id, nextPublished)
+    if (res.success) {
+      showStatus(res.message, "success")
+    } else {
+      // Revert optimistic update
+      setPosts((prev) =>
+        prev.map((p) => (p.id === post.id ? { ...p, published: post.published } : p))
+      )
+      showStatus(res.message, "error")
+    }
+  }
+
   // Project Handlers
   const handleStartCreateProject = () => {
     setEditingProject(null)
@@ -828,6 +865,7 @@ export function AdminDashboard({
       metrics: "",
       highlights: "High throughput architecture\nFault tolerant",
       featured: true,
+      published: true,
       showGithub: true,
       githubUrl: "",
       liveUrl: "",
@@ -858,6 +896,7 @@ export function AdminDashboard({
       metrics: project.metrics || "",
       highlights: parsedHighlights,
       featured: project.featured,
+      published: project.published !== false,
       showGithub: project.showGithub === false ? false : true,
       githubUrl: project.githubUrl || "",
       liveUrl: project.liveUrl || "",
@@ -886,6 +925,7 @@ export function AdminDashboard({
       metrics: projectForm.metrics || undefined,
       highlights: highlightsArr,
       featured: projectForm.featured,
+      published: projectForm.published,
       showGithub: projectForm.showGithub,
       githubUrl: projectForm.githubUrl || undefined,
       liveUrl: projectForm.liveUrl || undefined,
@@ -911,6 +951,7 @@ export function AdminDashboard({
         metrics: projectForm.metrics || null,
         highlights: JSON.stringify(highlightsArr),
         featured: projectForm.featured,
+        published: projectForm.published,
         showGithub: projectForm.showGithub,
         githubUrl: projectForm.githubUrl || null,
         liveUrl: projectForm.liveUrl || null,
@@ -939,6 +980,29 @@ export function AdminDashboard({
       setProjects(projects.filter((p) => p.id !== id))
       showStatus("Project deleted.")
     } else {
+      showStatus(res.message, "error")
+    }
+  }
+
+  const handleToggleProjectPublished = async (project: ProjectRecord) => {
+    const nextPublished = project.published === false ? true : false
+    // Optimistic UI update
+    setProjects((prev) =>
+      prev.map((p) => (p.id === project.id ? { ...p, published: nextPublished } : p))
+    )
+    if (editingProject && editingProject.id === project.id) {
+      setEditingProject({ ...editingProject, published: nextPublished })
+      setProjectForm((prev) => ({ ...prev, published: nextPublished }))
+    }
+
+    const res = await toggleProjectPublishedAction(project.id, nextPublished)
+    if (res.success) {
+      showStatus(res.message, "success")
+    } else {
+      // Revert optimistic update
+      setProjects((prev) =>
+        prev.map((p) => (p.id === project.id ? { ...p, published: project.published } : p))
+      )
       showStatus(res.message, "error")
     }
   }
@@ -1191,7 +1255,7 @@ export function AdminDashboard({
           </TabsTrigger>
           <TabsTrigger value="about" className="text-xs gap-1.5">
             <User className="h-3.5 w-3.5" />
-            About Page
+            Homepage & Profile
           </TabsTrigger>
           <TabsTrigger value="adsense" className="text-xs gap-1.5">
             <TrendingUp className="h-3.5 w-3.5" />
@@ -1317,17 +1381,42 @@ export function AdminDashboard({
                     />
                   </div>
 
-                  <div className="flex items-center gap-2 pt-1">
-                    <input
-                      type="checkbox"
-                      id="post-published"
-                      checked={postForm.published}
-                      onChange={(e) => setPostForm({ ...postForm, published: e.target.checked })}
-                      className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
-                    />
-                    <label htmlFor="post-published" className="text-xs font-medium text-foreground cursor-pointer">
-                      Published (visible to public and search engines)
-                    </label>
+                  {/* Post Visibility Toggle */}
+                  <div className="flex items-center justify-between p-3.5 rounded-xl border border-border bg-card/60 shadow-xs">
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-foreground">Make Post Public</span>
+                        <Badge
+                          variant={postForm.published ? "success" : "outline"}
+                          className={`text-[10px] py-0 ${!postForm.published ? "text-muted-foreground" : ""}`}
+                        >
+                          {postForm.published ? "Public (Live)" : "Draft (Hidden)"}
+                        </Badge>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">
+                        {postForm.published
+                          ? "This article is live and visible to all visitors on the blog and homepage."
+                          : "This article is kept private as a draft and hidden from public visitors."}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={postForm.published}
+                      onClick={() => setPostForm({ ...postForm, published: !postForm.published })}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
+                        postForm.published ? "bg-emerald-500" : "bg-muted-foreground/30"
+                      }`}
+                      title={postForm.published ? "Click to switch to Draft" : "Click to make Public"}
+                    >
+                      <span className="sr-only">Make post public</span>
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                          postForm.published ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
                   </div>
                 </CardContent>
 
@@ -1411,7 +1500,28 @@ export function AdminDashboard({
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1.5 self-end sm:self-auto">
+                      <div className="flex items-center gap-2 self-end sm:self-auto">
+                        {/* Instant 1-Click Public / Draft Toggle */}
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={post.published}
+                          onClick={() => handleTogglePostPublished(post)}
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold transition-all border cursor-pointer select-none ${
+                            post.published
+                              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20"
+                              : "bg-muted text-muted-foreground border-border hover:bg-muted/80 hover:text-foreground"
+                          }`}
+                          title={post.published ? "Public (Live) - Click to unpublish to Draft" : "Draft (Hidden) - Click to make Public"}
+                        >
+                          <span
+                            className={`h-2 w-2 rounded-full transition-colors ${
+                              post.published ? "bg-emerald-500 animate-pulse" : "bg-muted-foreground/50"
+                            }`}
+                          />
+                          <span>{post.published ? "Public" : "Draft"}</span>
+                        </button>
+
                         <Button asChild variant="ghost" size="icon-sm" title="Preview Live Post">
                           <Link href={`/blog/${post.slug}`} target="_blank">
                             <Eye className="h-3.5 w-3.5 text-muted-foreground" />
@@ -1608,6 +1718,44 @@ export function AdminDashboard({
                     </div>
                   </div>
 
+                  {/* Project Visibility Toggle */}
+                  <div className="flex items-center justify-between p-3.5 rounded-xl border border-border bg-card/60 shadow-xs">
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-foreground">Make Project Public</span>
+                        <Badge
+                          variant={projectForm.published ? "success" : "outline"}
+                          className={`text-[10px] py-0 ${!projectForm.published ? "text-muted-foreground" : ""}`}
+                        >
+                          {projectForm.published ? "Public (Live)" : "Draft (Hidden)"}
+                        </Badge>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">
+                        {projectForm.published
+                          ? "This project is live and visible to all visitors on the projects page and portfolio."
+                          : "This project is kept private as a draft and hidden from public visitors."}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={projectForm.published}
+                      onClick={() => setProjectForm({ ...projectForm, published: !projectForm.published })}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
+                        projectForm.published ? "bg-emerald-500" : "bg-muted-foreground/30"
+                      }`}
+                      title={projectForm.published ? "Click to switch to Draft" : "Click to make Public"}
+                    >
+                      <span className="sr-only">Make project public</span>
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                          projectForm.published ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
                   <div className="flex flex-wrap items-center gap-6 pt-1">
                     <div className="flex items-center gap-2">
                       <input
@@ -1687,7 +1835,28 @@ export function AdminDashboard({
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1.5 self-end sm:self-auto">
+                    <div className="flex items-center gap-2 self-end sm:self-auto">
+                      {/* Instant 1-Click Public / Draft Toggle */}
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={proj.published !== false}
+                        onClick={() => handleToggleProjectPublished(proj)}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold transition-all border cursor-pointer select-none ${
+                          proj.published !== false
+                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20"
+                            : "bg-muted text-muted-foreground border-border hover:bg-muted/80 hover:text-foreground"
+                        }`}
+                        title={proj.published !== false ? "Public (Live) - Click to unpublish to Draft" : "Draft (Hidden) - Click to make Public"}
+                      >
+                        <span
+                          className={`h-2 w-2 rounded-full transition-colors ${
+                            proj.published !== false ? "bg-emerald-500 animate-pulse" : "bg-muted-foreground/50"
+                          }`}
+                        />
+                        <span>{proj.published !== false ? "Public" : "Draft"}</span>
+                      </button>
+
                       <Button asChild variant="ghost" size="icon-sm" title="Preview Live Project Case Study">
                         <Link href={`/projects/${proj.slug || proj.id}`} target="_blank">
                           <Eye className="h-3.5 w-3.5 text-muted-foreground" />
@@ -2170,10 +2339,14 @@ export function AdminDashboard({
                 <div>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <User className="h-4 w-4 text-primary" />
-                    About Page Content & Profile
+                    Homepage & Profile Content
                   </CardTitle>
                   <CardDescription className="text-xs mt-1">
-                    Manage your personal bio, quick facts, experience narrative, and educational background shown on{" "}
+                    Manage your homepage hero banner, bio, quick facts, experience narrative, and educational background shown on{" "}
+                    <Link href="/" target="_blank" className="text-primary underline inline-flex items-center gap-1">
+                      / (Homepage) <ExternalLink className="h-3 w-3" />
+                    </Link>{" "}
+                    and{" "}
                     <Link href="/about" target="_blank" className="text-primary underline inline-flex items-center gap-1">
                       /about <ExternalLink className="h-3 w-3" />
                     </Link>
@@ -2186,12 +2359,96 @@ export function AdminDashboard({
                   className="gap-1.5 shrink-0"
                 >
                   <Save className="h-3.5 w-3.5" />
-                  {isSavingAbout ? "Saving..." : "Save About Page"}
+                  {isSavingAbout ? "Saving..." : "Save All Changes"}
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSaveAbout} className="space-y-8">
+                {/* 0. Homepage Hero Banner Configuration */}
+                <div className="space-y-4 rounded-xl border border-primary/25 bg-primary/5 p-4 sm:p-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/50 pb-2">
+                    <div>
+                      <h4 className="text-sm font-bold uppercase tracking-wider text-primary flex items-center gap-2">
+                        <span>Homepage Hero Banner</span>
+                        <Badge variant="secondary" className="text-[10px]">Shown on /</Badge>
+                      </h4>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">
+                        Customize the main headline, gradient accent text, and introduction paragraph on your homepage hero.
+                      </p>
+                    </div>
+                    <Button asChild variant="outline" size="xs" className="h-7 text-[11px] self-start sm:self-auto gap-1">
+                      <Link href="/" target="_blank">
+                        View Homepage <ExternalLink className="h-3 w-3 ml-0.5" />
+                      </Link>
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-foreground">Main Hero Heading</label>
+                      <Input
+                        value={aboutForm.heroTitle || ""}
+                        onChange={(e) => setAboutForm({ ...aboutForm, heroTitle: e.target.value })}
+                        placeholder="e.g. Building scalable web systems, thoughtful products, and"
+                        required
+                      />
+                      <p className="text-[10px] text-muted-foreground">The primary headline text.</p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-foreground">Gradient Highlight Text</label>
+                      <Input
+                        value={aboutForm.heroHighlight || ""}
+                        onChange={(e) => setAboutForm({ ...aboutForm, heroHighlight: e.target.value })}
+                        placeholder="e.g. curating workspace gear."
+                      />
+                      <p className="text-[10px] text-muted-foreground">Renders with blue-to-violet gradient styling at the end of the heading.</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-foreground">Introduction Paragraph / Subtitle</label>
+                    <Textarea
+                      rows={3}
+                      value={aboutForm.heroSubtitle || ""}
+                      onChange={(e) => setAboutForm({ ...aboutForm, heroSubtitle: e.target.value })}
+                      placeholder="e.g. Hello, I'm **Tanmay Vaij** — a software engineer and tech creator based in Bengaluru..."
+                      required
+                    />
+                    <p className="text-[10px] text-muted-foreground">
+                      Wrap words in <code>**double asterisks**</code> (e.g. <code>**Tanmay Vaij**</code>) to bold them with high-contrast text.
+                    </p>
+                  </div>
+
+                  {/* Live Visual Preview */}
+                  <div className="rounded-lg border border-border bg-background p-4 space-y-2 mt-2">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block">
+                      Live Hero Preview
+                    </span>
+                    <h3 className="text-lg sm:text-xl font-extrabold text-foreground leading-snug">
+                      {aboutForm.heroTitle || "Building scalable web systems, thoughtful products, and"}{" "}
+                      {aboutForm.heroHighlight && (
+                        <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent dark:from-blue-400 dark:via-indigo-300 dark:to-violet-400">
+                          {aboutForm.heroHighlight}
+                        </span>
+                      )}
+                    </h3>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {(aboutForm.heroSubtitle || "").split(/(\*\*.*?\*\*)/g).map((part, i) => {
+                        if (part.startsWith("**") && part.endsWith("**")) {
+                          return (
+                            <strong key={i} className="text-foreground font-semibold">
+                              {part.slice(2, -2)}
+                            </strong>
+                          )
+                        }
+                        return part
+                      })}
+                    </p>
+                  </div>
+                </div>
+
                 {/* 1. Header & Hero Section */}
                 <div className="space-y-4">
                   <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground border-b border-border/50 pb-2">

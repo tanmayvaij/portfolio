@@ -9,6 +9,7 @@ export interface Project {
   category: "Web App" | "AI & Systems" | "DevOps & Cloud" | "Open Source"
   tags: string[]
   featured: boolean
+  published?: boolean
   showGithub?: boolean
   githubUrl?: string
   liveUrl?: string

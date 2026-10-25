@@ -5,12 +5,12 @@ interface AdSenseScriptProps {
 }
 
 export function AdSenseScript({
-  clientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-0000000000000000",
+  clientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "",
 }: AdSenseScriptProps) {
-  // If user hasn't set their actual ID yet, we don't render live script in dev to prevent errors
-  const isPlaceholder = clientId === "ca-pub-0000000000000000"
+  // If user hasn't set their actual ID yet, don't inject the AdSense script
+  const isConfigured = Boolean(clientId && clientId !== "ca-pub-0000000000000000")
 
-  if (isPlaceholder) {
+  if (!isConfigured) {
     return null
   }
 

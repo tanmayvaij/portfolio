@@ -26,16 +26,22 @@ export function AdBanner({
 }: AdBannerProps) {
   const adRef = React.useRef<HTMLModElement | null>(null)
   const clientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID
+  const isConfigured = Boolean(clientId && clientId !== "ca-pub-0000000000000000")
 
   React.useEffect(() => {
-    if (clientId && window.adsbygoogle && adRef.current) {
+    if (isConfigured && window.adsbygoogle && adRef.current) {
       try {
         window.adsbygoogle.push({})
       } catch (e) {
         console.error("AdSense push error:", e)
       }
     }
-  }, [clientId])
+  }, [isConfigured])
+
+  // Hide completely when no live AdSense Publisher ID is configured (clean layout for Google review approval)
+  if (!isConfigured) {
+    return null
+  }
 
   return (
     <aside
@@ -50,26 +56,15 @@ export function AdBanner({
         <span className="text-[10px]">Google AdSense</span>
       </div>
 
-      {clientId ? (
-        <ins
-          ref={adRef}
-          className="adsbygoogle block overflow-hidden rounded bg-background/50"
-          style={{ display: "block" }}
-          data-ad-client={clientId}
-          data-ad-slot={slot}
-          data-ad-format={format}
-          data-full-width-responsive={responsive ? "true" : "false"}
-        />
-      ) : (
-        <div className="flex min-h-[90px] w-full flex-col items-center justify-center rounded-md border border-dashed border-border bg-card/60 p-4 text-center">
-          <p className="text-xs font-medium text-muted-foreground">
-            AdSense Ad Placement Placeholder ({format})
-          </p>
-          <p className="mt-1 text-[11px] text-muted-foreground/60">
-            Set <code className="rounded bg-muted px-1 py-0.5 font-mono text-[10px]">NEXT_PUBLIC_ADSENSE_CLIENT_ID</code> in production to display live ads.
-          </p>
-        </div>
-      )}
+      <ins
+        ref={adRef}
+        className="adsbygoogle block overflow-hidden rounded bg-background/50"
+        style={{ display: "block" }}
+        data-ad-client={clientId}
+        data-ad-slot={slot}
+        data-ad-format={format}
+        data-full-width-responsive={responsive ? "true" : "false"}
+      />
     </aside>
   )
 }

@@ -1,6 +1,7 @@
 import { ExternalLink, Sparkles, Star, ShoppingBag } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { ShareButton } from "@/components/ui/share-button"
 
 interface AffiliateCalloutProps {
   title: string
@@ -77,18 +78,30 @@ export function AffiliateCallout({
         </div>
 
         <div className="flex flex-col sm:items-end gap-1.5 shrink-0">
-          <Button asChild size="sm" className="text-xs h-8 px-4">
-            <a
-              href={affiliateUrl}
-              target="_blank"
-              rel="sponsored nofollow noopener noreferrer"
-              className="inline-flex items-center gap-1.5"
-            >
-              <ShoppingBag className="h-3.5 w-3.5" />
-              {isAmazon ? "View on Amazon" : `Get ${toolName}`}
-              <ExternalLink className="h-3 w-3 ml-0.5" />
-            </a>
-          </Button>
+          <div className="flex items-center gap-1.5">
+            <ShareButton
+              title={`${toolName} | Recommended by Tanmay Vaij`}
+              text={description}
+              url={`/tools#${toolName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+              variant="outline"
+              size="sm"
+              label="Share"
+              showLabelOnMobile={false}
+              className="h-8 px-2.5 text-xs"
+            />
+            <Button asChild size="sm" className="text-xs h-8 px-4">
+              <a
+                href={affiliateUrl}
+                target="_blank"
+                rel="sponsored nofollow noopener noreferrer"
+                className="inline-flex items-center gap-1.5"
+              >
+                <ShoppingBag className="h-3.5 w-3.5" />
+                {isAmazon ? "View on Amazon" : `Get ${toolName}`}
+                <ExternalLink className="h-3 w-3 ml-0.5" />
+              </a>
+            </Button>
+          </div>
           <span className="text-[10px] text-muted-foreground/70">
             {isAmazon ? "Paid Amazon link" : "Sponsored / Affiliate Link"}
           </span>
