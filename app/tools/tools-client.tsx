@@ -11,6 +11,17 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { ShareButton } from "@/components/ui/share-button"
 import type { AffiliateToolItem } from "@/lib/db/affiliates"
 
+function cleanMarkdownSnippet(text: string): string {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/\*(.*?)\*/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/^#+\s+/gm, "")
+    .replace(/^[-*]\s+/gm, "")
+    .replace(/\s+/g, " ")
+    .trim()
+}
+
 export function ToolsClient({ tools }: { tools: AffiliateToolItem[] }) {
   const [selectedCategory, setSelectedCategory] = React.useState<string>("All")
   const [searchQuery, setSearchQuery] = React.useState<string>("")
@@ -184,7 +195,7 @@ export function ToolsClient({ tools }: { tools: AffiliateToolItem[] }) {
 
                           <ShareButton
                             title={`${tool.name} | Recommended by Tanmay Vaij`}
-                            text={tool.description}
+                            text={cleanMarkdownSnippet(tool.description)}
                             url={`/tools/${tool.slug || tool.id}`}
                             variant="ghost"
                             size="sm"
@@ -234,7 +245,7 @@ export function ToolsClient({ tools }: { tools: AffiliateToolItem[] }) {
                       </h3>
                     </Link>
                     <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                      {tool.description}
+                      {cleanMarkdownSnippet(tool.description)}
                     </p>
 
                     {/* Promo Code Row (if available) */}

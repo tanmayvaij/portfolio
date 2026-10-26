@@ -19,6 +19,7 @@ import { ShareButton } from "@/components/ui/share-button"
 import { PromoCodeBox } from "@/components/affiliate/PromoCodeBox"
 import { AdBanner } from "@/components/adsense/AdBanner"
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/motion"
+import { ArticleRenderer } from "@/app/blog/[slug]/article-renderer"
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -48,9 +49,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const isAmazon = tool.merchant?.toLowerCase() === "amazon"
   const title = `${tool.name} — Review & Recommendations | Tanmay Vaij`
-  const description =
+  const rawDescription =
     tool.description ||
     `Curated review and recommendations for ${tool.name}. Explore specs, deals, and daily workflow insights by Tanmay Vaij.`
+  const cleanDescription = rawDescription
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/\*(.*?)\*/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/^#+\s+/gm, "")
+    .replace(/^[-*]\s+/gm, "")
+    .replace(/\s+/g, " ")
+    .trim()
   const pageUrl = `https://tanmayvaij.dev/tools/${tool.slug || tool.id}`
   const ogImageUrl =
     tool.imageUrl && (tool.imageUrl.startsWith("http://") || tool.imageUrl.startsWith("https://"))
@@ -61,13 +70,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title,
-    description,
+    description: cleanDescription,
     alternates: {
       canonical: pageUrl,
     },
     openGraph: {
       title,
-      description,
+      description: cleanDescription,
       url: pageUrl,
       siteName: "Tanmay Vaij",
       locale: "en_US",
@@ -86,7 +95,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     twitter: {
       card: "summary_large_image",
       title,
-      description,
+      description: cleanDescription,
       creator: "@tanmayvaij",
       site: "@tanmayvaij",
       images: [
@@ -279,9 +288,9 @@ export default async function ToolDetailPage({ params }: PageProps) {
               )}
 
               {/* Description */}
-              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed pt-2">
-                {tool.description}
-              </p>
+              <div className="pt-2 text-sm sm:text-base leading-relaxed text-muted-foreground [&>div>p:first-child]:mt-0 [&>div>*:last-child]:mb-0">
+                <ArticleRenderer content={tool.description} />
+              </div>
             </div>
           </FadeIn>
 
@@ -320,7 +329,7 @@ export default async function ToolDetailPage({ params }: PageProps) {
 
               <ShareButton
                 title={`${tool.name} | Recommended by Tanmay Vaij`}
-                text={tool.description}
+                text={tool.description.replace(/\*\*(.*?)\*\*/g, "$1").replace(/^[-*]\s+/gm, "").trim()}
                 url={`/tools/${tool.slug || tool.id}`}
                 variant="outline"
                 size="lg"
@@ -353,10 +362,15 @@ export default async function ToolDetailPage({ params }: PageProps) {
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
             Why I Recommend This
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
-            {tool.detailedReview ||
-              `${tool.name} has been vetted as part of my everyday engineering workflow and desk setup. I strictly recommend gear, books, and software tools that provide durable reliability, reduce friction in development, or significantly improve daily ergonomic comfort.`}
-          </p>
+          <div className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed [&>div>p:first-child]:mt-0 [&>div>*:last-child]:mb-0">
+            {tool.detailedReview ? (
+              <ArticleRenderer content={tool.detailedReview} />
+            ) : (
+              <p>
+                {tool.name} has been vetted as part of my everyday engineering workflow and desk setup. I strictly recommend gear, books, and software tools that provide durable reliability, reduce friction in development, or significantly improve daily ergonomic comfort.
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Highlight Bullets */}

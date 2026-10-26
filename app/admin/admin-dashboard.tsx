@@ -2272,7 +2272,9 @@ export function AdminDashboard({
                       </CardHeader>
 
                       <CardContent className="p-4 pt-0 text-xs text-muted-foreground space-y-2 flex-1">
-                        <p className="line-clamp-2">{tool.description}</p>
+                        <p className="line-clamp-2">
+                          {tool.description.replace(/\*\*(.*?)\*\*/g, "$1").replace(/^[-*]\s+/gm, "").replace(/\n+/g, " ")}
+                        </p>
                         {tool.discountCode && (
                           <div className="flex items-center gap-1.5 text-[11px]">
                             <span className="font-medium text-foreground">Code:</span>

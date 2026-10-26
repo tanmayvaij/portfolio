@@ -416,11 +416,11 @@ export function ArticleRenderer({ content }: { content: string }) {
 }
 
 function renderInlineMarkdown(text: string): React.ReactNode {
-  // Regex to match markdown links [text](url), bold **bold**, italic *italic*, code `code`, strikethrough ~~strikethrough~~
+  // Regex to match markdown links [text](url), bold **bold**, italic *italic*, code `code`, strikethrough ~~strikethrough~~, or raw URLs
   const parts: React.ReactNode[] = []
   const remaining = text
 
-  const regex = /(\[.*?\]\(.*?\)|\*\*[^*]+\*\*|`[^`]+`|~~[^~]+~~|\*[^*]+\*)/g
+  const regex = /(\[.*?\]\(.*?\)|\*\*.*?\*\*|`.*?`|~~.*?~~|\*.*?\*|https?:\/\/[^\s<)]+)/g
   const matches = [...text.matchAll(regex)]
 
   if (matches.length === 0) {
@@ -450,6 +450,21 @@ function renderInlineMarkdown(text: string): React.ReactNode {
         >
           {linkMatch[1]}
           {isExternal && <ExternalLink className="h-3 w-3 inline ml-0.5 opacity-70" />}
+        </a>
+      )
+    }
+    // Raw URL: https://...
+    else if (matchedStr.startsWith("http://") || matchedStr.startsWith("https://")) {
+      parts.push(
+        <a
+          key={`u-${idx}`}
+          href={matchedStr}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary hover:underline font-medium inline-flex items-center gap-0.5 break-all"
+        >
+          {matchedStr}
+          <ExternalLink className="h-3 w-3 inline ml-0.5 opacity-70 shrink-0" />
         </a>
       )
     }
