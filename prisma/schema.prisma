@@ -15,6 +15,7 @@ model Post {
   title        String
   excerpt      String
   content      String
+  notes        String?  // Admin-only private notes / reminders
   coverImage   String?  // Firebase Storage URL for Blog Feature Image
   category     String
   tags         String   // Comma-separated or JSON
@@ -33,6 +34,7 @@ model Project {
   title           String
   description     String
   longDescription String
+  notes           String?  // Admin-only private notes / roadmap
   featuredImage   String?  // Firebase Storage URL for Project Feature Image
   screenshots     String?  // JSON array of Firebase Storage URLs for Project Screenshots
   category        String
@@ -69,6 +71,7 @@ model AffiliateTool {
   name         String
   category     String   // "Desk Setup & Ergonomics" | "Audio & Tech Gadgets" | "Books & Reading" | "Cloud & Software"
   description  String
+  notes        String?  // Admin-only private notes / tracking
   badge        String?  // e.g. "Amazon's Choice" | "Top Pick" | "$100 Credit" | "4.8 ★ Rated"
   affiliateUrl String
   discountCode String?

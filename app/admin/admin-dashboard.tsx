@@ -23,6 +23,7 @@ import {
   Save,
   Layers,
   X,
+  Lock,
   Image as ImageIcon,
 } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
@@ -58,6 +59,7 @@ interface PostRecord {
   title: string
   excerpt: string
   content: string
+  notes?: string | null
   coverImage?: string | null
   category: string
   tags: string
@@ -72,6 +74,7 @@ interface ProjectRecord {
   title: string
   description: string
   longDescription: string
+  notes?: string | null
   featuredImage?: string | null
   screenshots?: string | null
   category: string
@@ -100,6 +103,7 @@ interface AffiliateRecord {
   name: string
   category: string
   description: string
+  notes?: string | null
   badge: string | null
   affiliateUrl: string
   discountCode: string | null
@@ -686,6 +690,7 @@ export function AdminDashboard({
     tags: "Next.js, TypeScript",
     excerpt: "",
     content: "",
+    notes: "",
     coverImage: "",
     readTime: "8 min read",
     published: true,
@@ -707,6 +712,7 @@ export function AdminDashboard({
     tags: "TypeScript, Next.js",
     description: "",
     longDescription: "",
+    notes: "",
     featuredImage: "",
     screenshots: "",
     metrics: "1,000+ Stars",
@@ -728,6 +734,7 @@ export function AdminDashboard({
     slug: "",
     category: "Desk Setup & Ergonomics",
     description: "",
+    notes: "",
     badge: "Amazon's Choice",
     affiliateUrl: "https://www.amazon.com/dp/...?tag=tanmayvaij-20",
     discountCode: "",
@@ -763,6 +770,7 @@ export function AdminDashboard({
       tags: "Next.js, React, Performance",
       excerpt: "",
       content: "## Overview\n\nWrite your technical article here...",
+      notes: "",
       coverImage: "",
       readTime: "7 min read",
       published: true,
@@ -781,6 +789,7 @@ export function AdminDashboard({
       tags: post.tags,
       excerpt: post.excerpt,
       content: post.content,
+      notes: post.notes || "",
       coverImage: post.coverImage || "",
       readTime: post.readTime,
       published: post.published,
@@ -799,6 +808,7 @@ export function AdminDashboard({
       tags: postForm.tags,
       excerpt: postForm.excerpt,
       content: postForm.content,
+      notes: postForm.notes || undefined,
       coverImage: postForm.coverImage || undefined,
       readTime: postForm.readTime,
       published: postForm.published,
@@ -860,6 +870,7 @@ export function AdminDashboard({
       tags: "TypeScript, Go",
       description: "",
       longDescription: "",
+      notes: "",
       featuredImage: "",
       screenshots: "",
       metrics: "",
@@ -891,6 +902,7 @@ export function AdminDashboard({
       tags: project.tags,
       description: project.description,
       longDescription: project.longDescription,
+      notes: project.notes || "",
       featuredImage: project.featuredImage || "",
       screenshots: project.screenshots || "",
       metrics: project.metrics || "",
@@ -920,6 +932,7 @@ export function AdminDashboard({
       tags: projectForm.tags,
       description: projectForm.description,
       longDescription: projectForm.longDescription,
+      notes: projectForm.notes || undefined,
       featuredImage: projectForm.featuredImage || undefined,
       screenshots: projectForm.screenshots || undefined,
       metrics: projectForm.metrics || undefined,
@@ -1027,6 +1040,7 @@ export function AdminDashboard({
       slug: "",
       category: "Desk Setup & Ergonomics",
       description: "",
+      notes: "",
       badge: "Amazon's Choice",
       affiliateUrl: "https://www.amazon.com/dp/...?tag=tanmayvaij-20",
       discountCode: "",
@@ -1048,6 +1062,7 @@ export function AdminDashboard({
       slug: tool.slug,
       category: tool.category,
       description: tool.description,
+      notes: tool.notes || "",
       badge: tool.badge || "",
       affiliateUrl: tool.affiliateUrl,
       discountCode: tool.discountCode || "",
@@ -1069,6 +1084,7 @@ export function AdminDashboard({
       slug: affiliateForm.slug || affiliateForm.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
       category: affiliateForm.category,
       description: affiliateForm.description,
+      notes: affiliateForm.notes || undefined,
       badge: affiliateForm.badge || undefined,
       affiliateUrl: affiliateForm.affiliateUrl,
       discountCode: affiliateForm.discountCode || undefined,
@@ -1381,6 +1397,29 @@ export function AdminDashboard({
                     />
                   </div>
 
+                  {/* Private Admin Notes */}
+                  <div className="space-y-2 p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Lock className="h-3.5 w-3.5 text-amber-500" />
+                        <label className="text-xs font-semibold text-foreground">Private Admin Notes</label>
+                        <Badge variant="outline" className="text-[10px] py-0 border-amber-500/40 text-amber-600 dark:text-amber-400 font-medium">
+                          Admin Only • Never Public
+                        </Badge>
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">
+                      These notes are strictly private to you. Use this for SEO targets, revision reminders, upcoming edits, or private tracking. Never displayed on the public site or API.
+                    </p>
+                    <Textarea
+                      rows={3}
+                      placeholder="e.g. Target keywords: Next.js 16, Distributed Caching. Needs diagram update in v2. Follow-up review scheduled for..."
+                      value={postForm.notes}
+                      onChange={(e) => setPostForm({ ...postForm, notes: e.target.value })}
+                      className="bg-card text-xs font-mono leading-relaxed"
+                    />
+                  </div>
+
                   {/* Post Visibility Toggle */}
                   <div className="flex items-center justify-between p-3.5 rounded-xl border border-border bg-card/60 shadow-xs">
                     <div className="space-y-0.5">
@@ -1434,7 +1473,7 @@ export function AdminDashboard({
                     Cancel
                   </Button>
                   <Button type="submit" disabled={loading} size="sm" className="text-xs">
-                    {loading ? "Saving article..." : "Save Article to SQLite"}
+                    {loading ? "Saving article..." : "Save Article"}
                   </Button>
                 </CardFooter>
               </form>
@@ -1497,6 +1536,13 @@ export function AdminDashboard({
                             <span>•</span>
                             <span>{post.readTime}</span>
                           </div>
+                          {post.notes && (
+                            <div className="flex items-center gap-1.5 text-[11px] text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md max-w-fit mt-1">
+                              <Lock className="h-3 w-3 shrink-0" />
+                              <span className="font-semibold">Private Note:</span>
+                              <span className="truncate max-w-xs sm:max-w-md">{post.notes}</span>
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -1716,6 +1762,29 @@ export function AdminDashboard({
                         onChange={(e) => setProjectForm({ ...projectForm, liveUrl: e.target.value })}
                       />
                     </div>
+                  </div>
+
+                  {/* Private Admin Notes */}
+                  <div className="space-y-2 p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Lock className="h-3.5 w-3.5 text-amber-500" />
+                        <label className="text-xs font-semibold text-foreground">Private Admin Notes</label>
+                        <Badge variant="outline" className="text-[10px] py-0 border-amber-500/40 text-amber-600 dark:text-amber-400 font-medium">
+                          Admin Only • Never Public
+                        </Badge>
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">
+                      Internal project roadmap notes, private repository URLs, architecture debt, or sprint milestones. Never displayed on the public portfolio.
+                    </p>
+                    <Textarea
+                      rows={2}
+                      placeholder="e.g. Next milestones: migrate auth layer to WebAuthn, profile Redis latency under 10k connections..."
+                      value={projectForm.notes}
+                      onChange={(e) => setProjectForm({ ...projectForm, notes: e.target.value })}
+                      className="bg-card text-xs font-mono leading-relaxed"
+                    />
                   </div>
 
                   {/* Project Visibility Toggle */}
@@ -2059,6 +2128,29 @@ export function AdminDashboard({
                       Featured Partner (displayed prominently in hero/top sections)
                     </label>
                   </div>
+
+                  {/* Private Admin Notes */}
+                  <div className="space-y-2 p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/5 mt-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Lock className="h-3.5 w-3.5 text-amber-500" />
+                        <label className="text-xs font-semibold text-foreground">Private Admin Notes</label>
+                        <Badge variant="outline" className="text-[10px] py-0 border-amber-500/40 text-amber-600 dark:text-amber-400 font-medium">
+                          Admin Only • Never Public
+                        </Badge>
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">
+                      Internal affiliate tracking notes, commission percentage, expiration dates, contact details, or partner terms. Never displayed on public tool pages.
+                    </p>
+                    <Textarea
+                      rows={2}
+                      placeholder="e.g. Affiliate payout: 8% on hardware sales. Contract renews on 2026-11-15. Contact: affiliate@partner.com..."
+                      value={affiliateForm.notes}
+                      onChange={(e) => setAffiliateForm({ ...affiliateForm, notes: e.target.value })}
+                      className="bg-card text-xs font-mono leading-relaxed"
+                    />
+                  </div>
                 </CardContent>
 
                 <CardFooter className="flex justify-end gap-2 border-t border-border/40 pt-4">
@@ -2147,6 +2239,13 @@ export function AdminDashboard({
                                 {tool.price && <span className="font-bold text-foreground">• {tool.price}</span>}
                                 {tool.rating && <span className="text-amber-500 font-semibold">• ★ {tool.rating}</span>}
                               </div>
+                              {tool.notes && (
+                                <div className="flex items-center gap-1.5 text-[11px] text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md max-w-fit mt-1.5">
+                                  <Lock className="h-3 w-3 shrink-0" />
+                                  <span className="font-semibold">Note:</span>
+                                  <span className="truncate max-w-xs">{tool.notes}</span>
+                                </div>
+                              )}
                             </div>
                           </div>
 

@@ -278,6 +278,7 @@ export async function savePostAction(postData: {
   title: string
   excerpt: string
   content: string
+  notes?: string | null
   coverImage?: string | null
   category: string
   tags: string
@@ -296,6 +297,7 @@ export async function savePostAction(postData: {
           title: postData.title,
           excerpt: postData.excerpt,
           content: postData.content,
+          notes: postData.notes !== undefined ? (postData.notes || null) : undefined,
           coverImage: postData.coverImage || null,
           category: postData.category,
           tags: postData.tags,
@@ -310,6 +312,7 @@ export async function savePostAction(postData: {
           title: postData.title,
           excerpt: postData.excerpt,
           content: postData.content,
+          notes: postData.notes || null,
           coverImage: postData.coverImage || null,
           category: postData.category,
           tags: postData.tags,
@@ -380,6 +383,7 @@ export async function saveProjectAction(projectData: {
   title: string
   description: string
   longDescription: string
+  notes?: string | null
   featuredImage?: string | null
   screenshots?: string | null
   category: string
@@ -402,6 +406,7 @@ export async function saveProjectAction(projectData: {
       title: projectData.title,
       description: projectData.description,
       longDescription: projectData.longDescription,
+      notes: projectData.notes !== undefined ? (projectData.notes || null) : undefined,
       featuredImage: projectData.featuredImage || null,
       screenshots: projectData.screenshots || null,
       category: projectData.category,
@@ -550,6 +555,7 @@ export async function saveAffiliateAction(toolData: {
   name: string
   category: string
   description: string
+  notes?: string | null
   badge?: string
   affiliateUrl: string
   discountCode?: string
@@ -571,6 +577,7 @@ export async function saveAffiliateAction(toolData: {
           name: toolData.name,
           category: toolData.category,
           description: toolData.description,
+          notes: toolData.notes !== undefined ? (toolData.notes || null) : undefined,
           badge: toolData.badge || null,
           affiliateUrl: toolData.affiliateUrl,
           discountCode: toolData.discountCode || null,
@@ -588,6 +595,7 @@ export async function saveAffiliateAction(toolData: {
           name: toolData.name,
           category: toolData.category,
           description: toolData.description,
+          notes: toolData.notes || null,
           badge: toolData.badge || null,
           affiliateUrl: toolData.affiliateUrl,
           discountCode: toolData.discountCode || null,
