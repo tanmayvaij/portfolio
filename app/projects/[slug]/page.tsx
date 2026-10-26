@@ -53,6 +53,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const pageUrl = `https://tanmayvaij.dev/projects/${project.slug || project.id}`
+  const ogImageUrl =
+    project.featuredImage && (project.featuredImage.startsWith("http://") || project.featuredImage.startsWith("https://"))
+      ? project.featuredImage
+      : project.featuredImage
+      ? `https://tanmayvaij.dev${project.featuredImage.startsWith("/") ? project.featuredImage : `/${project.featuredImage}`}`
+      : "https://tanmayvaij.dev/og-image.png"
 
   return {
     title: `${project.title} | Engineering Case Study`,
@@ -70,14 +76,31 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       siteName: "Tanmay Vaij Engineering Portfolio",
       locale: "en_US",
       tags: project.tags,
-      ...(project.featuredImage ? { images: [{ url: project.featuredImage, alt: project.title }] } : {}),
+      images: [
+        {
+          url: ogImageUrl,
+          secureUrl: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: project.title,
+          type: "image/png",
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: `${project.title} | Architecture Case Study`,
       description: project.description,
       creator: "@tanmayvaij",
-      ...(project.featuredImage ? { images: [project.featuredImage] } : {}),
+      site: "@tanmayvaij",
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: project.title,
+        },
+      ],
     },
   }
 }

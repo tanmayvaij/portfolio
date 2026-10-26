@@ -51,28 +51,52 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description =
     tool.description ||
     `Curated review and recommendations for ${tool.name}. Explore specs, deals, and daily workflow insights by Tanmay Vaij.`
+  const pageUrl = `https://tanmayvaij.dev/tools/${tool.slug || tool.id}`
+  const ogImageUrl =
+    tool.imageUrl && (tool.imageUrl.startsWith("http://") || tool.imageUrl.startsWith("https://"))
+      ? tool.imageUrl
+      : tool.imageUrl
+      ? `https://tanmayvaij.dev${tool.imageUrl.startsWith("/") ? tool.imageUrl : `/${tool.imageUrl}`}`
+      : "https://tanmayvaij.dev/og-image.png"
 
   return {
     title,
     description,
     alternates: {
-      canonical: `https://tanmayvaij.dev/tools/${tool.slug || tool.id}`,
+      canonical: pageUrl,
     },
     openGraph: {
       title,
       description,
-      url: `https://tanmayvaij.dev/tools/${tool.slug || tool.id}`,
+      url: pageUrl,
       siteName: "Tanmay Vaij",
       locale: "en_US",
       type: "website",
-      ...(tool.imageUrl ? { images: [{ url: tool.imageUrl, alt: tool.name }] } : {}),
+      images: [
+        {
+          url: ogImageUrl,
+          secureUrl: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: tool.name,
+          type: "image/png",
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
       creator: "@tanmayvaij",
-      ...(tool.imageUrl ? { images: [tool.imageUrl] } : {}),
+      site: "@tanmayvaij",
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: tool.name,
+        },
+      ],
     },
   }
 }

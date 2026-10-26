@@ -41,33 +41,58 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
 
+  const pageUrl = `https://tanmayvaij.dev/blog/${post.slug}`
+  const ogImageUrl =
+    post.coverImage && (post.coverImage.startsWith("http://") || post.coverImage.startsWith("https://"))
+      ? post.coverImage
+      : post.coverImage
+      ? `https://tanmayvaij.dev${post.coverImage.startsWith("/") ? post.coverImage : `/${post.coverImage}`}`
+      : "https://tanmayvaij.dev/og-image.png"
+
   return {
     title: post.title,
     description: post.excerpt,
     keywords: post.tags,
     authors: [{ name: post.author.name, url: "https://tanmayvaij.dev/about" }],
     alternates: {
-      canonical: `https://tanmayvaij.dev/blog/${post.slug}`,
+      canonical: pageUrl,
     },
     openGraph: {
       title: post.title,
       description: post.excerpt,
       type: "article",
-      url: `https://tanmayvaij.dev/blog/${post.slug}`,
+      url: pageUrl,
       siteName: "Tanmay Vaij Engineering Blog",
       locale: "en_US",
       publishedTime: post.publishedAt,
       modifiedTime: post.updatedAt,
       authors: [post.author.name],
       tags: post.tags,
-      ...(post.coverImage ? { images: [{ url: post.coverImage, alt: post.title }] } : {}),
+      images: [
+        {
+          url: ogImageUrl,
+          secureUrl: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+          type: "image/png",
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: post.title,
       description: post.excerpt,
       creator: "@tanmayvaij",
-      ...(post.coverImage ? { images: [post.coverImage] } : {}),
+      site: "@tanmayvaij",
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
     },
   }
 }

@@ -76,6 +76,16 @@ export const metadata: Metadata = {
     description:
       "Engineering portfolio and technical blog covering Next.js, distributed backend systems, AI agents, and web architecture.",
     siteName: "Tanmay Vaij Portfolio & Tech Blog",
+    images: [
+      {
+        url: "https://tanmayvaij.dev/og-image.png",
+        secureUrl: "https://tanmayvaij.dev/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Tanmay Vaij — Senior Full Stack & Systems Engineer",
+        type: "image/png",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
@@ -83,6 +93,15 @@ export const metadata: Metadata = {
     description:
       "Engineering portfolio and technical blog covering Next.js, distributed backend systems, AI agents, and web architecture.",
     creator: "@tanmayvaij",
+    site: "@tanmayvaij",
+    images: [
+      {
+        url: "https://tanmayvaij.dev/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Tanmay Vaij — Senior Full Stack & Systems Engineer",
+      },
+    ],
   },
   other: {
     "google-adsense-account": process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-0000000000000000",

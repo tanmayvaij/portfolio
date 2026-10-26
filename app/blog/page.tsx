@@ -16,9 +16,19 @@ export const metadata: Metadata = {
     description:
       "Deep technical articles covering Next.js, distributed databases, AI agents, and web performance.",
     url: "https://tanmayvaij.dev/blog",
-    siteName: "Tanmay Vaij",
+    siteName: "Tanmay Vaij Engineering Blog",
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: "https://tanmayvaij.dev/og-image.png",
+        secureUrl: "https://tanmayvaij.dev/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Tanmay Vaij Engineering Blog & Technical Publications",
+        type: "image/png",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
@@ -26,6 +36,15 @@ export const metadata: Metadata = {
     description:
       "Deep technical articles covering Next.js, distributed databases, AI agents, and web performance.",
     creator: "@tanmayvaij",
+    site: "@tanmayvaij",
+    images: [
+      {
+        url: "https://tanmayvaij.dev/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Tanmay Vaij Engineering Blog & Technical Publications",
+      },
+    ],
   },
 }
 
