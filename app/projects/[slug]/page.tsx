@@ -3,13 +3,14 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import {
   ArrowLeft,
+  ArrowRight,
+  ArrowUpRight,
   ExternalLink,
   Layers,
   Sparkles,
   Tag,
   CheckCircle2,
   Code2,
-  ArrowRight,
   TrendingUp,
   Image as ImageIcon,
 } from "lucide-react"
@@ -22,8 +23,7 @@ import { GithubIcon } from "@/components/icons"
 import { ShareButton } from "@/components/ui/share-button"
 import { AdBanner } from "@/components/adsense/AdBanner"
 import { AffiliateCallout } from "@/components/affiliate/AffiliateCallout"
-import { ReadingProgressBar, FadeIn, StaggerContainer, StaggerItem, MotionCard } from "@/components/motion"
-import { CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
+import { ReadingProgressBar, FadeIn, StaggerContainer, StaggerItem } from "@/components/motion"
 import { ArticleRenderer } from "@/app/blog/[slug]/article-renderer"
 
 interface PageProps {
@@ -426,51 +426,137 @@ export default async function ProjectDetailPage({ params }: PageProps) {
             </Button>
           </div>
 
-          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {relatedProjects.map((rel) => (
-              <StaggerItem key={rel.id || rel.slug}>
-                <MotionCard className="flex flex-col justify-between h-full hover:border-primary/40 hover:shadow-md transition-shadow bg-card overflow-hidden">
-                  {rel.featuredImage && (
-                    <Link href={`/projects/${rel.slug || rel.id}`} className="block relative aspect-[2/1] w-full overflow-hidden bg-muted border-b border-border">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={rel.featuredImage}
-                        alt={rel.title}
-                        className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
-                      />
-                    </Link>
-                  )}
-                  <CardHeader>
-                    <div className="flex items-center justify-between mb-2">
-                      <Badge variant="secondary" className="text-[10px]">
-                        {rel.category}
-                      </Badge>
-                      {rel.metrics && (
-                        <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                          {rel.metrics}
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+            {relatedProjects.map((rel) => {
+              const projectHref = `/projects/${rel.slug || rel.id}`
+              return (
+                <StaggerItem key={rel.id || rel.slug} className="flex flex-col">
+                  <div className="group relative flex flex-col justify-between h-full overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-b from-card/95 via-card/60 to-muted/20 backdrop-blur-xs transition-all duration-300 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/5">
+                    {/* Visual Media Showcase */}
+                    <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted/40 border-b border-border/40">
+                      <Link
+                        href={projectHref}
+                        className="block h-full w-full"
+                        aria-label={rel.title}
+                      >
+                        {rel.featuredImage ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={rel.featuredImage}
+                            alt={rel.title}
+                            className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full flex-col justify-between p-6 bg-gradient-to-br from-card via-muted/40 to-muted/80 relative overflow-hidden">
+                            <div className="absolute -right-8 -bottom-8 w-32 h-32 rounded-full bg-primary/10 blur-2xl pointer-events-none" />
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground bg-background/80 px-2.5 py-1 rounded-md border border-border/50">
+                                {rel.category}
+                              </span>
+                              <Layers className="h-5 w-5 text-muted-foreground/60" />
+                            </div>
+                            <div>
+                              <span className="text-base font-bold tracking-tight text-foreground/90 line-clamp-1">
+                                {rel.title}
+                              </span>
+                              <span className="text-[11px] text-muted-foreground font-mono mt-0.5 block">
+                                Explore case study
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </Link>
+
+                      {/* Top Badges & External Quick Actions */}
+                      <div className="absolute top-3 inset-x-3 flex items-center justify-between z-10 pointer-events-none">
+                        <span className="rounded-full bg-black/65 backdrop-blur-md px-2.5 py-1 text-[11px] font-medium text-white border border-white/10 shadow-xs flex items-center gap-1.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                          {rel.category}
                         </span>
+
+                        <div className="flex items-center gap-1.5 pointer-events-auto">
+                          {rel.showGithub !== false && rel.githubUrl && (
+                            <a
+                              href={rel.githubUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="h-7 w-7 rounded-full bg-black/65 backdrop-blur-md text-white hover:bg-white hover:text-black border border-white/10 transition-colors flex items-center justify-center shadow-xs"
+                              title="GitHub Repository"
+                            >
+                              <GithubIcon className="h-3.5 w-3.5" />
+                            </a>
+                          )}
+                          {rel.liveUrl && (
+                            <a
+                              href={rel.liveUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="h-7 w-7 rounded-full bg-black/65 backdrop-blur-md text-white hover:bg-white hover:text-black border border-white/10 transition-colors flex items-center justify-center shadow-xs"
+                              title="Live Platform"
+                            >
+                              <ExternalLink className="h-3.5 w-3.5" />
+                            </a>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Bottom Gradient Scrim & Metrics Tag */}
+                      <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/75 via-black/25 to-transparent pointer-events-none" />
+                      {rel.metrics && (
+                        <div className="absolute bottom-3 left-3 z-10 pointer-events-none">
+                          <span className="inline-flex items-center gap-1.5 rounded-full bg-black/75 backdrop-blur-md px-2.5 py-1 text-[11px] font-semibold text-emerald-400 border border-emerald-500/30 shadow-xs">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                            {rel.metrics}
+                          </span>
+                        </div>
                       )}
                     </div>
-                    <CardTitle className="text-base hover:text-primary transition-colors">
-                      <Link href={`/projects/${rel.slug || rel.id}`}>{rel.title}</Link>
-                    </CardTitle>
-                    <CardDescription className="text-xs line-clamp-2 mt-1">
-                      {rel.description}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardFooter className="border-t border-border/50 pt-3 flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">{rel.tags.slice(0, 3).join(", ")}</span>
-                    <Link
-                      href={`/projects/${rel.slug || rel.id}`}
-                      className="font-semibold text-primary hover:underline inline-flex items-center gap-1"
-                    >
-                      Case Study
-                      <ArrowRight className="h-3 w-3" />
-                    </Link>
-                  </CardFooter>
-                </MotionCard>
-              </StaggerItem>
-            ))}
+
+                    {/* Card Content */}
+                    <div className="p-5 sm:p-6 flex flex-col justify-between flex-1 gap-4">
+                      <div className="space-y-2">
+                        <Link href={projectHref} className="block group/title">
+                          <h4 className="text-base sm:text-lg font-bold tracking-tight text-foreground group-hover:text-primary transition-colors flex items-center justify-between gap-2">
+                            <span>{rel.title}</span>
+                            <ArrowUpRight className="h-4 w-4 text-muted-foreground/60 group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200 shrink-0" />
+                          </h4>
+                        </Link>
+                        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed line-clamp-2">
+                          {rel.description}
+                        </p>
+                      </div>
+
+                      {/* Card Footer: Tech Stack Chips & Action */}
+                      <div className="pt-4 border-t border-border/50 flex items-center justify-between gap-3 text-xs">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {rel.tags.slice(0, 3).map((tag) => (
+                            <span
+                              key={tag}
+                              className="inline-flex items-center rounded-md border border-border/60 bg-muted/40 px-2 py-0.5 text-[11px] font-mono text-muted-foreground"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                          {rel.tags.length > 3 && (
+                            <span className="text-[10px] text-muted-foreground/60 font-mono">
+                              +{rel.tags.length - 3}
+                            </span>
+                          )}
+                        </div>
+
+                        <Link
+                          href={projectHref}
+                          className="font-semibold text-xs text-primary inline-flex items-center gap-1 group-hover:gap-1.5 transition-all shrink-0 hover:underline"
+                        >
+                          <span>Case Study</span>
+                          <ArrowRight className="h-3 w-3 transition-transform duration-200 group-hover:translate-x-0.5" />
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </StaggerItem>
+              )
+            })}
           </StaggerContainer>
         </section>
       )}
