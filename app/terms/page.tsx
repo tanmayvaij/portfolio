@@ -20,11 +20,22 @@ export const metadata: Metadata = {
     siteName: "Tanmay Vaij",
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: "https://tanmayvaij.dev/og-image.png",
+        secureUrl: "https://tanmayvaij.dev/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Terms of Service | Tanmay Vaij",
+        type: "image/png",
+      },
+    ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Terms of Service | Tanmay Vaij",
     description: "Terms of service and legal conditions for Tanmay Vaij's website.",
+    images: ["https://tanmayvaij.dev/og-image.png"],
   },
 }
 

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next"
 import { getAllPosts } from "@/lib/db/posts"
 import { getAllProjects } from "@/lib/db/projects"
+import { getAllAffiliates } from "@/lib/db/affiliates"
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://tanmayvaij.dev"
@@ -63,7 +64,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  const [posts, projects] = await Promise.all([getAllPosts(), getAllProjects()])
+  const [posts, projects, tools] = await Promise.all([
+    getAllPosts(),
+    getAllProjects(),
+    getAllAffiliates(),
+  ])
+
   const blogRoutes: MetadataRoute.Sitemap = posts.map((post) => ({
     url: `${baseUrl}/blog/${post.slug}`,
     lastModified: new Date(post.updatedAt || post.publishedAt),
@@ -78,5 +84,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.85,
   }))
 
-  return [...staticRoutes, ...blogRoutes, ...projectRoutes]
+  const toolRoutes: MetadataRoute.Sitemap = tools.map((tool) => ({
+    url: `${baseUrl}/tools/${tool.slug || tool.id}`,
+    lastModified: new Date((tool as any).updatedAt || (tool as any).createdAt || buildDate),
+    changeFrequency: "weekly",
+    priority: 0.8,
+  }))
+
+  return [...staticRoutes, ...blogRoutes, ...projectRoutes, ...toolRoutes]
 }

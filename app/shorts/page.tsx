@@ -25,9 +25,11 @@ export const metadata: Metadata = {
     images: [
       {
         url: "https://tanmayvaij.dev/og-image.png",
+        secureUrl: "https://tanmayvaij.dev/og-image.png",
         width: 1200,
         height: 630,
         alt: "Tanmay Vaij Finance & Lifestyle Shorts",
+        type: "image/png",
       },
     ],
   },

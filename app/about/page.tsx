@@ -27,6 +27,16 @@ export const metadata: Metadata = {
     siteName: "Tanmay Vaij",
     locale: "en_US",
     type: "profile",
+    images: [
+      {
+        url: "https://tanmayvaij.dev/og-image.png",
+        secureUrl: "https://tanmayvaij.dev/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "About Tanmay Vaij — Senior Full Stack & Systems Engineer",
+        type: "image/png",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
@@ -34,6 +44,7 @@ export const metadata: Metadata = {
     description:
       "Career background, engineering stack, and architectural philosophy of Tanmay Vaij.",
     creator: "@tanmayvaij",
+    images: ["https://tanmayvaij.dev/og-image.png"],
   },
 }
 

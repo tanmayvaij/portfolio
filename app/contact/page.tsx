@@ -20,6 +20,16 @@ export const metadata: Metadata = {
     siteName: "Tanmay Vaij",
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: "https://tanmayvaij.dev/og-image.png",
+        secureUrl: "https://tanmayvaij.dev/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Contact Tanmay Vaij | Systems & Web Engineering Consulting",
+        type: "image/png",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
@@ -27,6 +37,7 @@ export const metadata: Metadata = {
     description:
       "Get in touch for architecture consulting, contracts, or engineering inquiries.",
     creator: "@tanmayvaij",
+    images: ["https://tanmayvaij.dev/og-image.png"],
   },
 }
 
