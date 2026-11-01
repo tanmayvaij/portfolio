@@ -1,10 +1,11 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
-import { Briefcase, GraduationCap, CheckCircle2, ArrowRight, Mail } from "lucide-react"
+import { Briefcase, GraduationCap, CheckCircle2, ArrowRight, Mail, ExternalLink, ArrowUpRight, Layers } from "lucide-react"
 import { GithubIcon, LinkedinIcon, YouTubeIcon, InstagramIcon } from "@/components/icons"
 import { portfolioData } from "@/lib/data/portfolio"
 import { getAboutConfig } from "@/lib/db/about"
+import { getAllProjects } from "@/lib/db/projects"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
@@ -39,7 +40,13 @@ export const metadata: Metadata = {
 export const instant = false
 
 export default async function AboutPage() {
-  const about = await getAboutConfig()
+  const [about, allProjects] = await Promise.all([
+    getAboutConfig(),
+    getAllProjects(),
+  ])
+
+  const projects = allProjects.length > 0 ? allProjects : portfolioData.projects
+  const featuredProjects = projects.filter((p) => p.featured)
 
   const profileJsonLd = {
     "@context": "https://schema.org",
@@ -284,6 +291,149 @@ export default async function AboutPage() {
           ))}
         </StaggerContainer>
       </section>
+
+      {/* Featured Projects Section */}
+      {featuredProjects.length > 0 && (
+        <section className="mt-16 space-y-6">
+          <FadeIn>
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+              <div>
+                <Badge variant="outline" className="mb-2">Portfolio</Badge>
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                  Featured Engineering Work
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Production architectures, developer frameworks, and open-source contributions.
+                </p>
+              </div>
+              <Button asChild variant="ghost" size="sm" className="self-start sm:self-auto">
+                <Link href="/projects" className="gap-1">
+                  View All Projects
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </Button>
+            </div>
+          </FadeIn>
+
+          <StaggerContainer className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 items-start">
+            {featuredProjects.map((project) => {
+              const projectHref = `/projects/${project.slug || project.id}`
+              return (
+                <StaggerItem key={project.id} className="group flex flex-col">
+                  {/* Visual Pin Card */}
+                  <div className="relative w-full overflow-hidden rounded-2xl bg-muted/60 border border-border/60 shadow-xs group-hover:shadow-xl group-hover:border-primary/40 transition-all duration-300">
+                    {/* Background Clickable Link to Case Study */}
+                    <Link
+                      href={projectHref}
+                      className="block w-full"
+                      aria-label={project.title}
+                    >
+                      {project.featuredImage ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
+                          src={project.featuredImage}
+                          alt={project.title}
+                          className="w-full h-auto block transition-transform duration-500 ease-out group-hover:scale-105"
+                        />
+                      ) : (
+                        /* Fallback aesthetic gradient pin when no image is uploaded */
+                        <div className="aspect-[16/10] w-full flex flex-col justify-between p-6 bg-gradient-to-br from-card via-muted/40 to-muted/80 relative overflow-hidden">
+                          <div className="absolute -right-8 -bottom-8 w-32 h-32 rounded-full bg-primary/10 blur-2xl pointer-events-none" />
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground bg-background/80 px-2 py-0.5 rounded-md border border-border/50">
+                              {project.category}
+                            </span>
+                            <Layers className="h-5 w-5 text-muted-foreground/60" />
+                          </div>
+                          <div>
+                            <span className="text-base font-bold tracking-tight text-foreground/90 line-clamp-2">
+                              {project.title}
+                            </span>
+                            <span className="text-[11px] text-muted-foreground font-mono mt-1 block">
+                              Click to explore case study
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </Link>
+
+                    {/* Hover Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-4 z-10 pointer-events-none">
+                      {/* Top Badges & External Actions */}
+                      <div className="flex items-center justify-between">
+                        <span className="rounded-full bg-black/60 backdrop-blur-md px-2.5 py-1 text-[11px] font-medium text-white shadow-xs">
+                          {project.category}
+                        </span>
+
+                        <div className="flex items-center gap-1.5 pointer-events-auto">
+                          {project.showGithub !== false && project.githubUrl && (
+                            <a
+                              href={project.githubUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="h-8 w-8 rounded-full bg-black/60 backdrop-blur-md text-white hover:bg-white hover:text-black transition-colors flex items-center justify-center shadow-xs"
+                              title="GitHub Repository"
+                            >
+                              <GithubIcon className="h-3.5 w-3.5" />
+                            </a>
+                          )}
+                          {project.liveUrl && (
+                            <a
+                              href={project.liveUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="h-8 w-8 rounded-full bg-black/60 backdrop-blur-md text-white hover:bg-white hover:text-black transition-colors flex items-center justify-center shadow-xs"
+                              title="Live Platform"
+                            >
+                              <ExternalLink className="h-3.5 w-3.5" />
+                            </a>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Bottom Action Pill */}
+                      <div className="flex items-center justify-between pointer-events-auto">
+                        {project.metrics ? (
+                          <span className="text-[11px] font-semibold text-emerald-400 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full">
+                            {project.metrics}
+                          </span>
+                        ) : (
+                          <div />
+                        )}
+
+                        <Link
+                          href={projectHref}
+                          className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-1.5 text-xs font-semibold text-primary-foreground shadow-md transition-transform duration-200 hover:scale-105"
+                        >
+                          Case Study
+                          <ArrowUpRight className="h-3.5 w-3.5" />
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom Caption */}
+                  <div className="pt-2.5 pb-1 px-1 space-y-0.5">
+                    <Link href={projectHref} className="block">
+                      <h3 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                        {project.title}
+                      </h3>
+                    </Link>
+                    <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                      <span>{project.category}</span>
+                      {project.metrics && (
+                        <span className="font-medium text-emerald-600 dark:text-emerald-400">
+                          {project.metrics}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </StaggerItem>
+              )
+            })}
+          </StaggerContainer>
+        </section>
+      )}
 
       {/* Skills Matrix */}
       <section className="mt-16 space-y-6">
