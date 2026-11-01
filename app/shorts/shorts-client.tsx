@@ -271,7 +271,11 @@ export function ShortsClient({ shorts }: ShortsClientProps) {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="relative w-fit max-w-[min(92vw,360px)] max-h-[calc(100dvh-2rem)] bg-zinc-950 border border-zinc-800 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl flex flex-col my-auto"
+              style={{
+                width: "min(calc((100dvh - 180px) * 9 / 16), 420px, 92vw)",
+                minWidth: "min(290px, 92vw)",
+              }}
+              className="relative max-h-[calc(100dvh-1.5rem)] bg-zinc-950 border border-zinc-800 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl flex flex-col my-auto"
             >
               {/* Header with Close Button */}
               <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-zinc-800/80 bg-zinc-900/60 shrink-0">
@@ -286,7 +290,7 @@ export function ShortsClient({ shorts }: ShortsClientProps) {
                 <button
                   type="button"
                   onClick={() => setActiveVideo(null)}
-                  className="rounded-full p-1 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors shrink-0 ml-2"
+                  className="rounded-full p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors shrink-0 ml-2"
                   aria-label="Close video player"
                 >
                   <X className="h-4 w-4" />
@@ -294,24 +298,19 @@ export function ShortsClient({ shorts }: ShortsClientProps) {
               </div>
 
               {/* Vertical 9:16 Responsive Player Embed */}
-              <div className="relative flex-1 min-h-0 bg-black flex items-center justify-center overflow-hidden">
-                <div
-                  className="relative aspect-[9/16] max-h-full w-auto mx-auto"
-                  style={{ height: "min(54dvh, 490px)" }}
-                >
-                  <iframe
-                    src={`https://www.youtube-nocookie.com/embed/${activeVideo.videoId}?autoplay=1&rel=0&modestbranding=1`}
-                    title={activeVideo.title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="h-full w-full border-0"
-                  />
-                </div>
+              <div className="relative w-full aspect-[9/16] bg-black overflow-hidden shrink-0">
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/${activeVideo.videoId}?autoplay=1&rel=0&modestbranding=1`}
+                  title={activeVideo.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="absolute inset-0 h-full w-full border-0"
+                />
               </div>
 
               {/* Video Info Footer & CTAs */}
-              <div className="p-3.5 space-y-2.5 bg-zinc-950 border-t border-zinc-800/80 shrink-0">
-                <h4 className="font-bold text-xs sm:text-sm text-zinc-100 line-clamp-2 leading-snug">
+              <div className="p-3.5 sm:p-4 space-y-2.5 bg-zinc-950 border-t border-zinc-800/80 shrink-0">
+                <h4 className="font-bold text-xs sm:text-sm text-zinc-100 line-clamp-1 sm:line-clamp-2 leading-snug">
                   {activeVideo.title}
                 </h4>
 
@@ -325,7 +324,7 @@ export function ShortsClient({ shorts }: ShortsClientProps) {
                   <Button
                     asChild
                     size="sm"
-                    className="flex-1 h-8 gap-1.5 text-xs bg-red-600 hover:bg-red-700 text-white font-semibold"
+                    className="flex-1 h-8 sm:h-9 gap-1.5 text-xs bg-red-600 hover:bg-red-700 text-white font-semibold"
                   >
                     <a
                       href="https://www.youtube.com/channel/UC6y7NAEEm-U97DLfHc__l9w?sub_confirmation=1"
@@ -341,7 +340,7 @@ export function ShortsClient({ shorts }: ShortsClientProps) {
                     asChild
                     variant="outline"
                     size="sm"
-                    className="flex-1 h-8 gap-1 text-xs border-zinc-800 text-zinc-300 hover:text-white"
+                    className="flex-1 h-8 sm:h-9 gap-1 text-xs border-zinc-800 text-zinc-300 hover:text-white"
                   >
                     <a
                       href={activeVideo.youtubeUrl}
