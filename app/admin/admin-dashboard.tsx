@@ -48,8 +48,6 @@ import {
   deleteProjectAction,
   toggleProjectPublishedAction,
   deleteMessageAction,
-  saveAffiliateAction,
-  deleteAffiliateAction,
   syncPinterestAction,
   saveShortAction,
   deleteShortAction,
@@ -753,31 +751,13 @@ export function AdminDashboard({
     liveUrl: "https://tanmayvaij.dev",
   })
 
-  // Affiliates State
+  // Affiliates State (Auto-synced from Pinterest)
   const [affiliates, setAffiliates] = React.useState<AffiliateRecord[]>(initialAffiliates)
-  const [editingAffiliate, setEditingAffiliate] = React.useState<AffiliateRecord | null>(null)
-  const [isCreatingAffiliate, setIsCreatingAffiliate] = React.useState(false)
   const [isSyncingPinterest, setIsSyncingPinterest] = React.useState(false)
 
   React.useEffect(() => {
     setAffiliates(initialAffiliates)
   }, [initialAffiliates])
-  const [affiliateForm, setAffiliateForm] = React.useState({
-    id: "",
-    name: "",
-    slug: "",
-    category: "Desk Setup & Ergonomics",
-    description: "",
-    notes: "",
-    badge: "Amazon's Choice",
-    affiliateUrl: "https://www.amazon.com/dp/...?tag=tanmayvaij-20",
-    discountCode: "",
-    price: "$99.00",
-    rating: "4.8",
-    imageUrl: "",
-    merchant: "Amazon",
-    featured: true,
-  })
 
   // Shorts State
   const [shorts, setShorts] = React.useState<ShortRecord[]>(initialShorts)
@@ -1089,92 +1069,7 @@ export function AdminDashboard({
     }
   }
 
-  // Affiliate Handlers
-  const handleStartCreateAffiliate = () => {
-    setEditingAffiliate(null)
-    setAffiliateForm({
-      id: "",
-      name: "",
-      slug: "",
-      category: "Desk Setup & Ergonomics",
-      description: "",
-      notes: "",
-      badge: "Amazon's Choice",
-      affiliateUrl: "https://www.amazon.com/dp/...?tag=tanmayvaij-20",
-      discountCode: "",
-      price: "$99.00",
-      rating: "4.8",
-      imageUrl: "",
-      merchant: "Amazon",
-      featured: true,
-    })
-    setIsCreatingAffiliate(true)
-  }
-
-  const handleStartEditAffiliate = (tool: AffiliateRecord) => {
-    setIsCreatingAffiliate(false)
-    setEditingAffiliate(tool)
-    setAffiliateForm({
-      id: tool.id,
-      name: tool.name,
-      slug: tool.slug,
-      category: tool.category,
-      description: tool.description,
-      notes: tool.notes || "",
-      badge: tool.badge || "",
-      affiliateUrl: tool.affiliateUrl,
-      discountCode: tool.discountCode || "",
-      price: tool.price || "",
-      rating: tool.rating ? String(tool.rating) : "4.8",
-      imageUrl: tool.imageUrl || "",
-      merchant: tool.merchant || "Amazon",
-      featured: tool.featured,
-    })
-  }
-
-  const handleSaveAffiliate = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-
-    const res = await saveAffiliateAction({
-      id: affiliateForm.id || undefined,
-      name: affiliateForm.name,
-      slug: affiliateForm.slug || affiliateForm.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-      category: affiliateForm.category,
-      description: affiliateForm.description,
-      notes: affiliateForm.notes || undefined,
-      badge: affiliateForm.badge || undefined,
-      affiliateUrl: affiliateForm.affiliateUrl,
-      discountCode: affiliateForm.discountCode || undefined,
-      price: affiliateForm.price || undefined,
-      rating: affiliateForm.rating ? parseFloat(affiliateForm.rating) : undefined,
-      imageUrl: affiliateForm.imageUrl || undefined,
-      merchant: affiliateForm.merchant || "Amazon",
-      featured: affiliateForm.featured,
-    })
-
-    setLoading(false)
-    if (res.success) {
-      showStatus(res.message, "success")
-      setIsCreatingAffiliate(false)
-      setEditingAffiliate(null)
-      router.refresh()
-    } else {
-      showStatus(res.message, "error")
-    }
-  }
-
-  const handleDeleteAffiliate = async (id: string) => {
-    if (!confirm("Delete this affiliate tool?")) return
-    const res = await deleteAffiliateAction(id)
-    if (res.success) {
-      setAffiliates(affiliates.filter((a) => a.id !== id))
-      showStatus("Affiliate tool deleted.")
-    } else {
-      showStatus(res.message, "error")
-    }
-  }
-
+  // Pinterest Affiliate Handlers
   const handleSyncPinterest = async () => {
     setIsSyncingPinterest(true)
     try {
@@ -2136,240 +2031,7 @@ export function AdminDashboard({
 
         {/* AFFILIATES TAB */}
         <TabsContent value="affiliates" className="space-y-6">
-          {/* Create / Edit Affiliate Form */}
-          {(isCreatingAffiliate || editingAffiliate) ? (
-            <Card className="bg-card border-primary/30">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">
-                    {isCreatingAffiliate ? "Add New Affiliate Tool" : `Edit Tool: ${affiliateForm.name}`}
-                  </CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setIsCreatingAffiliate(false)
-                      setEditingAffiliate(null)
-                    }}
-                    className="text-xs h-7"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-                <CardDescription className="text-xs">
-                  Tools are rendered on the dedicated <Link href="/tools" target="_blank" className="underline text-primary">/tools</Link> page and embedded via callouts inside blog articles. Outbound links automatically carry AdSense/FTC-compliant <code className="bg-muted px-1 py-0.5 rounded font-mono">rel=&quot;sponsored nofollow&quot;</code>.
-                </CardDescription>
-              </CardHeader>
-
-              <form onSubmit={handleSaveAffiliate}>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-foreground">Tool Name</label>
-                      <Input
-                        required
-                        placeholder="e.g. DigitalOcean, Cursor, Neon"
-                        value={affiliateForm.name}
-                        onChange={(e) => setAffiliateForm({ ...affiliateForm, name: e.target.value })}
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-foreground">URL Slug</label>
-                      <Input
-                        placeholder="e.g. digitalocean (auto-generated if empty)"
-                        value={affiliateForm.slug}
-                        onChange={(e) => setAffiliateForm({ ...affiliateForm, slug: e.target.value })}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-foreground">Category</label>
-                      <select
-                        value={affiliateForm.category}
-                        onChange={(e) => setAffiliateForm({ ...affiliateForm, category: e.target.value })}
-                        className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-xs shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                      >
-                        <option value="Fashion">Fashion</option>
-                        <option value="Shoes">Shoes</option>
-                        <option value="Electronics">Electronics</option>
-                        <option value="Home Decor">Home Decor</option>
-                        <option value="Desk Setup & Ergonomics">Desk Setup & Ergonomics</option>
-                        <option value="Audio & Tech Gadgets">Audio & Tech Gadgets</option>
-                        <option value="Fashion & Lifestyle">Fashion & Lifestyle</option>
-                        <option value="Books & Reading">Books & Reading</option>
-                        <option value="Cloud & Developer Tools">Cloud & Developer Tools</option>
-                        <option value="Other">Other</option>
-                        {![
-                          "Fashion",
-                          "Shoes",
-                          "Electronics",
-                          "Home Decor",
-                          "Desk Setup & Ergonomics",
-                          "Audio & Tech Gadgets",
-                          "Fashion & Lifestyle",
-                          "Books & Reading",
-                          "Cloud & Developer Tools",
-                          "Other",
-                        ].includes(affiliateForm.category) && Boolean(affiliateForm.category) && (
-                          <option value={affiliateForm.category}>
-                            {affiliateForm.category}
-                          </option>
-                        )}
-                      </select>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-foreground">Merchant / Store</label>
-                      <select
-                        value={affiliateForm.merchant}
-                        onChange={(e) => setAffiliateForm({ ...affiliateForm, merchant: e.target.value })}
-                        className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-xs shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                      >
-                        <option value="Amazon">Amazon</option>
-                        <option value="Myntra">Myntra</option>
-                        <option value="Zara">Zara</option>
-                        <option value="H&M">H&M</option>
-                        <option value="Uniqlo">Uniqlo</option>
-                        <option value="DigitalOcean">DigitalOcean</option>
-                        <option value="Neon">Neon</option>
-                        <option value="Cursor">Cursor</option>
-                        <option value="Official Store">Official Store</option>
-                        <option value="Partner">Partner</option>
-                      </select>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-foreground">Price (Display)</label>
-                      <Input
-                        placeholder="e.g. $199.00 or Free Tier"
-                        value={affiliateForm.price}
-                        onChange={(e) => setAffiliateForm({ ...affiliateForm, price: e.target.value })}
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-foreground">Rating (out of 5)</label>
-                      <Input
-                        placeholder="e.g. 4.8"
-                        value={affiliateForm.rating}
-                        onChange={(e) => setAffiliateForm({ ...affiliateForm, rating: e.target.value })}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-foreground">Badge / Perk</label>
-                      <Input
-                        placeholder="e.g. Amazon's Choice, 20% Off"
-                        value={affiliateForm.badge}
-                        onChange={(e) => setAffiliateForm({ ...affiliateForm, badge: e.target.value })}
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-foreground">Promo / Discount Code</label>
-                      <Input
-                        placeholder="Optional code e.g. TANMAY20"
-                        value={affiliateForm.discountCode}
-                        onChange={(e) => setAffiliateForm({ ...affiliateForm, discountCode: e.target.value })}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-foreground">Product Image</label>
-                    <ImageUploader
-                      label="Product Photo"
-                      value={affiliateForm.imageUrl}
-                      onChange={(url) => setAffiliateForm({ ...affiliateForm, imageUrl: url })}
-                      folder="affiliates"
-                      description="Drag & drop or click to upload product photo."
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-foreground">Affiliate Tracking URL</label>
-                    <Input
-                      required
-                      type="url"
-                      placeholder="https://partner.example.com/?ref=your_affiliate_id"
-                      value={affiliateForm.affiliateUrl}
-                      onChange={(e) => setAffiliateForm({ ...affiliateForm, affiliateUrl: e.target.value })}
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <RichTextEditor
-                      label="Product Ad Copy / Review Description"
-                      value={affiliateForm.description}
-                      onChange={(val) => setAffiliateForm({ ...affiliateForm, description: val })}
-                      placeholder="Explain key features, ergonomic benefits, why readers should buy this..."
-                      minHeight="220px"
-                      isAffiliateEditor={true}
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-2 pt-2">
-                    <input
-                      type="checkbox"
-                      id="affiliate-featured"
-                      checked={affiliateForm.featured}
-                      onChange={(e) => setAffiliateForm({ ...affiliateForm, featured: e.target.checked })}
-                      className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
-                    />
-                    <label htmlFor="affiliate-featured" className="text-xs font-medium cursor-pointer">
-                      Featured Partner (displayed prominently in hero/top sections)
-                    </label>
-                  </div>
-
-                  {/* Private Admin Notes */}
-                  <div className="space-y-2 p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/5 mt-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Lock className="h-3.5 w-3.5 text-amber-500" />
-                        <label className="text-xs font-semibold text-foreground">Private Admin Notes</label>
-                        <Badge variant="outline" className="text-[10px] py-0 border-amber-500/40 text-amber-600 dark:text-amber-400 font-medium">
-                          Admin Only • Never Public
-                        </Badge>
-                      </div>
-                    </div>
-                    <p className="text-[11px] text-muted-foreground leading-relaxed">
-                      Internal affiliate tracking notes, commission percentage, expiration dates, contact details, or partner terms. Never displayed on public tool pages.
-                    </p>
-                    <Textarea
-                      rows={2}
-                      placeholder="e.g. Affiliate payout: 8% on hardware sales. Contract renews on 2026-11-15. Contact: affiliate@partner.com..."
-                      value={affiliateForm.notes}
-                      onChange={(e) => setAffiliateForm({ ...affiliateForm, notes: e.target.value })}
-                      className="bg-card text-xs font-mono leading-relaxed"
-                    />
-                  </div>
-                </CardContent>
-
-                <CardFooter className="flex justify-end gap-2 border-t border-border/40 pt-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setIsCreatingAffiliate(false)
-                      setEditingAffiliate(null)
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" size="sm" disabled={loading}>
-                    {loading ? "Saving..." : isCreatingAffiliate ? "Create Affiliate Tool" : "Update Tool"}
-                  </Button>
-                </CardFooter>
-              </form>
-            </Card>
-          ) : (
-            <div className="space-y-4">
+          <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                   <h3 className="text-sm font-semibold text-foreground">
@@ -2383,44 +2045,38 @@ export function AdminDashboard({
                   <Button
                     onClick={handleSyncPinterest}
                     disabled={isSyncingPinterest}
-                    variant="outline"
                     size="sm"
-                    className="text-xs h-8 border-red-500/30 text-red-500 hover:text-red-600 hover:bg-red-500/10 gap-1.5"
+                    className="text-xs h-8 bg-red-600 hover:bg-red-700 text-white gap-1.5 shadow-xs"
                   >
                     {isSyncingPinterest ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
                     ) : (
-                      <PinterestIcon className="h-3.5 w-3.5 text-red-500" />
+                      <PinterestIcon className="h-3.5 w-3.5 fill-current" />
                     )}
                     {isSyncingPinterest ? "Syncing Pinterest..." : "Sync from Pinterest (@tanmayvaij22)"}
                   </Button>
                   <Button asChild variant="outline" size="sm" className="text-xs h-8">
                     <Link href="/tools" target="_blank">
                       <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
-                      View /tools Page
+                      View Live /tools Page
                     </Link>
-                  </Button>
-                  <Button onClick={handleStartCreateAffiliate} size="sm" className="text-xs h-8">
-                    <Plus className="mr-1.5 h-3.5 w-3.5" />
-                    New Affiliate Tool
                   </Button>
                 </div>
               </div>
 
               {affiliates.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-border p-12 text-center text-xs text-muted-foreground flex flex-col items-center justify-center gap-3">
-                  <p>No affiliate tools added yet. Click &quot;New Affiliate Tool&quot; to add manually, or sync all items directly from your Pinterest feed.</p>
+                  <p>No affiliate products synced yet. Click below to pull all items directly from your Pinterest boards.</p>
                   <Button
                     onClick={handleSyncPinterest}
                     disabled={isSyncingPinterest}
-                    variant="outline"
                     size="sm"
-                    className="text-xs h-8 border-red-500/30 text-red-500 hover:text-red-600 hover:bg-red-500/10 gap-1.5"
+                    className="text-xs h-8 bg-red-600 hover:bg-red-700 text-white gap-1.5 shadow-xs"
                   >
                     {isSyncingPinterest ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
                     ) : (
-                      <PinterestIcon className="h-3.5 w-3.5 text-red-500" />
+                      <PinterestIcon className="h-3.5 w-3.5 fill-current" />
                     )}
                     {isSyncingPinterest ? "Syncing..." : "Sync from Pinterest (@tanmayvaij22)"}
                   </Button>
@@ -2474,62 +2130,51 @@ export function AdminDashboard({
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              onClick={() => handleStartEditAffiliate(tool)}
-                              title="Edit Tool"
-                            >
-                              <Edit3 className="h-3.5 w-3.5 text-foreground" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              onClick={() => handleDeleteAffiliate(tool.id)}
-                              className="hover:text-destructive hover:bg-destructive/10"
-                              title="Delete Tool"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
-                        </div>
-                      </CardHeader>
-
-                      <CardContent className="p-4 pt-0 text-xs text-muted-foreground space-y-2 flex-1">
-                        <p className="line-clamp-2">
-                          {tool.description.replace(/\*\*(.*?)\*\*/g, "$1").replace(/^[-*]\s+/gm, "").replace(/\n+/g, " ")}
-                        </p>
-                        {tool.discountCode && (
-                          <div className="flex items-center gap-1.5 text-[11px]">
-                            <span className="font-medium text-foreground">Code:</span>
-                            <code className="bg-muted px-1.5 py-0.5 rounded font-mono text-primary font-bold">
-                              {tool.discountCode}
-                            </code>
-                          </div>
-                        )}
-                      </CardContent>
-
-                      <CardFooter className="p-3 pt-2 border-t border-border/40 bg-muted/20 flex items-center justify-between text-[11px]">
-                        <span className="truncate max-w-[200px] text-muted-foreground font-mono" title={tool.affiliateUrl}>
-                          {tool.affiliateUrl}
-                        </span>
                         <a
                           href={tool.affiliateUrl}
                           target="_blank"
                           rel="sponsored nofollow noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-primary hover:underline font-medium"
+                          className="text-muted-foreground hover:text-primary transition-colors p-1"
+                          title="Open Amazon Affiliate Link"
                         >
-                          Test Link
-                          <ExternalLink className="h-3 w-3" />
+                          <ExternalLink className="h-4 w-4" />
                         </a>
-                      </CardFooter>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+                      </div>
+                    </CardHeader>
+
+                    <CardContent className="p-4 pt-0 text-xs text-muted-foreground space-y-2 flex-1">
+                      <p className="line-clamp-2">
+                        {tool.description.replace(/\*\*(.*?)\*\*/g, "$1").replace(/^[-*]\s+/gm, "").replace(/\n+/g, " ")}
+                      </p>
+                      {tool.discountCode && (
+                        <div className="flex items-center gap-1.5 text-[11px]">
+                          <span className="font-medium text-foreground">Code:</span>
+                          <code className="bg-muted px-1.5 py-0.5 rounded font-mono text-primary font-bold">
+                            {tool.discountCode}
+                          </code>
+                        </div>
+                      )}
+                    </CardContent>
+
+                    <CardFooter className="p-3 pt-2 border-t border-border/40 bg-muted/20 flex items-center justify-between text-[11px]">
+                      <span className="truncate max-w-[200px] text-muted-foreground font-mono" title={tool.affiliateUrl}>
+                        {tool.affiliateUrl}
+                      </span>
+                      <a
+                        href={tool.affiliateUrl}
+                        target="_blank"
+                        rel="sponsored nofollow noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-primary hover:underline font-medium"
+                      >
+                        Visit Amazon Link
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
         </TabsContent>
 
         {/* SHORTS TAB */}
