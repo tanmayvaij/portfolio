@@ -4,7 +4,7 @@ import { cookies } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { getAboutConfig } from "@/lib/db/about"
-import { extractYouTubeVideoId, getYouTubeThumbnailUrl } from "@/lib/db/shorts"
+import { extractYouTubeVideoId, getYouTubeThumbnailUrl, getAllShorts, getShortBySlugOrId } from "@/lib/db/shorts"
 
 const ADMIN_COOKIE_NAME = "admin_auth_token"
 const DEFAULT_PASSWORD = "admin"
@@ -95,11 +95,7 @@ export async function getAdminData() {
           orderBy: { order: "asc" },
         })
       : Promise.resolve([]),
-    prisma?.short
-      ? prisma.short.findMany({
-          orderBy: { createdAt: "desc" },
-        })
-      : Promise.resolve([]),
+    getAllShorts(true),
   ])
 
   let activeExperiences = experiences
@@ -657,7 +653,7 @@ export async function saveShortAction(shortData: {
   relatedToolUrl?: string | null
   relatedPostSlug?: string | null
   notes?: string | null
-}): Promise<{ success: boolean; message: string }> {
+}): Promise<{ success: boolean; message: string; short?: any }> {
   const isAuth = await verifyAdminAuth()
   if (!isAuth) return { success: false, message: "Unauthorized" }
 
@@ -783,7 +779,8 @@ export async function saveShortAction(shortData: {
     revalidatePath("/shorts")
     revalidatePath("/")
     revalidatePath("/admin")
-    return { success: true, message: "Short saved successfully." }
+    const savedShort = await getShortBySlugOrId(shortData.id || shortData.slug)
+    return { success: true, message: "Short saved successfully.", short: savedShort || undefined }
   } catch (error) {
     console.error("Save short error:", error)
     return { success: false, message: "Failed to save short. Check slug uniqueness." }

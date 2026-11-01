@@ -775,6 +775,10 @@ export function AdminDashboard({
   // Shorts State
   const [shorts, setShorts] = React.useState<ShortRecord[]>(initialShorts)
   const [editingShort, setEditingShort] = React.useState<ShortRecord | null>(null)
+
+  React.useEffect(() => {
+    setShorts(initialShorts)
+  }, [initialShorts])
   const [isCreatingShort, setIsCreatingShort] = React.useState(false)
   const [shortForm, setShortForm] = React.useState({
     id: "",
@@ -1229,6 +1233,16 @@ export function AdminDashboard({
       showStatus(res.message, "success")
       setIsCreatingShort(false)
       setEditingShort(null)
+      if ((res as any).short) {
+        const saved = (res as any).short as ShortRecord
+        setShorts((prev) => {
+          const exists = prev.some((s) => s.id === saved.id)
+          if (exists) {
+            return prev.map((s) => (s.id === saved.id ? saved : s))
+          }
+          return [saved, ...prev]
+        })
+      }
       router.refresh()
     } else {
       showStatus(res.message, "error")
