@@ -15,6 +15,7 @@ import {
   CheckCircle,
   AlertCircle,
   Eye,
+  EyeOff,
   ShieldCheck,
   TrendingUp,
   Search,
@@ -49,6 +50,7 @@ import {
   toggleProjectPublishedAction,
   deleteMessageAction,
   syncPinterestAction,
+  toggleAffiliateCategoryVisibilityAction,
   saveShortAction,
   deleteShortAction,
   saveAboutAction,
@@ -299,6 +301,7 @@ interface AdminDashboardProps {
   initialAbout?: AboutRecord | null
   initialExperiences?: ExperienceRecord[]
   initialSkillCategories?: SkillCategoryRecord[]
+  initialCategorySettings?: Record<string, boolean>
 }
 
 export function AdminDashboard({
@@ -310,6 +313,7 @@ export function AdminDashboard({
   initialAbout,
   initialExperiences = [],
   initialSkillCategories = [],
+  initialCategorySettings = {},
 }: AdminDashboardProps) {
   const router = useRouter()
   const [activeTab, setActiveTab] = React.useState("posts")
@@ -754,10 +758,32 @@ export function AdminDashboard({
   // Affiliates State (Auto-synced from Pinterest)
   const [affiliates, setAffiliates] = React.useState<AffiliateRecord[]>(initialAffiliates)
   const [isSyncingPinterest, setIsSyncingPinterest] = React.useState(false)
+  const [categorySettings, setCategorySettings] = React.useState<Record<string, boolean>>(initialCategorySettings || {})
+  const [togglingCategory, setTogglingCategory] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     setAffiliates(initialAffiliates)
   }, [initialAffiliates])
+
+  React.useEffect(() => {
+    if (initialCategorySettings) {
+      setCategorySettings(initialCategorySettings)
+    }
+  }, [initialCategorySettings])
+
+  const affiliateCategoriesWithCounts = React.useMemo(() => {
+    const counts: Record<string, number> = {}
+    for (const a of affiliates) {
+      if (a.category) {
+        counts[a.category] = (counts[a.category] || 0) + 1
+      }
+    }
+    return Object.entries(counts).map(([name, count]) => ({
+      name,
+      count,
+      isPublic: categorySettings[name] !== false,
+    }))
+  }, [affiliates, categorySettings])
 
   // Shorts State
   const [shorts, setShorts] = React.useState<ShortRecord[]>(initialShorts)
@@ -1084,6 +1110,28 @@ export function AdminDashboard({
       showStatus("An error occurred while syncing Pinterest pins.", "error")
     } finally {
       setIsSyncingPinterest(false)
+    }
+  }
+
+  const handleToggleCategoryVisibility = async (category: string, currentStatus: boolean) => {
+    const nextStatus = !currentStatus
+    setTogglingCategory(category)
+    setCategorySettings((prev) => ({ ...prev, [category]: nextStatus }))
+
+    try {
+      const res = await toggleAffiliateCategoryVisibilityAction(category, nextStatus)
+      if (res.success) {
+        showStatus(res.message, "success")
+        router.refresh()
+      } else {
+        setCategorySettings((prev) => ({ ...prev, [category]: currentStatus }))
+        showStatus(res.message || "Failed to update category visibility.", "error")
+      }
+    } catch {
+      setCategorySettings((prev) => ({ ...prev, [category]: currentStatus }))
+      showStatus("An error occurred while updating category visibility.", "error")
+    } finally {
+      setTogglingCategory(null)
     }
   }
 
@@ -2035,10 +2083,10 @@ export function AdminDashboard({
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                   <h3 className="text-sm font-semibold text-foreground">
-                    Affiliate Stack & Partner Directory ({affiliates.length})
+                    Pinterest Affiliate Showcase ({affiliates.length})
                   </h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Curated development tools with sponsored partner tracking links and FTC disclosures.
+                    Synchronized from your Pinterest profile (@tanmayvaij22) with direct Amazon affiliate links.
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
@@ -2064,6 +2112,78 @@ export function AdminDashboard({
                 </div>
               </div>
 
+              {/* Category Public Visibility Manager */}
+              {affiliateCategoriesWithCounts.length > 0 && (
+                <Card className="bg-card border-border/70 shadow-xs">
+                  <CardHeader className="p-4 pb-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div>
+                        <CardTitle className="text-sm font-semibold flex items-center gap-2 text-foreground">
+                          <Eye className="h-4 w-4 text-primary" />
+                          Category Public Visibility
+                        </CardTitle>
+                        <CardDescription className="text-xs text-muted-foreground mt-0.5">
+                          Toggle which Pinterest categories are visible to public visitors on <Link href="/tools" target="_blank" className="underline text-primary">/tools</Link>. Hidden categories remain in your database but won&apos;t appear publicly.
+                        </CardDescription>
+                      </div>
+                      <Badge variant="outline" className="text-[11px] self-start sm:self-auto font-mono">
+                        {affiliateCategoriesWithCounts.filter((c) => c.isPublic).length} of {affiliateCategoriesWithCounts.length} Public
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-4 pt-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5">
+                      {affiliateCategoriesWithCounts.map((cat) => {
+                        const isUpdating = togglingCategory === cat.name
+                        return (
+                          <div
+                            key={cat.name}
+                            className={`flex items-center justify-between p-2.5 rounded-lg border transition-all ${
+                              cat.isPublic
+                                ? "bg-card border-emerald-500/30 dark:bg-emerald-500/5"
+                                : "bg-muted/40 border-border/80 opacity-75"
+                            }`}
+                          >
+                            <div className="min-w-0 pr-2">
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-semibold text-xs text-foreground truncate">{cat.name}</span>
+                                <Badge variant="secondary" className="text-[10px] py-0 px-1.5 h-4">
+                                  {cat.count}
+                                </Badge>
+                              </div>
+                              <span className="text-[10px] text-muted-foreground block mt-0.5">
+                                {cat.isPublic ? "Visible on /tools" : "Hidden from public"}
+                              </span>
+                            </div>
+
+                            <Button
+                              size="sm"
+                              variant={cat.isPublic ? "default" : "outline"}
+                              disabled={isUpdating}
+                              onClick={() => handleToggleCategoryVisibility(cat.name, cat.isPublic)}
+                              className={`h-7 px-2 text-xs gap-1 shrink-0 ${
+                                cat.isPublic
+                                  ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                                  : "border-border text-muted-foreground hover:text-foreground"
+                              }`}
+                            >
+                              {isUpdating ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : cat.isPublic ? (
+                                <Eye className="h-3 w-3" />
+                              ) : (
+                                <EyeOff className="h-3 w-3" />
+                              )}
+                              {cat.isPublic ? "Public" : "Hidden"}
+                            </Button>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               {affiliates.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-border p-12 text-center text-xs text-muted-foreground flex flex-col items-center justify-center gap-3">
                   <p>No affiliate products synced yet. Click below to pull all items directly from your Pinterest boards.</p>
@@ -2083,7 +2203,9 @@ export function AdminDashboard({
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {affiliates.map((tool) => (
+                  {affiliates.map((tool) => {
+                    const isToolPublic = categorySettings[tool.category] !== false
+                    return (
                     <Card key={tool.id} className="bg-card flex flex-col justify-between">
                       <CardHeader className="p-4 pb-3">
                         <div className="flex items-start justify-between gap-2">
@@ -2115,8 +2237,25 @@ export function AdminDashboard({
                                   </Badge>
                                 )}
                               </div>
-                              <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5">
-                                <span>{tool.category}</span>
+                              <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5 flex-wrap">
+                                <Badge
+                                  variant="outline"
+                                  className={`text-[10px] py-0 ${
+                                    isToolPublic
+                                      ? "border-primary/30 text-primary"
+                                      : "border-amber-500/40 text-amber-600 dark:text-amber-400"
+                                  }`}
+                                >
+                                  {tool.category}
+                                </Badge>
+                                {!isToolPublic && (
+                                  <Badge
+                                    variant="outline"
+                                    className="text-[9px] py-0 border-amber-500/40 text-amber-600 dark:text-amber-400 gap-1 bg-amber-500/10"
+                                  >
+                                    <EyeOff className="h-2.5 w-2.5" /> Hidden from Public
+                                  </Badge>
+                                )}
                                 {tool.price && <span className="font-bold text-foreground">• {tool.price}</span>}
                                 {tool.rating && <span className="text-amber-500 font-semibold">• ★ {tool.rating}</span>}
                               </div>
@@ -2171,7 +2310,7 @@ export function AdminDashboard({
                       </a>
                     </CardFooter>
                   </Card>
-                ))}
+                )})}
               </div>
             )}
           </div>

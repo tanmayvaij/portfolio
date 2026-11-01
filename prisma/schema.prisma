@@ -165,5 +165,11 @@ model Short {
   updatedAt       DateTime @updatedAt
 }
 
+model AffiliateCategorySetting {
+  category  String   @id
+  isPublic  Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+}
+
 
 

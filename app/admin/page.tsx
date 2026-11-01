@@ -37,6 +37,7 @@ export default async function AdminPage() {
       initialAbout={data.about}
       initialExperiences={data.experiences}
       initialSkillCategories={data.skillCategories}
+      initialCategorySettings={data.categorySettings || {}}
     />
   )
 }

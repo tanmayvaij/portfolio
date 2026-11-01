@@ -6,6 +6,11 @@ import { prisma } from "@/lib/prisma"
 import { getAboutConfig } from "@/lib/db/about"
 import { extractYouTubeVideoId, getYouTubeThumbnailUrl, getAllShorts, getShortBySlugOrId } from "@/lib/db/shorts"
 import { syncPinterestAffiliates } from "@/lib/pinterest"
+import {
+  getAffiliateCategorySettings,
+  setAffiliateCategoryVisibility,
+  getAllAffiliates,
+} from "@/lib/db/affiliates"
 
 const ADMIN_COOKIE_NAME = "admin_auth_token"
 const DEFAULT_PASSWORD = "admin"
@@ -70,7 +75,7 @@ export async function getAdminData() {
     return null
   }
 
-  const [posts, projects, messages, affiliates, about, experiences, skillCategories, shorts] = await Promise.all([
+  const [posts, projects, messages, affiliates, about, experiences, skillCategories, shorts, categorySettings] = await Promise.all([
     prisma.post.findMany({
       orderBy: { publishedAt: "desc" },
     }),
@@ -80,11 +85,7 @@ export async function getAdminData() {
     prisma.contactMessage.findMany({
       orderBy: { createdAt: "desc" },
     }),
-    prisma?.affiliateTool
-      ? prisma.affiliateTool.findMany({
-          orderBy: { createdAt: "desc" },
-        })
-      : Promise.resolve([]),
+    getAllAffiliates({ includePrivate: true }),
     getAboutConfig(),
     prisma?.experience
       ? prisma.experience.findMany({
@@ -97,6 +98,7 @@ export async function getAdminData() {
         })
       : Promise.resolve([]),
     getAllShorts(true),
+    getAffiliateCategorySettings(),
   ])
 
   let activeExperiences = experiences
@@ -272,6 +274,7 @@ export async function getAdminData() {
     about,
     experiences: activeExperiences,
     skillCategories: activeSkillCategories,
+    categorySettings: categorySettings || {},
   }
 }
 
@@ -654,6 +657,26 @@ export async function syncPinterestAction(username = "tanmayvaij22"): Promise<{
     revalidatePath("/admin")
   }
   return res
+}
+
+export async function toggleAffiliateCategoryVisibilityAction(
+  category: string,
+  isPublic: boolean
+): Promise<{ success: boolean; message: string }> {
+  const isAuth = await verifyAdminAuth()
+  if (!isAuth) return { success: false, message: "Unauthorized" }
+
+  const ok = await setAffiliateCategoryVisibility(category, isPublic)
+  if (ok) {
+    revalidatePath("/tools")
+    revalidatePath("/")
+    revalidatePath("/admin")
+    return {
+      success: true,
+      message: `Category "${category}" is now ${isPublic ? "public (visible on /tools)" : "hidden (private)"}.`,
+    }
+  }
+  return { success: false, message: "Failed to update category visibility." }
 }
 
 // YouTube Shorts Actions
