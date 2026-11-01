@@ -64,26 +64,31 @@ export function detectCategory(text: string): string {
       lower
     )
   ) {
-    return "Audio & Tech Gadgets"
+    return "Electronics"
   }
   if (
-    /jacket|shirt|shoes|sneaker|casual|fashion|outfit|style|bomber|denim|wear|menswear|chinos|jeans|polo|walking shoe/.test(
+    /shoes|sneaker|walking shoe|footwear/.test(lower)
+  ) {
+    return "Shoes"
+  }
+  if (
+    /jacket|shirt|casual|fashion|outfit|style|bomber|denim|wear|menswear|chinos|jeans|polo/.test(
       lower
     )
   ) {
-    return "Fashion & Lifestyle"
+    return "Fashion"
   }
   if (
     /desk|monitor|keyboard|mouse|chair|ergonomic|workspace|stand|laptop/.test(
       lower
     )
   ) {
-    return "Desk Setup & Ergonomics"
+    return "Electronics"
   }
   if (/fountain|decor|home|sacred|tradition|statue|lamp|diya|figurine/.test(lower)) {
-    return "Home & Lifestyle"
+    return "Home Decor"
   }
-  return "Fashion & Lifestyle"
+  return "Fashion"
 }
 
 export function slugify(text: string): string {
@@ -277,7 +282,7 @@ export async function syncPinterestAffiliates(
         await resolvePinDetails(pin.pinUrl)
 
       // Use the actual Pinterest board category if available, else fall back to auto-detected category
-      const finalCategory = boardCategory || pin.category || "Fashion & Lifestyle"
+      const finalCategory = boardCategory || pin.category || "Fashion"
 
       // Base slug
       let baseSlug = slugify(pin.productName)
