@@ -260,28 +260,33 @@ export function ShortsClient({ shorts }: ShortsClientProps) {
       {/* Seamless Modal Player Dialog */}
       <AnimatePresence>
         {activeVideo && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md overflow-y-auto"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setActiveVideo(null)
+            }}
+          >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="relative w-full max-w-sm sm:max-w-md bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col"
+              className="relative w-fit max-w-[min(92vw,360px)] max-h-[calc(100dvh-2rem)] bg-zinc-950 border border-zinc-800 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl flex flex-col my-auto"
             >
               {/* Header with Close Button */}
-              <div className="flex items-center justify-between p-3.5 border-b border-zinc-800/80 bg-zinc-900/60">
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="text-[10px] text-red-500 border-red-500/30">
+              <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-zinc-800/80 bg-zinc-900/60 shrink-0">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Badge variant="outline" className="text-[10px] text-red-500 border-red-500/30 shrink-0">
                     YouTube Short
                   </Badge>
-                  <span className="text-xs text-zinc-400 truncate max-w-[200px]">
+                  <span className="text-xs text-zinc-400 truncate">
                     {activeVideo.category}
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setActiveVideo(null)}
-                  className="rounded-full p-1 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+                  className="rounded-full p-1 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors shrink-0 ml-2"
                   aria-label="Close video player"
                 >
                   <X className="h-4 w-4" />
@@ -289,30 +294,39 @@ export function ShortsClient({ shorts }: ShortsClientProps) {
               </div>
 
               {/* Vertical 9:16 Responsive Player Embed */}
-              <div className="relative aspect-[9/16] w-full bg-black">
-                <iframe
-                  src={`https://www.youtube-nocookie.com/embed/${activeVideo.videoId}?autoplay=1&rel=0&modestbranding=1`}
-                  title={activeVideo.title}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="absolute inset-0 h-full w-full border-0"
-                />
+              <div className="relative flex-1 min-h-0 bg-black flex items-center justify-center overflow-hidden">
+                <div
+                  className="relative aspect-[9/16] max-h-full w-auto mx-auto"
+                  style={{ height: "min(54dvh, 490px)" }}
+                >
+                  <iframe
+                    src={`https://www.youtube-nocookie.com/embed/${activeVideo.videoId}?autoplay=1&rel=0&modestbranding=1`}
+                    title={activeVideo.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="h-full w-full border-0"
+                  />
+                </div>
               </div>
 
               {/* Video Info Footer & CTAs */}
-              <div className="p-4 space-y-3 bg-zinc-950 border-t border-zinc-800/80">
-                <h4 className="font-bold text-sm text-zinc-100 line-clamp-2">
+              <div className="p-3.5 space-y-2.5 bg-zinc-950 border-t border-zinc-800/80 shrink-0">
+                <h4 className="font-bold text-xs sm:text-sm text-zinc-100 line-clamp-2 leading-snug">
                   {activeVideo.title}
                 </h4>
 
                 {activeVideo.description && (
-                  <p className="text-xs text-zinc-400 leading-relaxed line-clamp-3">
+                  <p className="text-[11px] sm:text-xs text-zinc-400 leading-relaxed line-clamp-2">
                     {activeVideo.description}
                   </p>
                 )}
 
-                <div className="flex items-center justify-between gap-2 pt-1">
-                  <Button asChild size="sm" className="h-8 gap-1.5 text-xs bg-red-600 hover:bg-red-700 text-white font-semibold">
+                <div className="flex items-center gap-2 pt-0.5">
+                  <Button
+                    asChild
+                    size="sm"
+                    className="flex-1 h-8 gap-1.5 text-xs bg-red-600 hover:bg-red-700 text-white font-semibold"
+                  >
                     <a
                       href="https://www.youtube.com/channel/UC6y7NAEEm-U97DLfHc__l9w?sub_confirmation=1"
                       target="_blank"
@@ -323,13 +337,18 @@ export function ShortsClient({ shorts }: ShortsClientProps) {
                     </a>
                   </Button>
 
-                  <Button asChild variant="outline" size="sm" className="h-8 gap-1 text-xs border-zinc-800 text-zinc-300 hover:text-white">
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 h-8 gap-1 text-xs border-zinc-800 text-zinc-300 hover:text-white"
+                  >
                     <a
                       href={activeVideo.youtubeUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Open on YouTube
+                      YouTube
                       <ExternalLink className="h-3 w-3" />
                     </a>
                   </Button>
