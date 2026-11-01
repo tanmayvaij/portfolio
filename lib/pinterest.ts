@@ -161,7 +161,25 @@ export async function fetchPinterestFeed(
   }
 }
 
-export async function resolvePinAffiliateLink(pinUrl: string): Promise<string> {
+export function extractBoardCategory(html: string): string | null {
+  const match =
+    html.match(/"board":\s*\{[^}]*?"name"\s*:\s*"([^"]+)"/) ||
+    html.match(/"board":\s*\{[\s\S]*?"name"\s*:\s*"([^"]+)"/)
+  if (match && match[1]) {
+    const raw = match[1].trim()
+    const decoded = raw.replace(/\\u[\dA-F]{4}/gi, (m) =>
+      String.fromCharCode(parseInt(m.replace(/\\u/g, ""), 16))
+    )
+    if (decoded && decoded.length > 0) {
+      return decoded
+    }
+  }
+  return null
+}
+
+export async function resolvePinDetails(
+  pinUrl: string
+): Promise<{ affiliateUrl: string; boardCategory: string | null }> {
   try {
     const res = await fetch(pinUrl, {
       headers: {
@@ -169,28 +187,37 @@ export async function resolvePinAffiliateLink(pinUrl: string): Promise<string> {
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       },
     })
-    if (!res.ok) return pinUrl
+    if (!res.ok) return { affiliateUrl: pinUrl, boardCategory: null }
 
     const html = await res.text()
-    // 1. Look for Amazon links (amzn.to, link.amazon, amazon.in, amazon.com)
+
+    // 1. Extract exact Pinterest board name (category)
+    const boardCategory = extractBoardCategory(html)
+
+    // 2. Look for Amazon links (amzn.to, link.amazon, amazon.in, amazon.com)
     const amazonMatch = html.match(
       /https:\/\/(link\.amazon\/[a-zA-Z0-9]+|www\.amazon\.[a-z.]+\/[^\s"'\\]+|amzn\.to\/[a-zA-Z0-9]+)/
     )
     if (amazonMatch) {
-      return amazonMatch[0]
+      return { affiliateUrl: amazonMatch[0], boardCategory }
     }
 
-    // 2. Look for general outbound destination link embedded in Pinterest JSON state
+    // 3. Look for general outbound destination link embedded in Pinterest JSON state
     const linkMatch = html.match(/"link":"(https:[^"]+)"/)
     if (linkMatch) {
       const decoded = linkMatch[1].replace(/\\u0026/g, "&").replace(/\\\//g, "/")
-      return decoded
+      return { affiliateUrl: decoded, boardCategory }
     }
 
-    return pinUrl
+    return { affiliateUrl: pinUrl, boardCategory }
   } catch {
-    return pinUrl
+    return { affiliateUrl: pinUrl, boardCategory: null }
   }
+}
+
+export async function resolvePinAffiliateLink(pinUrl: string): Promise<string> {
+  const details = await resolvePinDetails(pinUrl)
+  return details.affiliateUrl
 }
 
 export async function syncPinterestAffiliates(
@@ -245,8 +272,12 @@ export async function syncPinterestAffiliates(
       // Check if already imported by note or by matching pin URL
       const existing = existingNotes.get(noteIdentifier)
 
-      // Resolve direct Amazon affiliate link
-      const resolvedAffiliateUrl = await resolvePinAffiliateLink(pin.pinUrl)
+      // Resolve direct Amazon affiliate link and Pinterest Board category
+      const { affiliateUrl: resolvedAffiliateUrl, boardCategory } =
+        await resolvePinDetails(pin.pinUrl)
+
+      // Use the actual Pinterest board category if available, else fall back to auto-detected category
+      const finalCategory = boardCategory || pin.category || "Fashion & Lifestyle"
 
       // Base slug
       let baseSlug = slugify(pin.productName)
@@ -257,7 +288,7 @@ export async function syncPinterestAffiliates(
       const hasDelegate = !!(prisma as any)?.affiliateTool
 
       if (existing) {
-        // Update existing record with refreshed image & link if missing
+        // Update existing record with refreshed image, link & board category
         if (hasDelegate) {
           await prisma.affiliateTool.update({
             where: { id: existing.id },
@@ -266,7 +297,7 @@ export async function syncPinterestAffiliates(
               description: pin.description,
               imageUrl: pin.imageUrl || existing.imageUrl,
               affiliateUrl: resolvedAffiliateUrl || existing.affiliateUrl,
-              category: pin.category || existing.category,
+              category: finalCategory,
               notes: noteIdentifier,
             },
           })
@@ -285,7 +316,7 @@ export async function syncPinterestAffiliates(
             pin.description,
             pin.imageUrl || existing.imageUrl,
             resolvedAffiliateUrl || existing.affiliateUrl,
-            pin.category || existing.category,
+            finalCategory,
             noteIdentifier,
             existing.id
           )
@@ -303,9 +334,9 @@ export async function syncPinterestAffiliates(
 
         const toolId = `tool_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
         const badge =
-          pin.category === "Fashion & Lifestyle"
+          finalCategory === "Fashion" || finalCategory === "Shoes"
             ? "Trending Style"
-            : pin.category === "Audio & Tech Gadgets"
+            : finalCategory === "Electronics"
             ? "Amazon's Choice"
             : "Top Pick"
 
@@ -314,7 +345,7 @@ export async function syncPinterestAffiliates(
             data: {
               slug: uniqueSlug,
               name: pin.productName,
-              category: pin.category,
+              category: finalCategory,
               description: pin.description,
               notes: noteIdentifier,
               badge,
@@ -338,7 +369,7 @@ export async function syncPinterestAffiliates(
             toolId,
             uniqueSlug,
             pin.productName,
-            pin.category,
+            finalCategory,
             pin.description,
             noteIdentifier,
             badge,

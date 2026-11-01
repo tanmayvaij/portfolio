@@ -2192,13 +2192,32 @@ export function AdminDashboard({
                         onChange={(e) => setAffiliateForm({ ...affiliateForm, category: e.target.value })}
                         className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-xs shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                       >
+                        <option value="Fashion">Fashion</option>
+                        <option value="Shoes">Shoes</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Home Decor">Home Decor</option>
                         <option value="Desk Setup & Ergonomics">Desk Setup & Ergonomics</option>
                         <option value="Audio & Tech Gadgets">Audio & Tech Gadgets</option>
-                        <option value="Fashion">Fashion</option>
                         <option value="Fashion & Lifestyle">Fashion & Lifestyle</option>
                         <option value="Books & Reading">Books & Reading</option>
                         <option value="Cloud & Developer Tools">Cloud & Developer Tools</option>
                         <option value="Other">Other</option>
+                        {![
+                          "Fashion",
+                          "Shoes",
+                          "Electronics",
+                          "Home Decor",
+                          "Desk Setup & Ergonomics",
+                          "Audio & Tech Gadgets",
+                          "Fashion & Lifestyle",
+                          "Books & Reading",
+                          "Cloud & Developer Tools",
+                          "Other",
+                        ].includes(affiliateForm.category) && Boolean(affiliateForm.category) && (
+                          <option value={affiliateForm.category}>
+                            {affiliateForm.category}
+                          </option>
+                        )}
                       </select>
                     </div>
 
