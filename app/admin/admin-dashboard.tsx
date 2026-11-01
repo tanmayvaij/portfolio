@@ -53,6 +53,7 @@ import {
   toggleAffiliateCategoryVisibilityAction,
   saveShortAction,
   deleteShortAction,
+  syncYouTubeShortsAction,
   saveAboutAction,
   saveExperienceAction,
   deleteExperienceAction,
@@ -793,6 +794,7 @@ export function AdminDashboard({
     setShorts(initialShorts)
   }, [initialShorts])
   const [isCreatingShort, setIsCreatingShort] = React.useState(false)
+  const [isSyncingYouTube, setIsSyncingYouTube] = React.useState(false)
   const [shortForm, setShortForm] = React.useState({
     id: "",
     title: "",
@@ -1132,6 +1134,23 @@ export function AdminDashboard({
       showStatus("An error occurred while updating category visibility.", "error")
     } finally {
       setTogglingCategory(null)
+    }
+  }
+
+  const handleSyncYouTube = async () => {
+    setIsSyncingYouTube(true)
+    try {
+      const res = await syncYouTubeShortsAction("UC6y7NAEEm-U97DLfHc__l9w")
+      if (res.success) {
+        showStatus(res.message || "Synced shorts from YouTube channel successfully!", "success")
+        router.refresh()
+      } else {
+        showStatus(res.message || "Failed to sync YouTube shorts.", "error")
+      }
+    } catch {
+      showStatus("An error occurred while syncing YouTube shorts.", "error")
+    } finally {
+      setIsSyncingYouTube(false)
     }
   }
 
@@ -2576,28 +2595,58 @@ export function AdminDashboard({
                     Manage daily short-form videos featured on the homepage and the <Link href="/shorts" target="_blank" className="underline text-primary">/shorts</Link> page.
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button asChild variant="outline" size="sm" className="text-xs gap-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    onClick={handleSyncYouTube}
+                    disabled={isSyncingYouTube}
+                    size="sm"
+                    className="text-xs h-8 bg-red-600 hover:bg-red-700 text-white gap-1.5 shadow-xs"
+                  >
+                    {isSyncingYouTube ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <YouTubeIcon className="h-3.5 w-3.5 fill-current" />
+                    )}
+                    {isSyncingYouTube ? "Syncing..." : "Sync from YouTube (@TonyMan)"}
+                  </Button>
+                  <Button asChild variant="outline" size="sm" className="text-xs h-8 gap-1">
                     <Link href="/shorts" target="_blank">
                       View Live Page
                       <ExternalLink className="h-3 w-3" />
                     </Link>
                   </Button>
-                  <Button onClick={handleStartCreateShort} size="sm" className="gap-1.5 text-xs bg-red-600 hover:bg-red-700 text-white">
+                  <Button onClick={handleStartCreateShort} size="sm" variant="outline" className="gap-1.5 text-xs h-8">
                     <Plus className="h-3.5 w-3.5" />
-                    Add New Short
+                    Manual Upload
                   </Button>
                 </div>
               </div>
 
               {shorts.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-border p-8 text-center text-xs text-muted-foreground space-y-2">
+                <div className="rounded-xl border border-dashed border-border p-8 text-center text-xs text-muted-foreground space-y-3">
                   <YouTubeIcon className="h-8 w-8 text-red-500 mx-auto" />
-                  <p className="font-semibold text-foreground">No YouTube Shorts added yet</p>
-                  <p>Click &quot;Add New Short&quot; to paste your first finance or lifestyle short link.</p>
-                  <Button onClick={handleStartCreateShort} size="sm" variant="outline" className="text-xs mt-2">
-                    Add First Short
-                  </Button>
+                  <div>
+                    <p className="font-semibold text-foreground">No YouTube Shorts added yet</p>
+                    <p className="text-muted-foreground mt-0.5">Click below to automatically import your latest videos from your YouTube channel.</p>
+                  </div>
+                  <div className="flex items-center justify-center gap-2 pt-1">
+                    <Button
+                      onClick={handleSyncYouTube}
+                      disabled={isSyncingYouTube}
+                      size="sm"
+                      className="text-xs h-8 bg-red-600 hover:bg-red-700 text-white gap-1.5 shadow-xs"
+                    >
+                      {isSyncingYouTube ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <YouTubeIcon className="h-3.5 w-3.5 fill-current" />
+                      )}
+                      {isSyncingYouTube ? "Syncing..." : "Sync from YouTube (@TonyMan)"}
+                    </Button>
+                    <Button onClick={handleStartCreateShort} size="sm" variant="outline" className="text-xs h-8">
+                      Add Manually
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">

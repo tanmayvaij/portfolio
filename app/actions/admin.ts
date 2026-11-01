@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma"
 import { getAboutConfig } from "@/lib/db/about"
 import { extractYouTubeVideoId, getYouTubeThumbnailUrl, getAllShorts, getShortBySlugOrId } from "@/lib/db/shorts"
 import { syncPinterestAffiliates } from "@/lib/pinterest"
+import { syncYouTubeShorts } from "@/lib/youtube"
 import {
   getAffiliateCategorySettings,
   setAffiliateCategoryVisibility,
@@ -847,6 +848,27 @@ export async function deleteShortAction(id: string): Promise<{ success: boolean;
   } catch {
     return { success: false, message: "Failed to delete short." }
   }
+}
+
+export async function syncYouTubeShortsAction(
+  channelId = "UC6y7NAEEm-U97DLfHc__l9w"
+): Promise<{
+  success: boolean
+  message: string
+  total?: number
+  imported?: number
+  updated?: number
+}> {
+  const isAuth = await verifyAdminAuth()
+  if (!isAuth) return { success: false, message: "Unauthorized" }
+
+  const res = await syncYouTubeShorts(channelId)
+  if (res.success) {
+    revalidatePath("/shorts")
+    revalidatePath("/")
+    revalidatePath("/admin")
+  }
+  return res
 }
 
 export async function deleteMessageAction(id: string): Promise<{ success: boolean; message: string }> {
