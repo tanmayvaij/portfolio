@@ -60,7 +60,7 @@ export default async function HomePage() {
   return (
     <main className="flex flex-col items-center justify-center">
       {/* Hero Section */}
-      <section className="relative w-full border-b border-border/50 bg-gradient-to-b from-muted/40 via-background to-background py-16 sm:py-20 md:py-24">
+      <section className="relative w-full bg-gradient-to-b from-muted/40 via-background to-background py-16 sm:py-20 md:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
             {/* Left Content Column */}
@@ -195,9 +195,7 @@ export default async function HomePage() {
       </section>
 
       {/* Policy-Compliant Ad Banner Slot */}
-      <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 my-2">
-        <AdBanner format="horizontal" slot="1000000001" label="Sponsored" />
-      </section>
+      <AdBanner format="horizontal" slot="1000000001" label="Sponsored" />
 
       {/* Blogs Section */}
       {recentPosts.length > 0 && (
