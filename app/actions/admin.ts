@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { getAboutConfig } from "@/lib/db/about"
 import { extractYouTubeVideoId, getYouTubeThumbnailUrl, getAllShorts, getShortBySlugOrId } from "@/lib/db/shorts"
+import { syncPinterestAffiliates } from "@/lib/pinterest"
 
 const ADMIN_COOKIE_NAME = "admin_auth_token"
 const DEFAULT_PASSWORD = "admin"
@@ -634,6 +635,25 @@ export async function deleteAffiliateAction(id: string): Promise<{ success: bool
   } catch {
     return { success: false, message: "Failed to delete affiliate tool." }
   }
+}
+
+export async function syncPinterestAction(username = "tanmayvaij22"): Promise<{
+  success: boolean
+  message: string
+  total?: number
+  imported?: number
+  updated?: number
+}> {
+  const isAuth = await verifyAdminAuth()
+  if (!isAuth) return { success: false, message: "Unauthorized" }
+
+  const res = await syncPinterestAffiliates(username)
+  if (res.success) {
+    revalidatePath("/tools")
+    revalidatePath("/")
+    revalidatePath("/admin")
+  }
+  return res
 }
 
 // YouTube Shorts Actions

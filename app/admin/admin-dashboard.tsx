@@ -26,8 +26,9 @@ import {
   Lock,
   Image as ImageIcon,
   Play,
+  Loader2,
 } from "lucide-react"
-import { YouTubeIcon } from "@/components/icons"
+import { YouTubeIcon, PinterestIcon } from "@/components/icons"
 import { extractYouTubeVideoId, getYouTubeThumbnailUrl } from "@/lib/db/shorts"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -49,6 +50,7 @@ import {
   deleteMessageAction,
   saveAffiliateAction,
   deleteAffiliateAction,
+  syncPinterestAction,
   saveShortAction,
   deleteShortAction,
   saveAboutAction,
@@ -755,6 +757,11 @@ export function AdminDashboard({
   const [affiliates, setAffiliates] = React.useState<AffiliateRecord[]>(initialAffiliates)
   const [editingAffiliate, setEditingAffiliate] = React.useState<AffiliateRecord | null>(null)
   const [isCreatingAffiliate, setIsCreatingAffiliate] = React.useState(false)
+  const [isSyncingPinterest, setIsSyncingPinterest] = React.useState(false)
+
+  React.useEffect(() => {
+    setAffiliates(initialAffiliates)
+  }, [initialAffiliates])
   const [affiliateForm, setAffiliateForm] = React.useState({
     id: "",
     name: "",
@@ -1165,6 +1172,23 @@ export function AdminDashboard({
       showStatus("Affiliate tool deleted.")
     } else {
       showStatus(res.message, "error")
+    }
+  }
+
+  const handleSyncPinterest = async () => {
+    setIsSyncingPinterest(true)
+    try {
+      const res = await syncPinterestAction("tanmayvaij22")
+      if (res.success) {
+        showStatus(res.message || "Synced affiliate pins from Pinterest successfully!", "success")
+        router.refresh()
+      } else {
+        showStatus(res.message || "Failed to sync Pinterest pins.", "error")
+      }
+    } catch {
+      showStatus("An error occurred while syncing Pinterest pins.", "error")
+    } finally {
+      setIsSyncingPinterest(false)
     }
   }
 
@@ -2336,7 +2360,21 @@ export function AdminDashboard({
                     Curated development tools with sponsored partner tracking links and FTC disclosures.
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    onClick={handleSyncPinterest}
+                    disabled={isSyncingPinterest}
+                    variant="outline"
+                    size="sm"
+                    className="text-xs h-8 border-red-500/30 text-red-500 hover:text-red-600 hover:bg-red-500/10 gap-1.5"
+                  >
+                    {isSyncingPinterest ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <PinterestIcon className="h-3.5 w-3.5 text-red-500" />
+                    )}
+                    {isSyncingPinterest ? "Syncing Pinterest..." : "Sync from Pinterest (@tanmayvaij22)"}
+                  </Button>
                   <Button asChild variant="outline" size="sm" className="text-xs h-8">
                     <Link href="/tools" target="_blank">
                       <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
@@ -2351,8 +2389,22 @@ export function AdminDashboard({
               </div>
 
               {affiliates.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-border p-12 text-center text-xs text-muted-foreground">
-                  No affiliate tools added yet. Click &quot;New Affiliate Tool&quot; to add your first monetization partner.
+                <div className="rounded-xl border border-dashed border-border p-12 text-center text-xs text-muted-foreground flex flex-col items-center justify-center gap-3">
+                  <p>No affiliate tools added yet. Click &quot;New Affiliate Tool&quot; to add manually, or sync all items directly from your Pinterest feed.</p>
+                  <Button
+                    onClick={handleSyncPinterest}
+                    disabled={isSyncingPinterest}
+                    variant="outline"
+                    size="sm"
+                    className="text-xs h-8 border-red-500/30 text-red-500 hover:text-red-600 hover:bg-red-500/10 gap-1.5"
+                  >
+                    {isSyncingPinterest ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <PinterestIcon className="h-3.5 w-3.5 text-red-500" />
+                    )}
+                    {isSyncingPinterest ? "Syncing..." : "Sync from Pinterest (@tanmayvaij22)"}
+                  </Button>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
