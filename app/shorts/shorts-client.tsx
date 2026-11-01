@@ -20,21 +20,23 @@ export function ShortsClient({ shorts }: ShortsClientProps) {
   const [activeVideo, setActiveVideo] = React.useState<ShortItem | null>(null)
 
   const categories = React.useMemo(() => {
-    const set = new Set(shorts.map((s) => s.category))
-    return ["All", ...Array.from(set)]
+    const list = Array.from(new Set(shorts.map((s) => s.category).filter(Boolean)))
+    return list.length > 1 ? ["All", ...list] : []
   }, [shorts])
 
   const filteredShorts = React.useMemo(() => {
     return shorts.filter((short) => {
       const matchesCategory =
-        selectedCategory === "All" || short.category === selectedCategory
+        categories.length <= 1 ||
+        selectedCategory === "All" ||
+        short.category === selectedCategory
       const matchesQuery =
         !searchQuery.trim() ||
         short.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (short.description && short.description.toLowerCase().includes(searchQuery.toLowerCase()))
       return matchesCategory && matchesQuery
     })
-  }, [shorts, selectedCategory, searchQuery])
+  }, [shorts, selectedCategory, searchQuery, categories.length])
 
   // Close modal with ESC key
   React.useEffect(() => {
@@ -57,32 +59,34 @@ export function ShortsClient({ shorts }: ShortsClientProps) {
 
   return (
     <div className="space-y-6">
-      {/* Category Pills & Search Controls */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+      {/* Search Controls & Category Pills (if any exist) */}
+      <div className={`flex flex-col sm:flex-row items-stretch sm:items-center ${categories.length > 1 ? "justify-between" : "justify-end"} gap-4`}>
         {/* Category Pills */}
-        <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-          {categories.map((cat) => {
-            const isSelected = selectedCategory === cat
-            return (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setSelectedCategory(cat)}
-                className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all duration-200 cursor-pointer ${
-                  isSelected
-                    ? "bg-primary text-primary-foreground shadow-sm scale-105"
-                    : "bg-muted/70 text-muted-foreground hover:bg-muted hover:text-foreground"
-                }`}
-              >
-                {cat}
-                {cat === "All" && ` (${shorts.length})`}
-              </button>
-            )
-          })}
-        </div>
+        {categories.length > 1 && (
+          <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+            {categories.map((cat) => {
+              const isSelected = selectedCategory === cat
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all duration-200 cursor-pointer ${
+                    isSelected
+                      ? "bg-primary text-primary-foreground shadow-sm scale-105"
+                      : "bg-muted/70 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  }`}
+                >
+                  {cat}
+                  {cat === "All" && ` (${shorts.length})`}
+                </button>
+              )
+            })}
+          </div>
+        )}
 
         {/* Search Input */}
-        <div className="relative w-full sm:w-64">
+        <div className={`relative w-full ${categories.length > 1 ? "sm:w-64" : "sm:w-72"}`}>
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
           <Input
             type="text"
@@ -109,7 +113,7 @@ export function ShortsClient({ shorts }: ShortsClientProps) {
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-500/10 text-red-500">
             <YouTubeIcon className="h-6 w-6" />
           </div>
-          <h3 className="text-base font-bold text-foreground">No shorts uploaded yet in this category</h3>
+          <h3 className="text-base font-bold text-foreground">No shorts found</h3>
           <p className="text-xs text-muted-foreground max-w-md mx-auto">
             {searchQuery
               ? `No shorts found matching "${searchQuery}". Try a different keyword.`
@@ -165,9 +169,13 @@ export function ShortsClient({ shorts }: ShortsClientProps) {
 
                     {/* Top Info Bar */}
                     <div className="absolute top-2.5 inset-x-2.5 flex items-center justify-between z-10 pointer-events-none">
-                      <span className="rounded-full bg-black/70 backdrop-blur-md px-2 py-0.5 text-[10px] font-medium text-white border border-white/10 shadow-xs">
-                        {short.category}
-                      </span>
+                      {short.category ? (
+                        <span className="rounded-full bg-black/70 backdrop-blur-md px-2 py-0.5 text-[10px] font-medium text-white border border-white/10 shadow-xs">
+                          {short.category}
+                        </span>
+                      ) : (
+                        <span />
+                      )}
 
                       {short.duration && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-black/70 backdrop-blur-md px-2 py-0.5 text-[10px] font-mono text-zinc-300 border border-white/10">
@@ -283,9 +291,11 @@ export function ShortsClient({ shorts }: ShortsClientProps) {
                   <Badge variant="outline" className="text-[10px] text-red-500 border-red-500/30 shrink-0">
                     YouTube Short
                   </Badge>
-                  <span className="text-xs text-zinc-400 truncate">
-                    {activeVideo.category}
-                  </span>
+                  {activeVideo.category && (
+                    <span className="text-xs text-zinc-400 truncate">
+                      {activeVideo.category}
+                    </span>
+                  )}
                 </div>
                 <button
                   type="button"

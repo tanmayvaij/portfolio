@@ -370,11 +370,13 @@ export default async function HomePage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/60 pointer-events-none" />
 
-                    <div className="absolute top-2.5 left-2.5 z-10 pointer-events-none">
-                      <span className="rounded-full bg-black/70 backdrop-blur-md px-2 py-0.5 text-[10px] font-medium text-white border border-white/10">
-                        {short.category}
-                      </span>
-                    </div>
+                    {short.category && (
+                      <div className="absolute top-2.5 left-2.5 z-10 pointer-events-none">
+                        <span className="rounded-full bg-black/70 backdrop-blur-md px-2 py-0.5 text-[10px] font-medium text-white border border-white/10">
+                          {short.category}
+                        </span>
+                      </div>
+                    )}
 
                     <div className="absolute inset-0 m-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-600/90 text-white shadow-2xl transition-all duration-300 group-hover:scale-110 group-hover:bg-red-600 pointer-events-none">
                       <Play className="h-5 w-5 fill-white ml-0.5" />

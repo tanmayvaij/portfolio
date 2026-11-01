@@ -23,33 +23,8 @@ function decodeXmlEntities(str: string): string {
     .replace(/&#x2F;/g, "/")
 }
 
-export function detectShortCategory(text: string): string {
-  const lower = text.toLowerCase()
-  if (
-    /gold|stocks|stock market|trading|trader|invest|mutual fund|crypto|portfolio/.test(
-      lower
-    )
-  ) {
-    return "Investing"
-  }
-  if (
-    /salary|budget|emi|no-cost|money|broke|financial freedom|savings|emergency money|bill/.test(
-      lower
-    )
-  ) {
-    return "Finance"
-  }
-  if (
-    /business|entrepreneur|startup|ecommerce|deal|cart|founder|profit|sales|company/.test(
-      lower
-    )
-  ) {
-    return "Business"
-  }
-  if (/robot|ai|tech|software|developer|coding|hardware/.test(lower)) {
-    return "Tech"
-  }
-  return "Finance"
+export function detectShortCategory(_text: string): string {
+  return ""
 }
 
 export function slugifyShort(text: string): string {

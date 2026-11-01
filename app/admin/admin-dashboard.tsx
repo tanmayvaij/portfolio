@@ -2666,9 +2666,11 @@ export function AdminDashboard({
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40" />
                           <div className="absolute top-2 inset-x-2 flex items-center justify-between">
-                            <Badge variant="secondary" className="text-[10px] bg-black/70 backdrop-blur-md text-white border-white/10">
-                              {short.category}
-                            </Badge>
+                            {short.category ? (
+                              <Badge variant="secondary" className="text-[10px] bg-black/70 backdrop-blur-md text-white border-white/10">
+                                {short.category}
+                              </Badge>
+                            ) : <div />}
                             {short.featured && (
                               <Badge className="text-[10px] bg-red-600 text-white border-none">
                                 Featured
