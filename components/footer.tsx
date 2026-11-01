@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Mail, ShieldCheck } from "lucide-react"
-import { GithubIcon, LinkedinIcon, TwitterIcon } from "@/components/icons"
+import { GithubIcon, LinkedinIcon, TwitterIcon, YouTubeIcon, InstagramIcon } from "@/components/icons"
 
 export function Footer() {
   const pathname = usePathname()
@@ -57,6 +57,26 @@ export function Footer() {
                 aria-label="Twitter Profile"
               >
                 <TwitterIcon className="h-4 w-4" />
+              </a>
+              <a
+                href="https://www.youtube.com/channel/UC6y7NAEEm-U97DLfHc__l9w"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-lg border border-border p-2 text-muted-foreground hover:bg-muted hover:text-red-500 transition-colors"
+                aria-label="YouTube Channel - Finance & Lifestyle Shorts"
+                title="YouTube Shorts Channel"
+              >
+                <YouTubeIcon className="h-4 w-4" />
+              </a>
+              <a
+                href="https://www.instagram.com/tony.man.22/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-lg border border-border p-2 text-muted-foreground hover:bg-muted hover:text-pink-500 transition-colors"
+                aria-label="Instagram Profile"
+                title="Instagram Profile"
+              >
+                <InstagramIcon className="h-4 w-4" />
               </a>
               <a
                 href="mailto:tanmayvaij22@gmail.com"

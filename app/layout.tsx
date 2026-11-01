@@ -142,6 +142,8 @@ const rootJsonLd = {
         "https://www.linkedin.com/in/tanmayvaij/",
         "https://github.com/tanmayvaij",
         "https://twitter.com/tanmayvaij",
+        "https://www.youtube.com/channel/UC6y7NAEEm-U97DLfHc__l9w",
+        "https://www.instagram.com/tony.man.22/",
       ],
       knowsAbout: [
         "Next.js App Router",

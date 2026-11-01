@@ -3,7 +3,7 @@
 import * as React from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Send, CheckCircle, Mail, MapPin, Calendar, AlertCircle } from "lucide-react"
-import { LinkedinIcon } from "@/components/icons"
+import { LinkedinIcon, YouTubeIcon, InstagramIcon } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -101,6 +101,40 @@ export function ContactClient({
                   className="text-primary hover:underline transition-colors font-medium"
                 >
                   {linkedinUrl.replace(/^https?:\/\/(www\.)?/, "")}
+                </a>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-lg bg-red-500/10 text-red-500 shrink-0">
+                <YouTubeIcon className="h-4 w-4" />
+              </div>
+              <div>
+                <span className="font-semibold text-foreground block">YouTube Shorts</span>
+                <a
+                  href="https://www.youtube.com/channel/UC6y7NAEEm-U97DLfHc__l9w"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline transition-colors font-medium text-xs break-all"
+                >
+                  Finance & Lifestyle Shorts
+                </a>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-lg bg-pink-500/10 text-pink-500 shrink-0">
+                <InstagramIcon className="h-4 w-4" />
+              </div>
+              <div>
+                <span className="font-semibold text-foreground block">Instagram</span>
+                <a
+                  href="https://www.instagram.com/tony.man.22/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline transition-colors font-medium"
+                >
+                  @tony.man.22
                 </a>
               </div>
             </div>

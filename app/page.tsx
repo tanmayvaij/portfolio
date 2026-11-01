@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight, ArrowUpRight, BookOpen, Cpu, Layers, Sparkles, ExternalLink, Star, ShoppingBag } from "lucide-react"
-import { GithubIcon, LinkedinIcon } from "@/components/icons"
+import { GithubIcon, LinkedinIcon, YouTubeIcon, InstagramIcon } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
@@ -133,6 +133,30 @@ export default async function HomePage() {
                     >
                       <LinkedinIcon className="h-4 w-4" />
                       LinkedIn
+                    </a>
+                  </Button>
+                  <Button asChild variant="ghost" size="lg" className="h-10 px-4 text-sm hover:text-red-500">
+                    <a
+                      href="https://www.youtube.com/channel/UC6y7NAEEm-U97DLfHc__l9w"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5"
+                      title="YouTube Shorts Channel"
+                    >
+                      <YouTubeIcon className="h-4 w-4 text-red-500" />
+                      Shorts
+                    </a>
+                  </Button>
+                  <Button asChild variant="ghost" size="lg" className="h-10 px-4 text-sm hover:text-pink-500">
+                    <a
+                      href="https://www.instagram.com/tony.man.22/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5"
+                      title="Instagram Profile"
+                    >
+                      <InstagramIcon className="h-4 w-4 text-pink-500" />
+                      Instagram
                     </a>
                   </Button>
                 </div>

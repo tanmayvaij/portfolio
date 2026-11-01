@@ -44,6 +44,8 @@ export const portfolioData = {
     github: "https://github.com/tanmayvaij",
     linkedin: "https://www.linkedin.com/in/tanmayvaij/",
     twitter: "https://twitter.com/tanmayvaij",
+    youtube: "https://www.youtube.com/channel/UC6y7NAEEm-U97DLfHc__l9w",
+    instagram: "https://www.instagram.com/tony.man.22/",
   },
   stats: [
     { label: "Years Experience", value: "6+" },

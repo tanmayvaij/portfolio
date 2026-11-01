@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
 import { Briefcase, GraduationCap, CheckCircle2, ArrowRight, Mail } from "lucide-react"
-import { GithubIcon, LinkedinIcon } from "@/components/icons"
+import { GithubIcon, LinkedinIcon, YouTubeIcon, InstagramIcon } from "@/components/icons"
 import { portfolioData } from "@/lib/data/portfolio"
 import { getAboutConfig } from "@/lib/db/about"
 import { Badge } from "@/components/ui/badge"
@@ -60,6 +60,8 @@ export default async function AboutPage() {
         about.linkedinUrl,
         about.githubUrl,
         "https://twitter.com/tanmayvaij",
+        "https://www.youtube.com/channel/UC6y7NAEEm-U97DLfHc__l9w",
+        "https://www.instagram.com/tony.man.22/",
       ].filter(Boolean),
       alumniOf: "Computer Science & Engineering",
       knowsAbout: [
@@ -157,6 +159,26 @@ export default async function AboutPage() {
                   </a>
                 </Button>
               )}
+              <Button asChild variant="outline" size="sm" className="hover:text-red-500 hover:border-red-500/40">
+                <a
+                  href="https://www.youtube.com/channel/UC6y7NAEEm-U97DLfHc__l9w"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <YouTubeIcon className="mr-1.5 h-3.5 w-3.5 text-red-500" />
+                  YouTube Shorts
+                </a>
+              </Button>
+              <Button asChild variant="outline" size="sm" className="hover:text-pink-500 hover:border-pink-500/40">
+                <a
+                  href="https://www.instagram.com/tony.man.22/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <InstagramIcon className="mr-1.5 h-3.5 w-3.5 text-pink-500" />
+                  Instagram
+                </a>
+              </Button>
             </div>
           </FadeIn>
 
