@@ -8,6 +8,8 @@ export function getPrisma(): PrismaClient {
   const current = globalForPrisma.prisma as any
   const needsRecreation =
     !current ||
+    !current.short ||
+    !current.affiliateTool ||
     !current.experience ||
     !current.aboutConfig ||
     !current.skillCategory ||

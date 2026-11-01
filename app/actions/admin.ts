@@ -673,45 +673,111 @@ export async function saveShortAction(shortData: {
   const thumbnailUrl = shortData.thumbnailUrl || getYouTubeThumbnailUrl(videoId)
 
   try {
-    if (shortData.id) {
-      await prisma.short.update({
-        where: { id: shortData.id },
-        data: {
-          slug: shortData.slug,
-          title: shortData.title,
-          youtubeUrl: shortData.youtubeUrl,
-          videoId,
-          thumbnailUrl,
-          category: shortData.category || "Finance",
-          description: shortData.description || null,
-          featured: shortData.featured,
-          published: shortData.published !== false,
-          views: shortData.views || null,
-          duration: shortData.duration || null,
-          relatedToolUrl: shortData.relatedToolUrl || null,
-          relatedPostSlug: shortData.relatedPostSlug || null,
-          notes: shortData.notes !== undefined ? (shortData.notes || null) : undefined,
-        },
-      })
+    const hasDelegate = !!(prisma as any)?.short
+    if (hasDelegate) {
+      if (shortData.id) {
+        await prisma.short.update({
+          where: { id: shortData.id },
+          data: {
+            slug: shortData.slug,
+            title: shortData.title,
+            youtubeUrl: shortData.youtubeUrl,
+            videoId,
+            thumbnailUrl,
+            category: shortData.category || "Finance",
+            description: shortData.description || null,
+            featured: shortData.featured,
+            published: shortData.published !== false,
+            views: shortData.views || null,
+            duration: shortData.duration || null,
+            relatedToolUrl: shortData.relatedToolUrl || null,
+            relatedPostSlug: shortData.relatedPostSlug || null,
+            notes: shortData.notes !== undefined ? (shortData.notes || null) : undefined,
+          },
+        })
+      } else {
+        await prisma.short.create({
+          data: {
+            slug: shortData.slug,
+            title: shortData.title,
+            youtubeUrl: shortData.youtubeUrl,
+            videoId,
+            thumbnailUrl,
+            category: shortData.category || "Finance",
+            description: shortData.description || null,
+            featured: shortData.featured,
+            published: shortData.published !== false,
+            views: shortData.views || null,
+            duration: shortData.duration || null,
+            relatedToolUrl: shortData.relatedToolUrl || null,
+            relatedPostSlug: shortData.relatedPostSlug || null,
+            notes: shortData.notes || null,
+          },
+        })
+      }
     } else {
-      await prisma.short.create({
-        data: {
-          slug: shortData.slug,
-          title: shortData.title,
-          youtubeUrl: shortData.youtubeUrl,
+      // Direct raw PostgreSQL fallback if in-memory Prisma client was started before schema generation
+      const shortId = shortData.id || `short_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+      if (shortData.id) {
+        await prisma.$executeRawUnsafe(
+          `UPDATE "Short" SET
+            "slug" = $1,
+            "title" = $2,
+            "youtubeUrl" = $3,
+            "videoId" = $4,
+            "thumbnailUrl" = $5,
+            "category" = $6,
+            "description" = $7,
+            "featured" = $8,
+            "published" = $9,
+            "views" = $10,
+            "duration" = $11,
+            "relatedToolUrl" = $12,
+            "relatedPostSlug" = $13,
+            "notes" = $14,
+            "updatedAt" = CURRENT_TIMESTAMP
+           WHERE "id" = $15`,
+          shortData.slug,
+          shortData.title,
+          shortData.youtubeUrl,
           videoId,
           thumbnailUrl,
-          category: shortData.category || "Finance",
-          description: shortData.description || null,
-          featured: shortData.featured,
-          published: shortData.published !== false,
-          views: shortData.views || null,
-          duration: shortData.duration || null,
-          relatedToolUrl: shortData.relatedToolUrl || null,
-          relatedPostSlug: shortData.relatedPostSlug || null,
-          notes: shortData.notes || null,
-        },
-      })
+          shortData.category || "Finance",
+          shortData.description || null,
+          shortData.featured,
+          shortData.published !== false,
+          shortData.views || null,
+          shortData.duration || null,
+          shortData.relatedToolUrl || null,
+          shortData.relatedPostSlug || null,
+          shortData.notes || null,
+          shortData.id
+        )
+      } else {
+        await prisma.$executeRawUnsafe(
+          `INSERT INTO "Short" (
+            "id", "slug", "title", "youtubeUrl", "videoId", "thumbnailUrl",
+            "category", "description", "featured", "published", "views",
+            "duration", "relatedToolUrl", "relatedPostSlug", "notes",
+            "createdAt", "updatedAt"
+           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+          shortId,
+          shortData.slug,
+          shortData.title,
+          shortData.youtubeUrl,
+          videoId,
+          thumbnailUrl,
+          shortData.category || "Finance",
+          shortData.description || null,
+          shortData.featured,
+          shortData.published !== false,
+          shortData.views || null,
+          shortData.duration || null,
+          shortData.relatedToolUrl || null,
+          shortData.relatedPostSlug || null,
+          shortData.notes || null
+        )
+      }
     }
 
     revalidatePath("/shorts")
@@ -729,7 +795,11 @@ export async function deleteShortAction(id: string): Promise<{ success: boolean;
   if (!isAuth) return { success: false, message: "Unauthorized" }
 
   try {
-    await prisma.short.deleteMany({ where: { id } })
+    if (prisma?.short) {
+      await prisma.short.deleteMany({ where: { id } })
+    } else {
+      await prisma.$executeRawUnsafe(`DELETE FROM "Short" WHERE "id" = $1`, id)
+    }
     revalidatePath("/shorts")
     revalidatePath("/")
     revalidatePath("/admin")

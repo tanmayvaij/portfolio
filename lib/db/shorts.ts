@@ -48,15 +48,22 @@ export function getYouTubeThumbnailUrl(videoId: string): string {
 
 export async function getAllShorts(includeUnpublished = false): Promise<ShortItem[]> {
   try {
-    if (!prisma?.short) {
-      return []
+    if (prisma?.short) {
+      const whereClause = includeUnpublished ? {} : { published: true }
+      const shorts = await prisma.short.findMany({
+        where: whereClause,
+        orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+      })
+      return shorts
     }
-    const whereClause = includeUnpublished ? {} : { published: true }
-    const shorts = await prisma.short.findMany({
-      where: whereClause,
-      orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-    })
-    return shorts
+
+    // Direct fallback if in-memory Prisma client is cycling
+    const rows: any[] = await prisma.$queryRawUnsafe(
+      includeUnpublished
+        ? `SELECT * FROM "Short" ORDER BY "featured" DESC, "createdAt" DESC`
+        : `SELECT * FROM "Short" WHERE "published" = true ORDER BY "featured" DESC, "createdAt" DESC`
+    )
+    return Array.isArray(rows) ? rows : []
   } catch (error) {
     console.error("Failed to query shorts from DB:", error)
     return []
@@ -65,31 +72,35 @@ export async function getAllShorts(includeUnpublished = false): Promise<ShortIte
 
 export async function getFeaturedShorts(limit = 4): Promise<ShortItem[]> {
   try {
-    if (!prisma?.short) {
-      return []
-    }
-    const shorts = await prisma.short.findMany({
-      where: { published: true, featured: true },
-      take: limit,
-      orderBy: { createdAt: "desc" },
-    })
-
-    // If fewer than limit featured shorts exist, backfill with newest published shorts
-    if (shorts.length < limit) {
-      const remaining = limit - shorts.length
-      const existingIds = shorts.map((s) => s.id)
-      const additional = await prisma.short.findMany({
-        where: {
-          published: true,
-          id: { notIn: existingIds },
-        },
-        take: remaining,
+    if (prisma?.short) {
+      const shorts = await prisma.short.findMany({
+        where: { published: true, featured: true },
+        take: limit,
         orderBy: { createdAt: "desc" },
       })
-      return [...shorts, ...additional]
+
+      // If fewer than limit featured shorts exist, backfill with newest published shorts
+      if (shorts.length < limit) {
+        const remaining = limit - shorts.length
+        const existingIds = shorts.map((s) => s.id)
+        const additional = await prisma.short.findMany({
+          where: {
+            published: true,
+            id: { notIn: existingIds },
+          },
+          take: remaining,
+          orderBy: { createdAt: "desc" },
+        })
+        return [...shorts, ...additional]
+      }
+
+      return shorts
     }
 
-    return shorts
+    const rows: any[] = await prisma.$queryRawUnsafe(
+      `SELECT * FROM "Short" WHERE "published" = true ORDER BY "featured" DESC, "createdAt" DESC LIMIT ${limit}`
+    )
+    return Array.isArray(rows) ? rows : []
   } catch (error) {
     console.error("Failed to query featured shorts from DB:", error)
     return []
@@ -98,17 +109,23 @@ export async function getFeaturedShorts(limit = 4): Promise<ShortItem[]> {
 
 export async function getShortBySlugOrId(slugOrId: string): Promise<ShortItem | null> {
   try {
-    if (!prisma?.short) {
-      return null
+    if (prisma?.short) {
+      const short = await prisma.short.findFirst({
+        where: {
+          OR: [{ slug: slugOrId }, { id: slugOrId }],
+        },
+      })
+      return short ?? null
     }
-    const short = await prisma.short.findFirst({
-      where: {
-        OR: [{ slug: slugOrId }, { id: slugOrId }],
-      },
-    })
-    return short ?? null
+
+    const rows: any[] = await prisma.$queryRawUnsafe(
+      `SELECT * FROM "Short" WHERE "slug" = $1 OR "id" = $1 LIMIT 1`,
+      slugOrId
+    )
+    return Array.isArray(rows) && rows.length > 0 ? rows[0] : null
   } catch (error) {
     console.error("Failed to query short by slug/id:", error)
     return null
   }
 }
+
