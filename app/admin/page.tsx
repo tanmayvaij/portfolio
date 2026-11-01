@@ -33,6 +33,7 @@ export default async function AdminPage() {
       initialProjects={data.projects}
       initialMessages={data.messages}
       initialAffiliates={data.affiliates}
+      initialShorts={data.shorts || []}
       initialAbout={data.about}
       initialExperiences={data.experiences}
       initialSkillCategories={data.skillCategories}

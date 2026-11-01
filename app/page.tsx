@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowRight, ArrowUpRight, BookOpen, Cpu, Layers, Sparkles, ExternalLink, Star, ShoppingBag } from "lucide-react"
+import { ArrowRight, ArrowUpRight, BookOpen, Cpu, Layers, Sparkles, ExternalLink, Star, ShoppingBag, Play } from "lucide-react"
 import { GithubIcon, LinkedinIcon, YouTubeIcon, InstagramIcon } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -10,6 +10,7 @@ import { portfolioData } from "@/lib/data/portfolio"
 import { getAllPosts } from "@/lib/db/posts"
 import { getAllProjects } from "@/lib/db/projects"
 import { getFeaturedAffiliates } from "@/lib/db/affiliates"
+import { getFeaturedShorts } from "@/lib/db/shorts"
 import { getAboutConfig } from "@/lib/db/about"
 import { AdBanner } from "@/components/adsense/AdBanner"
 import { FadeIn, StaggerContainer, StaggerItem, MotionCard } from "@/components/motion"
@@ -42,10 +43,11 @@ export const metadata: Metadata = {
 export const instant = false
 
 export default async function HomePage() {
-  const [allProjects, allPosts, featuredGear, about] = await Promise.all([
+  const [allProjects, allPosts, featuredGear, featuredShorts, about] = await Promise.all([
     getAllProjects(),
     getAllPosts(),
     getFeaturedAffiliates(),
+    getFeaturedShorts(4),
     getAboutConfig(),
   ])
 
@@ -456,6 +458,80 @@ export default async function HomePage() {
           </StaggerContainer>
         </div>
       </section>
+      )}
+
+      {/* Daily YouTube Shorts Section */}
+      {featuredShorts.length > 0 && (
+        <section className="w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8 border-t border-border/50">
+          <FadeIn>
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+              <div>
+                <Badge variant="outline" className="mb-2 text-red-500 border-red-500/30 gap-1.5">
+                  <YouTubeIcon className="h-3 w-3 text-red-500" />
+                  YouTube Shorts
+                </Badge>
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                  Finance & Lifestyle Micro-Education
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Daily practical breakdowns on personal finance, wealth compounding, and modern lifestyle habits.
+                </p>
+              </div>
+              <Button asChild variant="ghost" size="sm" className="self-start sm:self-auto text-xs gap-1">
+                <Link href="/shorts">
+                  Watch All Shorts
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </Button>
+            </div>
+          </FadeIn>
+
+          <StaggerContainer className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 items-start">
+            {featuredShorts.map((short) => {
+              const thumbnail =
+                short.thumbnailUrl ||
+                `https://img.youtube.com/vi/${short.videoId}/hqdefault.jpg`
+
+              return (
+                <StaggerItem key={short.id} className="group flex flex-col">
+                  <Link
+                    href={`/shorts`}
+                    className="block relative aspect-[9/16] w-full overflow-hidden rounded-2xl bg-black border border-border/70 shadow-xs group-hover:border-red-500/50 group-hover:shadow-xl transition-all duration-300"
+                    aria-label={short.title}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={thumbnail}
+                      alt={short.title}
+                      className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 opacity-90 group-hover:opacity-100"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/60 pointer-events-none" />
+
+                    <div className="absolute top-2.5 left-2.5 z-10 pointer-events-none">
+                      <span className="rounded-full bg-black/70 backdrop-blur-md px-2 py-0.5 text-[10px] font-medium text-white border border-white/10">
+                        {short.category}
+                      </span>
+                    </div>
+
+                    <div className="absolute inset-0 m-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-600/90 text-white shadow-2xl transition-all duration-300 group-hover:scale-110 group-hover:bg-red-600 pointer-events-none">
+                      <Play className="h-5 w-5 fill-white ml-0.5" />
+                    </div>
+
+                    <div className="absolute inset-x-0 bottom-0 p-3 z-10 pointer-events-none">
+                      <h3 className="font-bold text-xs sm:text-sm text-white line-clamp-2 leading-snug">
+                        {short.title}
+                      </h3>
+                      <span className="text-[11px] text-red-400 font-medium mt-1 inline-flex items-center gap-1">
+                        Watch Short
+                        <ArrowUpRight className="h-3 w-3" />
+                      </span>
+                    </div>
+                  </Link>
+                </StaggerItem>
+              )
+            })}
+          </StaggerContainer>
+        </section>
       )}
 
       {/* Curated Workspace & Everyday Gear Section */}

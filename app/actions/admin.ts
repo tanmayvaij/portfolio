@@ -4,6 +4,7 @@ import { cookies } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { getAboutConfig } from "@/lib/db/about"
+import { extractYouTubeVideoId, getYouTubeThumbnailUrl } from "@/lib/db/shorts"
 
 const ADMIN_COOKIE_NAME = "admin_auth_token"
 const DEFAULT_PASSWORD = "admin"
@@ -68,7 +69,7 @@ export async function getAdminData() {
     return null
   }
 
-  const [posts, projects, messages, affiliates, about, experiences, skillCategories] = await Promise.all([
+  const [posts, projects, messages, affiliates, about, experiences, skillCategories, shorts] = await Promise.all([
     prisma.post.findMany({
       orderBy: { publishedAt: "desc" },
     }),
@@ -92,6 +93,11 @@ export async function getAdminData() {
     prisma?.skillCategory
       ? prisma.skillCategory.findMany({
           orderBy: { order: "asc" },
+        })
+      : Promise.resolve([]),
+    prisma?.short
+      ? prisma.short.findMany({
+          orderBy: { createdAt: "desc" },
         })
       : Promise.resolve([]),
   ])
@@ -265,6 +271,7 @@ export async function getAdminData() {
     projects: enrichedProjects,
     messages,
     affiliates,
+    shorts: shorts || [],
     about,
     experiences: activeExperiences,
     skillCategories: activeSkillCategories,
@@ -630,6 +637,105 @@ export async function deleteAffiliateAction(id: string): Promise<{ success: bool
     return { success: true, message: "Affiliate tool deleted." }
   } catch {
     return { success: false, message: "Failed to delete affiliate tool." }
+  }
+}
+
+// YouTube Shorts Actions
+export async function saveShortAction(shortData: {
+  id?: string
+  slug: string
+  title: string
+  youtubeUrl: string
+  videoId?: string
+  thumbnailUrl?: string | null
+  category: string
+  description?: string | null
+  featured: boolean
+  published: boolean
+  views?: string | null
+  duration?: string | null
+  relatedToolUrl?: string | null
+  relatedPostSlug?: string | null
+  notes?: string | null
+}): Promise<{ success: boolean; message: string }> {
+  const isAuth = await verifyAdminAuth()
+  if (!isAuth) return { success: false, message: "Unauthorized" }
+
+  let videoId = shortData.videoId
+  if (!videoId) {
+    const extracted = extractYouTubeVideoId(shortData.youtubeUrl)
+    if (!extracted) {
+      return { success: false, message: "Invalid YouTube URL. Please provide a valid YouTube Shorts link." }
+    }
+    videoId = extracted
+  }
+
+  const thumbnailUrl = shortData.thumbnailUrl || getYouTubeThumbnailUrl(videoId)
+
+  try {
+    if (shortData.id) {
+      await prisma.short.update({
+        where: { id: shortData.id },
+        data: {
+          slug: shortData.slug,
+          title: shortData.title,
+          youtubeUrl: shortData.youtubeUrl,
+          videoId,
+          thumbnailUrl,
+          category: shortData.category || "Finance",
+          description: shortData.description || null,
+          featured: shortData.featured,
+          published: shortData.published !== false,
+          views: shortData.views || null,
+          duration: shortData.duration || null,
+          relatedToolUrl: shortData.relatedToolUrl || null,
+          relatedPostSlug: shortData.relatedPostSlug || null,
+          notes: shortData.notes !== undefined ? (shortData.notes || null) : undefined,
+        },
+      })
+    } else {
+      await prisma.short.create({
+        data: {
+          slug: shortData.slug,
+          title: shortData.title,
+          youtubeUrl: shortData.youtubeUrl,
+          videoId,
+          thumbnailUrl,
+          category: shortData.category || "Finance",
+          description: shortData.description || null,
+          featured: shortData.featured,
+          published: shortData.published !== false,
+          views: shortData.views || null,
+          duration: shortData.duration || null,
+          relatedToolUrl: shortData.relatedToolUrl || null,
+          relatedPostSlug: shortData.relatedPostSlug || null,
+          notes: shortData.notes || null,
+        },
+      })
+    }
+
+    revalidatePath("/shorts")
+    revalidatePath("/")
+    revalidatePath("/admin")
+    return { success: true, message: "Short saved successfully." }
+  } catch (error) {
+    console.error("Save short error:", error)
+    return { success: false, message: "Failed to save short. Check slug uniqueness." }
+  }
+}
+
+export async function deleteShortAction(id: string): Promise<{ success: boolean; message: string }> {
+  const isAuth = await verifyAdminAuth()
+  if (!isAuth) return { success: false, message: "Unauthorized" }
+
+  try {
+    await prisma.short.deleteMany({ where: { id } })
+    revalidatePath("/shorts")
+    revalidatePath("/")
+    revalidatePath("/admin")
+    return { success: true, message: "Short deleted." }
+  } catch {
+    return { success: false, message: "Failed to delete short." }
   }
 }
 

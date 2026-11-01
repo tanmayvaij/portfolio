@@ -145,5 +145,25 @@ model SkillCategory {
   updatedAt DateTime @updatedAt
 }
 
+model Short {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String
+  youtubeUrl      String   // e.g. https://www.youtube.com/shorts/XYZ or https://youtu.be/XYZ
+  videoId         String   // extracted 11-char YouTube ID
+  thumbnailUrl    String?  // thumbnail URL
+  category        String   @default("Finance") // "Finance" | "Investing" | "Lifestyle" | "Productivity" | "Tech"
+  description     String?  // quick description or key takeaways
+  featured        Boolean  @default(false)
+  published       Boolean  @default(true)
+  views           String?  // optional display text like "15K views"
+  duration        String?  // e.g. "0:58"
+  relatedToolUrl  String?  // optional link to /tools/[slug] or external
+  relatedPostSlug String?  // optional link to /blog/[slug]
+  notes           String?  // Admin-only private notes / script ideas
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
 
 

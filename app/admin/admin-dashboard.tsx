@@ -25,7 +25,10 @@ import {
   X,
   Lock,
   Image as ImageIcon,
+  Play,
 } from "lucide-react"
+import { YouTubeIcon } from "@/components/icons"
+import { extractYouTubeVideoId, getYouTubeThumbnailUrl } from "@/lib/db/shorts"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -46,6 +49,8 @@ import {
   deleteMessageAction,
   saveAffiliateAction,
   deleteAffiliateAction,
+  saveShortAction,
+  deleteShortAction,
   saveAboutAction,
   saveExperienceAction,
   deleteExperienceAction,
@@ -112,6 +117,26 @@ interface AffiliateRecord {
   imageUrl?: string | null
   merchant?: string
   featured: boolean
+}
+
+interface ShortRecord {
+  id: string
+  slug: string
+  title: string
+  youtubeUrl: string
+  videoId: string
+  thumbnailUrl?: string | null
+  category: string
+  description?: string | null
+  featured: boolean
+  published: boolean
+  views?: string | null
+  duration?: string | null
+  relatedToolUrl?: string | null
+  relatedPostSlug?: string | null
+  notes?: string | null
+  createdAt: Date | string
+  updatedAt: Date | string
 }
 
 interface AboutRecord {
@@ -270,6 +295,7 @@ interface AdminDashboardProps {
   initialProjects: ProjectRecord[]
   initialMessages: MessageRecord[]
   initialAffiliates?: AffiliateRecord[]
+  initialShorts?: ShortRecord[]
   initialAbout?: AboutRecord | null
   initialExperiences?: ExperienceRecord[]
   initialSkillCategories?: SkillCategoryRecord[]
@@ -280,6 +306,7 @@ export function AdminDashboard({
   initialProjects,
   initialMessages,
   initialAffiliates = [],
+  initialShorts = [],
   initialAbout,
   initialExperiences = [],
   initialSkillCategories = [],
@@ -745,6 +772,26 @@ export function AdminDashboard({
     featured: true,
   })
 
+  // Shorts State
+  const [shorts, setShorts] = React.useState<ShortRecord[]>(initialShorts)
+  const [editingShort, setEditingShort] = React.useState<ShortRecord | null>(null)
+  const [isCreatingShort, setIsCreatingShort] = React.useState(false)
+  const [shortForm, setShortForm] = React.useState({
+    id: "",
+    title: "",
+    slug: "",
+    youtubeUrl: "",
+    category: "Finance",
+    description: "",
+    featured: false,
+    published: true,
+    views: "",
+    duration: "0:58",
+    relatedToolUrl: "",
+    relatedPostSlug: "",
+    notes: "",
+  })
+
   // Messages State
   const [messages, setMessages] = React.useState<MessageRecord[]>(initialMessages)
   const [loading, setLoading] = React.useState(false)
@@ -1117,6 +1164,88 @@ export function AdminDashboard({
     }
   }
 
+  const handleStartCreateShort = () => {
+    setIsCreatingShort(true)
+    setEditingShort(null)
+    setShortForm({
+      id: "",
+      title: "",
+      slug: "",
+      youtubeUrl: "",
+      category: "Finance",
+      description: "",
+      featured: false,
+      published: true,
+      views: "",
+      duration: "0:58",
+      relatedToolUrl: "",
+      relatedPostSlug: "",
+      notes: "",
+    })
+  }
+
+  const handleEditShort = (short: ShortRecord) => {
+    setEditingShort(short)
+    setIsCreatingShort(false)
+    setShortForm({
+      id: short.id,
+      title: short.title,
+      slug: short.slug,
+      youtubeUrl: short.youtubeUrl,
+      category: short.category,
+      description: short.description || "",
+      featured: short.featured,
+      published: short.published,
+      views: short.views || "",
+      duration: short.duration || "0:58",
+      relatedToolUrl: short.relatedToolUrl || "",
+      relatedPostSlug: short.relatedPostSlug || "",
+      notes: short.notes || "",
+    })
+  }
+
+  const handleSaveShort = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+
+    const res = await saveShortAction({
+      id: shortForm.id || undefined,
+      title: shortForm.title,
+      slug: shortForm.slug || shortForm.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+      youtubeUrl: shortForm.youtubeUrl,
+      category: shortForm.category,
+      description: shortForm.description || undefined,
+      featured: shortForm.featured,
+      published: shortForm.published,
+      views: shortForm.views || undefined,
+      duration: shortForm.duration || undefined,
+      relatedToolUrl: shortForm.relatedToolUrl || undefined,
+      relatedPostSlug: shortForm.relatedPostSlug || undefined,
+      notes: shortForm.notes || undefined,
+    })
+
+    setLoading(false)
+    if (res.success) {
+      showStatus(res.message, "success")
+      setIsCreatingShort(false)
+      setEditingShort(null)
+      router.refresh()
+    } else {
+      showStatus(res.message, "error")
+    }
+  }
+
+  const handleDeleteShort = async (id: string) => {
+    if (!confirm("Delete this YouTube Short?")) return
+    const res = await deleteShortAction(id)
+    if (res.success) {
+      setShorts(shorts.filter((s) => s.id !== id))
+      showStatus("Short deleted.")
+    } else {
+      showStatus(res.message, "error")
+    }
+  }
+
   const filteredPosts = posts.filter(
     (p) =>
       p.title.toLowerCase().includes(postSearch.toLowerCase()) ||
@@ -1260,6 +1389,10 @@ export function AdminDashboard({
           <TabsTrigger value="projects" className="text-xs gap-1.5">
             <Briefcase className="h-3.5 w-3.5" />
             Projects ({projects.length})
+          </TabsTrigger>
+          <TabsTrigger value="shorts" className="text-xs gap-1.5 text-red-500 data-[state=active]:text-red-600">
+            <YouTubeIcon className="h-3.5 w-3.5 text-red-500" />
+            Shorts ({shorts.length})
           </TabsTrigger>
           <TabsTrigger value="affiliates" className="text-xs gap-1.5">
             <Wrench className="h-3.5 w-3.5" />
@@ -2301,6 +2434,378 @@ export function AdminDashboard({
                       </CardFooter>
                     </Card>
                   ))}
+                </div>
+              )}
+            </div>
+          )}
+        </TabsContent>
+
+        {/* SHORTS TAB */}
+        <TabsContent value="shorts" className="space-y-6">
+          {(isCreatingShort || editingShort) ? (
+            <Card className="bg-card border-red-500/30">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <YouTubeIcon className="h-5 w-5 text-red-500" />
+                    <CardTitle className="text-lg">
+                      {isCreatingShort ? "Upload / Add YouTube Short" : `Edit Short: ${shortForm.title}`}
+                    </CardTitle>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setIsCreatingShort(false)
+                      setEditingShort(null)
+                    }}
+                    className="text-xs h-7"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+                <CardDescription className="text-xs">
+                  Add YouTube Shorts to your dedicated <Link href="/shorts" target="_blank" className="underline text-primary">/shorts</Link> page. The video ID and official thumbnail are automatically extracted from the YouTube link.
+                </CardDescription>
+              </CardHeader>
+
+              <form onSubmit={handleSaveShort}>
+                <CardContent className="space-y-4">
+                  {/* YouTube URL input & live preview */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-foreground">
+                      YouTube Shorts URL <span className="text-destructive">*</span>
+                    </label>
+                    <Input
+                      required
+                      type="url"
+                      placeholder="e.g. https://www.youtube.com/shorts/5vKz0... or https://youtu.be/..."
+                      value={shortForm.youtubeUrl}
+                      onChange={(e) => {
+                        const url = e.target.value
+                        setShortForm({ ...shortForm, youtubeUrl: url })
+                      }}
+                    />
+                    <p className="text-[11px] text-muted-foreground">
+                      Paste any YouTube Shorts or standard YouTube video link.
+                    </p>
+                  </div>
+
+                  {/* Live preview banner if video ID is detected */}
+                  {(() => {
+                    const extractedId = extractYouTubeVideoId(shortForm.youtubeUrl)
+                    if (!extractedId) return null
+                    const previewThumb = getYouTubeThumbnailUrl(extractedId)
+                    return (
+                      <div className="flex items-center gap-3.5 p-3 rounded-xl border border-red-500/30 bg-red-500/5">
+                        <div className="relative aspect-[9/16] w-14 shrink-0 rounded-lg overflow-hidden bg-black border border-white/10">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={previewThumb}
+                            alt="YouTube Thumbnail Preview"
+                            className="h-full w-full object-cover"
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                            <Play className="h-4 w-4 fill-white text-white" />
+                          </div>
+                        </div>
+                        <div className="space-y-0.5 text-xs">
+                          <span className="font-semibold text-foreground block">
+                            YouTube Video ID Detected: <code className="bg-muted px-1.5 py-0.5 rounded font-mono text-red-500">{extractedId}</code>
+                          </span>
+                          <span className="text-[11px] text-muted-foreground block">
+                            Official YouTube HD thumbnail will be used automatically.
+                          </span>
+                        </div>
+                      </div>
+                    )
+                  })()}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-foreground">
+                        Short Title <span className="text-destructive">*</span>
+                      </label>
+                      <Input
+                        required
+                        placeholder="e.g. The 50/30/20 Rule for Wealth Building"
+                        value={shortForm.title}
+                        onChange={(e) => {
+                          const title = e.target.value
+                          setShortForm({
+                            ...shortForm,
+                            title,
+                            slug: shortForm.id ? shortForm.slug : title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+                          })
+                        }}
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-foreground">URL Slug</label>
+                      <Input
+                        placeholder="e.g. 50-30-20-rule-wealth-building"
+                        value={shortForm.slug}
+                        onChange={(e) => setShortForm({ ...shortForm, slug: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-foreground">Category</label>
+                      <select
+                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs"
+                        value={shortForm.category}
+                        onChange={(e) => setShortForm({ ...shortForm, category: e.target.value })}
+                      >
+                        <option value="Finance">Personal Finance</option>
+                        <option value="Investing">Investing & Stocks</option>
+                        <option value="Lifestyle">Lifestyle & Habits</option>
+                        <option value="Productivity">Productivity</option>
+                        <option value="Tech">Tech & Systems</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-foreground">Views / Metric (Display)</label>
+                      <Input
+                        placeholder="e.g. 15K views or Trending"
+                        value={shortForm.views}
+                        onChange={(e) => setShortForm({ ...shortForm, views: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-foreground">Duration</label>
+                      <Input
+                        placeholder="e.g. 0:58"
+                        value={shortForm.duration}
+                        onChange={(e) => setShortForm({ ...shortForm, duration: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-foreground">Description / Key Takeaway</label>
+                    <Textarea
+                      rows={2}
+                      placeholder="Brief 1-2 sentence summary of what viewers learn in this short..."
+                      value={shortForm.description}
+                      onChange={(e) => setShortForm({ ...shortForm, description: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-foreground">Related Gear / Tool URL (Optional)</label>
+                      <Input
+                        placeholder="e.g. /tools/lg-ultragear or affiliate link"
+                        value={shortForm.relatedToolUrl}
+                        onChange={(e) => setShortForm({ ...shortForm, relatedToolUrl: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-foreground">Related Blog Post Slug (Optional)</label>
+                      <Input
+                        placeholder="e.g. app-store-delisting-architectural-resilience"
+                        value={shortForm.relatedPostSlug}
+                        onChange={(e) => setShortForm({ ...shortForm, relatedPostSlug: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-6 pt-2">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="short-featured"
+                        checked={shortForm.featured}
+                        onChange={(e) => setShortForm({ ...shortForm, featured: e.target.checked })}
+                        className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
+                      />
+                      <label htmlFor="short-featured" className="text-xs font-medium cursor-pointer">
+                        Feature on Homepage (Top Daily Shorts row)
+                      </label>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="short-published"
+                        checked={shortForm.published}
+                        onChange={(e) => setShortForm({ ...shortForm, published: e.target.checked })}
+                        className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
+                      />
+                      <label htmlFor="short-published" className="text-xs font-medium cursor-pointer">
+                        Published (Visible on site)
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Private Admin Notes */}
+                  <div className="space-y-2 p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/5 mt-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Lock className="h-3.5 w-3.5 text-amber-500" />
+                        <label className="text-xs font-semibold text-foreground">Private Admin Notes</label>
+                        <Badge variant="outline" className="text-[10px] py-0 border-amber-500/40 text-amber-600 dark:text-amber-400 font-medium">
+                          Admin Only • Never Public
+                        </Badge>
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">
+                      Internal video notes, retention analytics, script concepts, or affiliate sponsorships. Never displayed publicly.
+                    </p>
+                    <Textarea
+                      rows={2}
+                      placeholder="e.g. Script performed well on Instagram (20k views). Follow-up short on Emergency Fund scheduled next week..."
+                      value={shortForm.notes}
+                      onChange={(e) => setShortForm({ ...shortForm, notes: e.target.value })}
+                      className="bg-card text-xs font-mono leading-relaxed"
+                    />
+                  </div>
+                </CardContent>
+
+                <CardFooter className="flex justify-end gap-2 border-t border-border/40 pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setIsCreatingShort(false)
+                      setEditingShort(null)
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" size="sm" disabled={loading} className="gap-1.5">
+                    <Save className="h-4 w-4" />
+                    {loading ? "Saving Short..." : isCreatingShort ? "Publish Short" : "Update Short"}
+                  </Button>
+                </CardFooter>
+              </form>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <YouTubeIcon className="h-4 w-4 text-red-500" />
+                    YouTube Shorts ({shorts.length})
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Manage daily short-form videos featured on the homepage and the <Link href="/shorts" target="_blank" className="underline text-primary">/shorts</Link> page.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button asChild variant="outline" size="sm" className="text-xs gap-1">
+                    <Link href="/shorts" target="_blank">
+                      View Live Page
+                      <ExternalLink className="h-3 w-3" />
+                    </Link>
+                  </Button>
+                  <Button onClick={handleStartCreateShort} size="sm" className="gap-1.5 text-xs bg-red-600 hover:bg-red-700 text-white">
+                    <Plus className="h-3.5 w-3.5" />
+                    Add New Short
+                  </Button>
+                </div>
+              </div>
+
+              {shorts.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-border p-8 text-center text-xs text-muted-foreground space-y-2">
+                  <YouTubeIcon className="h-8 w-8 text-red-500 mx-auto" />
+                  <p className="font-semibold text-foreground">No YouTube Shorts added yet</p>
+                  <p>Click &quot;Add New Short&quot; to paste your first finance or lifestyle short link.</p>
+                  <Button onClick={handleStartCreateShort} size="sm" variant="outline" className="text-xs mt-2">
+                    Add First Short
+                  </Button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {shorts.map((short) => {
+                    const thumb =
+                      short.thumbnailUrl ||
+                      `https://img.youtube.com/vi/${short.videoId}/hqdefault.jpg`
+
+                    return (
+                      <Card key={short.id} className="bg-card flex flex-col justify-between overflow-hidden group hover:border-red-500/40 transition-colors">
+                        <div className="relative aspect-[16/9] w-full overflow-hidden bg-black">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={thumb}
+                            alt={short.title}
+                            className="h-full w-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40" />
+                          <div className="absolute top-2 inset-x-2 flex items-center justify-between">
+                            <Badge variant="secondary" className="text-[10px] bg-black/70 backdrop-blur-md text-white border-white/10">
+                              {short.category}
+                            </Badge>
+                            {short.featured && (
+                              <Badge className="text-[10px] bg-red-600 text-white border-none">
+                                Featured
+                              </Badge>
+                            )}
+                          </div>
+                          {short.duration && (
+                            <div className="absolute bottom-2 right-2 text-[10px] font-mono text-zinc-300 bg-black/80 px-1.5 py-0.5 rounded">
+                              {short.duration}
+                            </div>
+                          )}
+                        </div>
+
+                        <CardContent className="p-4 flex-1 space-y-2">
+                          <h4 className="font-semibold text-xs sm:text-sm text-foreground line-clamp-2">
+                            {short.title}
+                          </h4>
+                          {short.description && (
+                            <p className="text-xs text-muted-foreground line-clamp-2">
+                              {short.description}
+                            </p>
+                          )}
+                          {short.notes && (
+                            <div className="flex items-center gap-1.5 text-[11px] text-amber-500 bg-amber-500/10 px-2 py-1 rounded-md">
+                              <Lock className="h-3 w-3 shrink-0" />
+                              <span className="truncate">Note: {short.notes}</span>
+                            </div>
+                          )}
+                        </CardContent>
+
+                        <CardFooter className="p-4 pt-0 border-t border-border/40 flex items-center justify-between text-xs">
+                          <a
+                            href={short.youtubeUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-red-500 hover:underline inline-flex items-center gap-1"
+                          >
+                            Watch
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
+                              onClick={() => handleEditShort(short)}
+                              title="Edit Short"
+                            >
+                              <Edit3 className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
+                              onClick={() => handleDeleteShort(short.id)}
+                              className="hover:text-destructive hover:bg-destructive/10"
+                              title="Delete Short"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        </CardFooter>
+                      </Card>
+                    )
+                  })}
                 </div>
               )}
             </div>

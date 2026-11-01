@@ -110,6 +110,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/shorts" className="text-muted-foreground hover:text-foreground transition-colors">
+                  YouTube Shorts
+                </Link>
+              </li>
+              <li>
                 <Link href="/tools" className="text-muted-foreground hover:text-foreground transition-colors">
                   Workspace Gear & Picks
                 </Link>
