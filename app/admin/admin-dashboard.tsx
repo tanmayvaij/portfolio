@@ -2156,6 +2156,8 @@ export function AdminDashboard({
                       >
                         <option value="Desk Setup & Ergonomics">Desk Setup & Ergonomics</option>
                         <option value="Audio & Tech Gadgets">Audio & Tech Gadgets</option>
+                        <option value="Fashion">Fashion</option>
+                        <option value="Fashion & Lifestyle">Fashion & Lifestyle</option>
                         <option value="Books & Reading">Books & Reading</option>
                         <option value="Cloud & Developer Tools">Cloud & Developer Tools</option>
                         <option value="Other">Other</option>
@@ -2170,10 +2172,15 @@ export function AdminDashboard({
                         className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-xs shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                       >
                         <option value="Amazon">Amazon</option>
+                        <option value="Myntra">Myntra</option>
+                        <option value="Zara">Zara</option>
+                        <option value="H&M">H&M</option>
+                        <option value="Uniqlo">Uniqlo</option>
                         <option value="DigitalOcean">DigitalOcean</option>
                         <option value="Neon">Neon</option>
                         <option value="Cursor">Cursor</option>
                         <option value="Official Store">Official Store</option>
+                        <option value="Partner">Partner</option>
                       </select>
                     </div>
 
@@ -2562,6 +2569,7 @@ export function AdminDashboard({
                         <option value="Finance">Personal Finance</option>
                         <option value="Investing">Investing & Stocks</option>
                         <option value="Lifestyle">Lifestyle & Habits</option>
+                        <option value="Fashion">Fashion & Style</option>
                         <option value="Productivity">Productivity</option>
                         <option value="Tech">Tech & Systems</option>
                       </select>
